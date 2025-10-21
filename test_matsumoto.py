@@ -532,12 +532,8 @@ def run_step(step="collect", **kwargs):
     else:
         raise ValueError("step must be one of: collect, build, play")
 
-# ============================
-# 実行の例（Colabで使う場合）
-# 1) まずは collect を実行（カテゴリから人物名を集める）
-#    run_step("collect", cmlimit=50, depth=1)
-# 2) 次に build を実行（人物ごとの属性を取得して保存）
-#    run_step("build", limit=200)  # limitを指定すると最初の200件だけ処理
-# 3) 最後に play を実行（アキネーター対話）
-#    run_step("play", max_questions=25)
-# ============================
+if __name__ == "__main__":
+    # ここでステップを選択
+    # 例: collect -> build -> play
+    run_step("collect", cmlimit=20, depth=1, sleep=0.01)
+    run_step("build", limit=200, sleep=0.0001)
