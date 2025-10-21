@@ -41,8 +41,6 @@ HEADERS = {"User-Agent": USER_AGENT}
 
 
 
-
-
 # -----------------------
 # ユーティリティ: Wikipediaカテゴリからタイトル取得（cmcontinue対応）
 # -----------------------
