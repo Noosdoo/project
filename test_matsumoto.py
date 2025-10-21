@@ -1,4 +1,3 @@
-ああああ
 import requests
 import time
 import json
