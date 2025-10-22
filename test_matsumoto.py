@@ -531,7 +531,4 @@ def run_step(step="collect", **kwargs):
         raise ValueError("step must be one of: collect, build, play")
 
 if __name__ == "__main__":
-    # ここでステップを選択
-    # 例: collect -> build -> play
     run_step("collect", cmlimit=20, depth=1, sleep=0.01)
-    # run_step("build", limit=200, sleep=0.0001)
