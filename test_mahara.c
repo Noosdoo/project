@@ -5,4 +5,6 @@ int main() {
     return 0;
 }
 
-gsgsgsgsgsgsgs
+色々やりました
+ほんとなんです
+変えたんすマジで
