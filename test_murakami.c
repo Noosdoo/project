@@ -8,5 +8,4 @@ int  main() {
     scanf( "%s" , buffer );
     printf( "Hello, %s!\n" , buffer );
   }
-  return 0; 
-  
+ 
