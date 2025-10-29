@@ -452,7 +452,9 @@ def load_dataset(dataset_path=DATASET_FILE):
 def generate_question_map(selected_categories=None):
     """
     selected_categories: list of 選択されたカテゴリ名（Noneなら全カテゴリ）
+    戻り値: list of (key, question_text, test_function)
     """
+
     qm = []
 
     # カテゴリごとの関連キーワードマップ
@@ -475,21 +477,34 @@ def generate_question_map(selected_categories=None):
     if not selected_categories:
         selected_categories = CATEGORY_KEYWORD_MAP.keys()
 
-    # 選択カテゴリに応じてキーワードを抽出
+    # 使用するキーワードをカテゴリから集める
     used_keywords = set()
     for cat in selected_categories:
         kws = CATEGORY_KEYWORD_MAP.get(cat, [])
         used_keywords.update(kws)
 
-    # 質問テンプレートで自動生成
+    # 質問テンプレート（複数パターン）
+    QUESTION_TEMPLATES = [
+        "{} に関連しますか？",
+        "{} を経験したことがありますか？",
+        "{} が特徴的ですか？",
+        "{} に関係する活動をしていますか？",
+        "{} というワードが説明文にありますか？",
+        "この人物は {} と関係がありますか？"
+    ]
+
+    # キーワードごとに質問を生成
     for kw in used_keywords:
-        text = f"{kw} に関連しますか？"
+        template = random.choice(QUESTION_TEMPLATES)
+        text = template.format(kw)
+
         # features や summary にキーワードが含まれるかで判定
         def make_test(k):
             return lambda rec: rec.get("summary") and k in rec["summary"]
+
         qm.append((kw, text, make_test(kw)))
 
-    # 共通質問（性別・生存）も追加
+    # 共通質問（性別・生存）
     qm.append(("alive_text", "現在もご存命ですか？", lambda rec: rec.get("features", {}).get("alive_text") == 1))
     qm.append(("gender_male", "男性ですか？", lambda rec: rec.get("features", {}).get("gender") == "male"))
     qm.append(("gender_female", "女性ですか？", lambda rec: rec.get("features", {}).get("gender") == "female"))
