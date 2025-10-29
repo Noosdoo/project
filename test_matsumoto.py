@@ -527,10 +527,11 @@ def generate_question_map(selected_categories=None):
 #-----------------------
 # アキネーター対話部分
 #-----------------------
-def akinator_play(dataset, max_questions=30):
+def akinator_play(dataset, max_questions=30, check_every=10):
     """
     dataset: list of 人物レコード（辞書）
     max_questions: 最大質問回数
+    check_every: 何問質問したら候補確認を出すか
     """
     candidates = dataset.copy()
     qm = generate_question_map()
@@ -540,7 +541,7 @@ def akinator_play(dataset, max_questions=30):
     print(f"候補人数: {len(candidates)} 件")
 
     asked = 0
-    i_qm = 0  # 現在の質問インデックス
+    i_qm = 0
 
     while asked < max_questions and len(candidates) > 1 and i_qm < len(qm):
         key, q_text, test = qm[i_qm]
@@ -560,45 +561,29 @@ def akinator_play(dataset, max_questions=30):
         asked += 1
         i_qm += 1
 
-        print(f"現在の候補数: {len(candidates)}")
-        print("（例）上位候補:", [c["name"] for c in candidates[:5]])
-
-        # 候補が1人になったら早期終了
-        if len(candidates) <= 1:
-            break
-
-        # 上位3件に絞った確認（なしの場合は質問続行）
-        while True:
-            print("\n候補上位（3件）:")
+        # 質問を check_every 回したら候補確認
+        if asked % check_every == 0 or len(candidates) <= 3:
+            print(f"\nここまでの質問で絞り込んだ候補（上位3件）:")
             for j, c in enumerate(candidates[:3], 1):
                 print(f"{j}. {c['name']}")
             choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
-
             if choice.isdigit():
                 idx = int(choice)-1
                 if 0 <= idx < len(candidates[:3]):
                     print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
                     return candidates[idx]
-                else:
-                    print("番号が範囲外です。質問を続けます。")
-                    break  # 番号範囲外でも質問続行
             elif choice.lower() in ["なし", "n", "no"]:
                 print("わかりました。質問を続けます。")
-                break  # なしの場合は質問ループに戻る
-            else:
-                print("入力が正しくありません。再度確認してください。")
-                continue
 
     # 質問終了後の最終推測
     if not candidates:
         print("候補が見つかりませんでした。")
         return None
 
-    print("\n質問終了時の候補上位（3件）:")
+    print("\n最終候補（上位3件）:")
     for i, c in enumerate(candidates[:3], 1):
         print(f"{i}. {c['name']}")
     choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
-
     if choice.isdigit():
         idx = int(choice)-1
         if 0 <= idx < len(candidates[:3]):
@@ -607,6 +592,7 @@ def akinator_play(dataset, max_questions=30):
 
     print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
     return candidates[0]
+
 
 
 # -----------------------
