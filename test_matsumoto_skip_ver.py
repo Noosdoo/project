@@ -570,13 +570,14 @@ def generate_question_map(selected_categories=None):
 # アキネーター対話部分
 #-----------------------
 def akinator_play(dataset, max_questions=30, check_every=10):
-    """
-    dataset: list of 人物レコード（辞書）
-    max_questions: 最大質問回数
-    check_every: 何問質問したら候補確認を出すか
-    """
     candidates = dataset.copy()
-    qm = generate_question_map()
+    qm_dict = generate_question_map()
+    
+    # occupation / activity / feature / common を全部まとめる
+    qm = []
+    for qlist in qm_dict.values():
+        qm.extend(qlist)
+    
     random.shuffle(qm)
 
     print("=== アキネーター開始 ===")
@@ -586,7 +587,8 @@ def akinator_play(dataset, max_questions=30, check_every=10):
     i_qm = 0
 
     while asked < max_questions and len(candidates) > 1 and i_qm < len(qm):
-        key, q_text, test = qm[i_qm]
+        question = qm[i_qm]
+        key, q_text, test = question.get("key"), question.get("text"), question.get("check")
 
         ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
         if ans not in ["はい", "いいえ"]:
@@ -594,7 +596,6 @@ def akinator_play(dataset, max_questions=30, check_every=10):
             i_qm += 1
             continue
 
-        # 回答に応じて候補を絞り込む
         if ans == "はい":
             candidates = [c for c in candidates if test(c)]
         else:
@@ -603,7 +604,6 @@ def akinator_play(dataset, max_questions=30, check_every=10):
         asked += 1
         i_qm += 1
 
-        # 質問を check_every 回したら候補確認
         if asked % check_every == 0 or len(candidates) <= 3:
             print(f"\nここまでの質問で絞り込んだ候補（上位3件）:")
             for j, c in enumerate(candidates[:3], 1):
@@ -617,7 +617,6 @@ def akinator_play(dataset, max_questions=30, check_every=10):
             elif choice.lower() in ["なし", "n", "no"]:
                 print("わかりました。質問を続けます。")
 
-    # 質問終了後の最終推測
     if not candidates:
         print("候補が見つかりませんでした。")
         return None
@@ -634,6 +633,7 @@ def akinator_play(dataset, max_questions=30, check_every=10):
 
     print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
     return candidates[0]
+
 
 
 
