@@ -129,6 +129,25 @@ def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=0.
 
 
 
+def choose_categories():
+    print("=== カテゴリを選択してください ===")
+    for i, cat in enumerate(CATEGORIES, 1):
+        print(f"{i}. {cat}")
+    print("複数選ぶ場合はカンマ区切りで番号を入力してください (例: 1,3,5)")
+
+    choice = input("> ").strip()
+    selected = []
+    for part in choice.split(","):
+        try:
+            idx = int(part)-1
+            if 0 <= idx < len(CATEGORIES):
+                selected.append(CATEGORIES[idx])
+        except:
+            pass
+    if not selected:
+        print("カテゴリが選択されなかったため、全カテゴリを対象にします。")
+        return CATEGORIES
+    return selected
 
 
 
@@ -607,13 +626,11 @@ def run_step(step="collect", **kwargs):
         raise ValueError("step must be one of: collect, build, play")
 
 if __name__ == "__main__":
-    # 既に people_list.json が存在する場合は skip
+    selected_categories = choose_categories()
     if not os.path.exists(PEOPLE_LIST_FILE):
-        run_step("collect", cmlimit=20, depth=1, sleep=0.0001)
+        run_step("collect", categories=selected_categories, cmlimit=20, depth=1, sleep=0.0001)
     else:
         print("人物リストが既に存在するため、再取得をスキップします。")
-    # 既に people_dataset.json が存在する場合は skip
 
-    # 例: collect -> build -> play
     run_step("build", limit=200, sleep=0.0001)
     run_step("play", max_questions=25)
