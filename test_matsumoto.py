@@ -469,6 +469,7 @@ def generate_question_map():
     return qm
 
 def akinator_play(dataset, max_questions=30):
+    # candidates is list of records (dicts)
     candidates = dataset.copy()
     qm = generate_question_map()
     random.shuffle(qm)
@@ -476,58 +477,47 @@ def akinator_play(dataset, max_questions=30):
     print("=== アキネーター開始 ===")
     print(f"候補人数: {len(candidates)} 件")
     asked = 0
-    i = 0
-    while asked < max_questions and len(candidates) > 1 and i < len(qm):
-        key, q_text, test = qm[i]
-        i += 1
-
+    for key, q_text, test in qm:
+        if asked >= max_questions:
+            break
+        # skip if too narrow
+        if len(candidates) <= 3:
+            break
         ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
         if ans not in ["はい", "いいえ"]:
             print("スキップ")
             continue
-
+        # filter candidates
         if ans == "はい":
             candidates = [c for c in candidates if test(c)]
         else:
             candidates = [c for c in candidates if not test(c)]
-
         asked += 1
         print(f"現在の候補数: {len(candidates)}")
+        # show top 5 names as examples
         print("（例）上位候補:", [c["name"] for c in candidates[:5]])
+        # quick stop if 1 left
+        if len(candidates) <= 1:
+            break
 
-    # 最終候補表示
+    # final guess
     if not candidates:
         print("候補が見つかりませんでした。")
         return None
-
-    while True:
-        print("\n候補上位（3件）:")
-        for i, c in enumerate(candidates[:3], 1):
-            print(f"{i}. {c['name']}")
-        choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または n) > ").strip()
-        if choice.isdigit():
-            idx = int(choice)-1
-            if 0 <= idx < len(candidates[:3]):
-                print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
-                return candidates[idx]
-        elif choice.lower() == 'n':
-            # 上位3件にいなければさらに質問
-            remaining_qs = qm[i:]  # まだ使っていない質問
-            if not remaining_qs:
-                print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
-                return candidates[0]
-            # 続けて質問する
-            key, q_text, test = remaining_qs[0]
-            i += 1
-            ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
-            if ans == "はい":
-                candidates = [c for c in candidates if test(c)]
-            elif ans == "いいえ":
-                candidates = [c for c in candidates if not test(c)]
-            print(f"現在の候補数: {len(candidates)}")
-        else:
-            print("無効な入力です。n または番号を入力してください。")
-
+    # choose best: if features match many yes answers, prefer those with more matching features
+    # simple heuristic: count matched tests
+    # We'll ask user to confirm top 3
+    print("\n候補上位（3件）:")
+    for i, c in enumerate(candidates[:3], 1):
+        print(f"{i}. {c['name']}")
+    choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または n) > ").strip()
+    if choice.isdigit():
+        idx = int(choice)-1
+        if 0 <= idx < len(candidates[:3]):
+            print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
+            return candidates[idx]
+    print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
+    return candidates[0]
 
 # -----------------------
 # 改良版: 並列処理でデータセット構築
@@ -656,7 +646,10 @@ def run_step(step="collect", **kwargs):
 if __name__ == "__main__":
     selected_categories = choose_categories()
     # データ収集
-    run_step("collect", cmlimit=20, depth=1, sleep=0.0001)
+    if not os.path.exists(PEOPLE_LIST_FILE):
+        run_step("collect", cmlimit=20, depth=1, sleep=0.0001)
+    else:
+        print("人物リストが既に存在するため、再取得をスキップします。")
     # データセットを構築
     run_step("build", limit=200, sleep=0.0001)
     # アキネーターをプレイ
