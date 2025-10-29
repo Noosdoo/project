@@ -538,6 +538,14 @@ def generate_question_map(selected_categories=None):
             "text": "女性ですか？",
             "check": lambda rec: rec.get("features", {}).get("gender") == "female"
         }
+    ]
+
+    # --- 質問順を制御（職業→活動→特徴→共通） ---
+    for k in qm:
+        random.shuffle(qm[k])
+
+    return qm
+
 
 
 
