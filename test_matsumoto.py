@@ -181,41 +181,26 @@ def choose_categories():
 
 # 指定したWikipediaカテゴリから、そのカテゴリに含まれる人物のタイトルを取得する関数（ 、APIで一回に取得する件数、下位カテゴリをどの階層まで探索するか、API呼び出し間の待機時間）
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_path=PEOPLE_LIST_FILE):
-    # --- 開始メッセージ ---
+    if os.path.exists(save_path):
+        print(f"{save_path} が既に存在するため、collect はスキップします。")
+        with open(save_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
     print("=== カテゴリから人物リストを収集します ===")
-
-    # 全カテゴリの人物をまとめて保持するためのセット（重複を自動的に排除）
     all_people = set()
-
-    # --- 各カテゴリを順番に処理 ---
     for cat in categories:
-        print(f"取得中: {cat}")  # 現在処理中のカテゴリ名を表示
+        print(f"取得中: {cat}")
         people = get_category_members(cat, cmlimit=cmlimit, depth=depth, sleep=sleep)
-
-        # 取得した件数を表示
         print(f"  → {len(people)} 人取得")
-
-        # 取得結果を全体のセットに追加（重複は自動的に無視される）
         all_people.update(people)
-
-        # Wikipedia APIサーバーに負荷をかけないよう、少し待機
         time.sleep(sleep)
 
-    # set → list に変換し、アルファベット順（または五十音順）に並び替え
     people_list = sorted(list(all_people))
-
-    # --- JSONファイルとして保存 ---
-    # save_path : 保存先のファイルパス（例: "people_list.json"）
-    # ensure_ascii=False → 日本語をそのまま保存
-    # indent=2 → 見やすい整形出力
     with open(save_path, "w", encoding="utf-8") as f:
         json.dump(people_list, f, ensure_ascii=False, indent=2)
-
-    # 保存完了メッセージ
     print(f"保存しました: {save_path} （合計 {len(people_list)} 人）")
-    
-    # 最後に人物リストを返す（後の処理で使うため）
     return people_list
+
 
 
 
@@ -359,7 +344,7 @@ def extract_features_from_summary(summary):
 # - limit: デバッグ用に処理件数を制限可能
 # -----------------------
 def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, limit=None, sleep=0.8):
-    # load people list
+    # 人物リストがなければ終了
     if not os.path.exists(people_list_path):
         print("人物リストが存在しません。まず collect_people を実行してください。")
         return None
@@ -367,24 +352,26 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
     with open(people_list_path, "r", encoding="utf-8") as f:
         people = json.load(f)
 
-    # load existing dataset to resume
+    # 既存データセットがあれば読み込み、処理済み人物をスキップ
     existing = {}
     if os.path.exists(dataset_path):
         with open(dataset_path, "r", encoding="utf-8") as f:
             try:
                 existing = {p["name"]: p for p in json.load(f)}
+                print(f"{len(existing)} 件の既存データを読み込みました。未処理の人物のみ処理します。")
             except:
                 existing = {}
 
     wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
-
     new_records = []
     processed = 0
+
     for name in people:
         if limit and processed >= limit:
             break
         if name in existing:
-            continue  # already processed
+            print(f"処理済み: {name} ... スキップ")
+            continue  # 既存データがある場合はスキップ
 
         print(f"処理中: {name}  ...", end=" ")
         rec = {"name": name, "summary": None, "features": None, "wikidata": None}
@@ -397,30 +384,23 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
             summary = page.summary
             rec["summary"] = summary
             rec["features"] = extract_features_from_summary(summary)
-            # try wikidata
             wikibase_id = get_wikibase_item_from_wikipedia(name)
             if wikibase_id:
                 wd = fetch_wikidata_entity(wikibase_id)
                 rec["wikidata"] = wd
-                # if wikidata contains gender_qid or occupation_qids, we add simple derived flags
                 if wd:
-                    # gender qid mapping (Q6581097 male, Q6581072 female)
                     g = wd.get("gender_qid")
-                    if g:
-                        if g == "Q6581097":
-                            rec["features"]["gender"] = "male"
-                        elif g == "Q6581072":
-                            rec["features"]["gender"] = "female"
-                    # occupation qids: we can mark actor/singer/politician based on common Qs
+                    if g == "Q6581097":
+                        rec["features"]["gender"] = "male"
+                    elif g == "Q6581072":
+                        rec["features"]["gender"] = "female"
                     occ_qs = wd.get("occupation_qids", [])
-                    # known qids
-                    if "Q33999" in occ_qs:  # actor (wikidata actor Q33999)
+                    if "Q33999" in occ_qs:  # actor
                         rec["features"]["actor_wikidata"] = 1
-                    if "Q177220" in occ_qs or "Q639669" in occ_qs:  # singer / vocalist (Q177220 is singer)
+                    if "Q177220" in occ_qs:  # singer
                         rec["features"]["singer_wikidata"] = 1
-                    if "Q82955" in occ_qs or "Q82955" in occ_qs:
+                    if "Q82955" in occ_qs:  # politician
                         rec["features"]["politician_wikidata"] = 1
-                    # birth/death from wikidata
                     if wd.get("birth_time"):
                         rec["features"]["birth_time"] = wd.get("birth_time")
                     if wd.get("death_time"):
@@ -432,12 +412,14 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
         processed += 1
         time.sleep(sleep)
 
-    # merge existing + new
+    # 既存 + 新規データをマージして保存
     merged = list(existing.values()) + new_records
     with open(dataset_path, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)
+
     print(f"データセットを保存しました: {dataset_path}（合計 {len(merged)} 件）")
     return merged
+
 
 # -----------------------
 # Step3: アキネーター本体（datasetを読み込んで対話で絞り込み）
@@ -451,22 +433,19 @@ def load_dataset(dataset_path=DATASET_FILE):
         data = json.load(f)
     return data
 
-
-# -----------------------
-# 質問マップの自動生成
-# -----------------------
 #-----------------------
 # 質問マップの自動生成（カテゴリ選択に応じて）
 #-----------------------
 def generate_question_map(selected_categories=None):
     """
-    selected_categories: list of 選択されたカテゴリ名（Noneなら全カテゴリ）
-    戻り値: list of (key, question_text, test_function)
+    改良版:
+    - summaryキーワードだけでなくWikidataの職業・性別・生存情報も使う
+    - 質問の意味がより明確になる
     """
 
     qm = []
 
-    # カテゴリごとの関連キーワードマップ
+    # カテゴリごとのキーワードマップ
     CATEGORY_KEYWORD_MAP = {
         "日本の俳優": ["大河ドラマ", "特撮", "恋愛ドラマ", "映画", "アクション", "舞台", "受賞", "NHK", "海外映画"],
         "日本の女優": ["大河ドラマ", "恋愛ドラマ", "映画", "舞台", "受賞", "NHK", "海外映画"],
@@ -479,45 +458,49 @@ def generate_question_map(selected_categories=None):
         "日本のスポーツ選手": ["スポーツ"],
         "日本の作家": ["作家"],
         "日本のYouTuber": ["YouTube"],
-        # 必要に応じて追加
     }
 
-    # 選択カテゴリが指定されていない場合は全カテゴリ対象
     if not selected_categories:
         selected_categories = CATEGORY_KEYWORD_MAP.keys()
 
-    # 使用するキーワードをカテゴリから集める
+    # 使用キーワード
     used_keywords = set()
     for cat in selected_categories:
         kws = CATEGORY_KEYWORD_MAP.get(cat, [])
         used_keywords.update(kws)
 
-    # 質問テンプレート（複数パターン）
+    # summaryベースの質問
     QUESTION_TEMPLATES = [
         "{} に関連しますか？",
         "{} を経験したことがありますか？",
         "{} が特徴的ですか？",
-        "{} に関係する活動をしていますか？",
-        "{} というワードが説明文にありますか？",
-        "この人物は {} と関係がありますか？"
     ]
-    
-
-    # キーワードごとに質問を生成
     for kw in used_keywords:
         template = random.choice(QUESTION_TEMPLATES)
         text = template.format(kw)
+        qm.append((f"kw_{kw}", text, lambda rec, k=kw: rec.get("summary") and k in rec["summary"]))
 
-        # features や summary にキーワードが含まれるかで判定
-        def make_test(k):
-            return lambda rec: rec.get("summary") and k in rec["summary"]
-
-        qm.append((kw, text, make_test(kw)))
+    # Wikidataベースの質問（職業）
+    OCCUPATION_MAP = {
+        "声優": "Q2526255",  # seiyuu
+        "俳優": "Q33999",
+        "歌手": "Q177220",
+        "政治家": "Q82955",
+        "モデル": "Q4610558",
+        "YouTuber": "Q946478",  # YouTuber
+    }
+    for label, qid in OCCUPATION_MAP.items():
+        text = f"この人物は {label} ですか？"
+        qm.append((f"occ_{qid}", text,
+                   lambda rec, q=qid: rec.get("wikidata") and q in rec["wikidata"].get("occupation_qids", [])))
 
     # 共通質問（性別・生存）
-    qm.append(("alive_text", "現在もご存命ですか？", lambda rec: rec.get("features", {}).get("alive_text") == 1))
-    qm.append(("gender_male", "男性ですか？", lambda rec: rec.get("features", {}).get("gender") == "male"))
-    qm.append(("gender_female", "女性ですか？", lambda rec: rec.get("features", {}).get("gender") == "female"))
+    qm.append(("alive_text", "現在もご存命ですか？",
+               lambda rec: rec.get("features", {}).get("alive_text") == 1))
+    qm.append(("gender_male", "男性ですか？",
+               lambda rec: rec.get("features", {}).get("gender") == "male"))
+    qm.append(("gender_female", "女性ですか？",
+               lambda rec: rec.get("features", {}).get("gender") == "female"))
 
     return qm
 
