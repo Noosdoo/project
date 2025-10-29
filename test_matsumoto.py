@@ -612,10 +612,10 @@ def run_step(step="collect", **kwargs):
 
     if step == "collect":
         save_path = kwargs.get("save_path", PEOPLE_LIST_FILE)
-        if os.path.exists(save_path):
-            print(f"{save_path} が既に存在するため、collect はスキップします。")
-            with open(save_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+        #if os.path.exists(save_path):
+        #    print(f"{save_path} が既に存在するため、collect はスキップします。")
+        #    with open(save_path, "r", encoding="utf-8") as f:
+        #        return json.load(f)
         cmlimit = kwargs.get("cmlimit", 50)
         depth = kwargs.get("depth", 1)
         sleep = kwargs.get("sleep", 0.8)
@@ -624,10 +624,10 @@ def run_step(step="collect", **kwargs):
 
     elif step == "build":
         dataset_path = kwargs.get("dataset_path", DATASET_FILE)
-        if os.path.exists(dataset_path):
-            print(f"{dataset_path} が既に存在するため、build はスキップします。")
-            with open(dataset_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+        #if os.path.exists(dataset_path):
+        #    print(f"{dataset_path} が既に存在するため、build はスキップします。")
+        #    with open(dataset_path, "r", encoding="utf-8") as f:
+        #        return json.load(f)
         limit = kwargs.get("limit", None)
         sleep = kwargs.get("sleep", 0.8)
         return build_dataset(limit=limit, sleep=sleep)
