@@ -15,19 +15,6 @@ WIKIDATA_ENTITY_URL = "https://www.wikidata.org/wiki/Special:EntityData/{}.json"
 PEOPLE_LIST_FILE = "people_list.json"  # 取得した人物タイトルのリスト
 DATASET_FILE = "people_dataset.json"   # 各人物の属性データ
 
-# 取得対象カテゴリ（必要に応じて増やす）
-CATEGORIES = [
-    "日本の俳優",
-    "日本の女優",
-    "日本の歌手",
-    "日本のお笑いタレント",
-    "日本の声優",
-    "日本の政治家",
-    "日本のスポーツ選手",
-    "日本の作家",
-    "日本のアイドル",
-]
-
 # Wikipedia APIに送る際のヘッダー
 HEADERS = {"User-Agent": USER_AGENT}
 
@@ -44,6 +31,45 @@ HEADERS = {"User-Agent": USER_AGENT}
 # -----------------------
 # ユーティリティ: Wikipediaカテゴリからタイトル取得（cmcontinue対応）
 # -----------------------
+
+def get_subcategories(category="日本の人物", depth=1, cmlimit=50, sleep=0.5):
+    """指定したカテゴリのサブカテゴリ一覧を取得（再帰対応）"""
+    collected = set()
+    cmtitle = f"Category:{category}"
+    params = {
+        "action": "query",
+        "list": "categorymembers",
+        "cmtitle": cmtitle,
+        "cmtype": "subcat",  # サブカテゴリのみ取得
+        "cmlimit": str(cmlimit),
+        "format": "json"
+    }
+    cont = None
+    while True:
+        if cont:
+            params.update(cont)
+        res = requests.get(WIKI_API, params=params, headers=HEADERS, timeout=15)
+        data = res.json()
+        for m in data.get("query", {}).get("categorymembers", []):
+            title = m.get("title")
+            if title.startswith("Category:"):
+                subcat = title[len("Category:"):]
+                collected.add(subcat)
+                # 深さ指定ありなら再帰探索
+                if depth > 1:
+                    time.sleep(sleep)
+                    collected |= get_subcategories(subcat, depth=depth-1, cmlimit=cmlimit, sleep=sleep)
+        if "continue" in data:
+            cont = data["continue"]
+            time.sleep(sleep)
+        else:
+            break
+    return sorted(collected)
+
+
+# 取得対象カテゴリ
+CATEGORIES = get_subcategories("日本の人物", depth=1)
+print(f"自動取得したカテゴリ数: {len(CATEGORIES)}")
 
 # カテゴリから人物を収集する関数（カテゴリ名、１回のAPIリクエストで取得する件数、サブカテゴリをたどる深さ、再帰用、アクセス間隔）
 def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=0.8):
@@ -125,13 +151,6 @@ def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=0.
 
     # すべてのタイトルを返す（set型）
     return collected
-
-
-
-
-
-
-
 
 
 
@@ -270,30 +289,31 @@ def fetch_wikidata_entity(wikibase_id):
     except Exception:
         return None
 
-# -----------------------
-# summaryからキーワードベースで特徴を抽出する（拡張版）
-# -----------------------
-FEATURE_KEYWORDS = {
-    "taiga": ["大河ドラマ", "大河"],
-    "tokusatsu": ["仮面ライダー", "スーパー戦隊", "ウルトラマン", "特撮"],
-    "romance_drama": ["恋愛", "ラブストーリー", "恋人"],
-    "movie": ["映画", "劇場版"],
-    "action": ["アクション", "殺陣", "アクション俳優"],
-    "seiyuu": ["声優", "アニメで声"],
-    "singer": ["歌手", "シンガー", "ボーカル"],
-    "stage": ["舞台", "ミュージカル", "劇団"],
-    "model": ["モデル", "ファッションモデル"],
-    "comedian": ["お笑い", "芸人", "コント"],
-    "anime": ["アニメ"],
-    "hollywood": ["ハリウッド", "海外映画"],
-    "idol": ["アイドル", "グループ"],
-    "award": ["受賞", "賞を受賞", "主演男優賞", "最優秀"],
-    "nhk": ["NHK", "連続テレビ小説", "朝ドラ"],
-    "youtuber": ["YouTube", "チャンネル"],
-    "director": ["監督"],
-    "athlete": ["選手", "オリンピック", "サッカー", "野球", "柔道", "レスリング"],
-    "politician": ["政治家", "衆議院", "参議院", "首相"]
-}
+def build_feature_keywords_from_categories(categories):
+    """
+    カテゴリ名リストから自動的にFEATURE_KEYWORDSを生成
+    例: ["日本の俳優", "日本の政治家"] → {"俳優": ["俳優"], "政治家": ["政治家"]}
+    """
+    keywords = {}
+    for cat in categories:
+        # 「日本の」など共通接頭辞を削除
+        base = re.sub(r"^日本の", "", cat)
+        # 不要な語（人・人物・一覧など）を除外
+        if any(x in base for x in ["人物", "一覧", "関連", "出身", "年", "史"]):
+            continue
+        # カテゴリ名が短すぎるものを除外
+        if len(base) < 2:
+            continue
+        # 英語キー用に変換（例: "俳優" → "actor"）
+        key = re.sub(r"[^a-zA-Z0-9]", "_", base.lower())
+        keywords[key] = [base]
+    print(f"自動生成した特徴キーワード: {len(keywords)} 件")
+    return keywords
+
+
+# 自動生成した特徴キーワード辞書
+FEATURE_KEYWORDS = build_feature_keywords_from_categories(CATEGORIES)
+
 
 def extract_features_from_summary(summary):
     s = summary or ""
@@ -413,40 +433,53 @@ def load_dataset(dataset_path=DATASET_FILE):
     return data
 
 def generate_question_map():
-    # 質問キー -> (説明文, lambda to test record)
+    """
+    FEATURE_KEYWORDSから自動的に質問文を生成する
+    """
     qm = []
-    # add keyword-based features
+
+    # --- 自動質問生成（カテゴリベース） ---
     for key, kws in FEATURE_KEYWORDS.items():
-        text = {
-            "taiga": "大河ドラマに出演しましたか？",
-            "tokusatsu": "特撮作品に出演しましたか？",
-            "romance_drama": "恋愛ドラマに出演しましたか？",
-            "movie": "映画にも出演していますか？",
-            "action": "アクション作品に出演していますか？",
-            "seiyuu": "声優としての仕事がありますか？",
-            "singer": "歌手活動もしていますか？",
-            "stage": "舞台（演劇・ミュージカル）にも出演していますか？",
-            "model": "モデルとして活動したことがありますか？",
-            "comedian": "お笑い芸人ですか？",
-            "anime": "アニメ作品に関わったことがありますか？",
-            "hollywood": "海外（ハリウッド等）にも進出していますか？",
-            "idol": "アイドル経験がありますか？",
-            "award": "演技賞などを受賞したことがありますか？",
-            "nhk": "NHKの番組に出演したことがありますか？",
-            "youtuber": "YouTubeチャンネルを持っていますか？",
-            "athlete": "スポーツ選手ですか？",
-            "politician": "政治家ですか？"
-        }.get(key, f"{key} に該当しますか？")
-        # test lambda: record->True/False or None
+        # 最初のキーワードを基に質問文を作る
+        base = kws[0]
+        # 文脈に合わせた自然な文章化（例: 歌手 → 歌手として活動していますか？）
+        if "俳優" in base or "女優" in base:
+            text = f"{base}として活動していますか？"
+        elif "声優" in base:
+            text = "声優としての活動がありますか？"
+        elif "歌手" in base:
+            text = "歌手として活動していますか？"
+        elif "政治家" in base:
+            text = "政治家として活動していますか？"
+        elif "作家" in base:
+            text = "作家として作品を発表していますか？"
+        elif "芸人" in base or "お笑い" in base:
+            text = "お笑い芸人ですか？"
+        elif "モデル" in base:
+            text = "モデル活動をしていますか？"
+        elif "アナウンサー" in base:
+            text = "アナウンサーですか？"
+        elif "野球" in base or "サッカー" in base or "選手" in base:
+            text = "スポーツ選手ですか？"
+        elif "YouTuber" in base or "ユーチューバー" in base:
+            text = "YouTuberとして活動していますか？"
+        else:
+            text = f"{base}に関係していますか？"
+
+        # テスト関数を生成
         def make_test(k):
             return lambda rec: bool(rec.get("features", {}).get(k, 0))
+
         qm.append((key, text, make_test(key)))
-    # add Wikidata-derived tests
+
+    # --- 固定質問（生死・性別など） ---
     qm.append(("alive_text", "現在もご存命ですか？", lambda rec: rec.get("features", {}).get("alive_text") == 1))
     qm.append(("gender_male", "男性ですか？", lambda rec: rec.get("features", {}).get("gender") == "male"))
     qm.append(("gender_female", "女性ですか？", lambda rec: rec.get("features", {}).get("gender") == "female"))
 
+    print(f"自動生成した質問数: {len(qm)} 件")
     return qm
+
 
 def akinator_play(dataset, max_questions=30):
     # candidates is list of records (dicts)
