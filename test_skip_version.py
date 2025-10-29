@@ -434,7 +434,7 @@ def load_dataset(dataset_path=DATASET_FILE):
     return data
 
 #-----------------------
-# 質問マップの自動生成（カテゴリ選択に応じて）
+# 質問マップの自動生成（カテゴリ選択に応じて）これを変える！
 #-----------------------
 def generate_question_map(selected_categories=None):
     """

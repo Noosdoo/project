@@ -5,6 +5,7 @@ import os
 import re
 import random
 import wikipediaapi
+import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Wikipediaにアクセスする際のユーザーエージェント
@@ -18,15 +19,24 @@ DATASET_FILE = "people_dataset.json"   # 各人物の属性データ
 
 # 取得対象カテゴリ（必要に応じて増やす）
 CATEGORIES = [
-    "日本の俳優",
-    "日本の女優",
-    "日本の歌手",
-    "日本のお笑い芸人",
-    "日本の声優",
-    "日本の政治家",
-    "日本のスポーツ選手",
-    "日本の作家",
-    "日本のアイドル",
+    # 俳優・芸能
+    "日本の俳優", "日本の女優", "お笑い芸人", "日本の声優", "日本のアイドル", "日本のモデル", "日本の歌手",
+    "日本の作曲家", "日本の映画監督", "日本の舞台俳優", "日本のアナウンサー", "日本のYouTuber",
+
+    # 文学・学問
+    "日本の作家", "日本の漫画家", "日本の小説家", "日本の詩人", "日本の科学者", "日本の数学者", "日本の物理学者",
+    "日本の化学者", "日本の医師", "日本の哲学者", "日本の歴史学者", "日本の教育者", "日本の研究者", "日本の発明家",
+
+    # 政治・社会
+    "日本の政治家", "日本の外交官", "日本の官僚", "日本の経営者", "日本の起業家", "日本の弁護士", "日本の裁判官",
+
+    # スポーツ
+    "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本のレスリング選手", "日本のオリンピック選手",
+    "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手",
+
+    # 芸術・文化
+    "日本の画家", "日本の彫刻家", "日本の写真家", "日本の建築家", "日本のデザイナー", "日本の陶芸家", "日本の演出家",
+    "日本の音楽家", "日本の指揮者", "日本の舞踏家",
 ]
 
 # Wikipedia APIに送る際のヘッダー
@@ -38,6 +48,15 @@ HEADERS = {"User-Agent": USER_AGENT}
 
 
 
+# -----------------------
+# 除外ルール: 人物ページかどうか判定
+# -----------------------
+def is_person_page(title):
+    """
+    タイトルに特定のキーワードが含まれていたら除外
+    """
+    exclude_keywords = ["一覧", "号", "歴史", "編"]
+    return not any(k in title for k in exclude_keywords)
 
 
 
@@ -162,41 +181,26 @@ def choose_categories():
 
 # 指定したWikipediaカテゴリから、そのカテゴリに含まれる人物のタイトルを取得する関数（ 、APIで一回に取得する件数、下位カテゴリをどの階層まで探索するか、API呼び出し間の待機時間）
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_path=PEOPLE_LIST_FILE):
-    # --- 開始メッセージ ---
+    if os.path.exists(save_path):
+        print(f"{save_path} が既に存在するため、collect はスキップします。")
+        with open(save_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
     print("=== カテゴリから人物リストを収集します ===")
-
-    # 全カテゴリの人物をまとめて保持するためのセット（重複を自動的に排除）
     all_people = set()
-
-    # --- 各カテゴリを順番に処理 ---
     for cat in categories:
-        print(f"取得中: {cat}")  # 現在処理中のカテゴリ名を表示
+        print(f"取得中: {cat}")
         people = get_category_members(cat, cmlimit=cmlimit, depth=depth, sleep=sleep)
-
-        # 取得した件数を表示
         print(f"  → {len(people)} 人取得")
-
-        # 取得結果を全体のセットに追加（重複は自動的に無視される）
         all_people.update(people)
-
-        # Wikipedia APIサーバーに負荷をかけないよう、少し待機
         time.sleep(sleep)
 
-    # set → list に変換し、アルファベット順（または五十音順）に並び替え
     people_list = sorted(list(all_people))
-
-    # --- JSONファイルとして保存 ---
-    # save_path : 保存先のファイルパス（例: "people_list.json"）
-    # ensure_ascii=False → 日本語をそのまま保存
-    # indent=2 → 見やすい整形出力
     with open(save_path, "w", encoding="utf-8") as f:
         json.dump(people_list, f, ensure_ascii=False, indent=2)
-
-    # 保存完了メッセージ
     print(f"保存しました: {save_path} （合計 {len(people_list)} 人）")
-    
-    # 最後に人物リストを返す（後の処理で使うため）
     return people_list
+
 
 
 
@@ -340,7 +344,7 @@ def extract_features_from_summary(summary):
 # - limit: デバッグ用に処理件数を制限可能
 # -----------------------
 def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, limit=None, sleep=0.8):
-    # load people list
+    # 人物リストがなければ終了
     if not os.path.exists(people_list_path):
         print("人物リストが存在しません。まず collect_people を実行してください。")
         return None
@@ -348,24 +352,26 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
     with open(people_list_path, "r", encoding="utf-8") as f:
         people = json.load(f)
 
-    # load existing dataset to resume
+    # 既存データセットがあれば読み込み、処理済み人物をスキップ
     existing = {}
     if os.path.exists(dataset_path):
         with open(dataset_path, "r", encoding="utf-8") as f:
             try:
                 existing = {p["name"]: p for p in json.load(f)}
+                print(f"{len(existing)} 件の既存データを読み込みました。未処理の人物のみ処理します。")
             except:
                 existing = {}
 
     wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
-
     new_records = []
     processed = 0
+
     for name in people:
         if limit and processed >= limit:
             break
         if name in existing:
-            continue  # already processed
+            print(f"処理済み: {name} ... スキップ")
+            continue  # 既存データがある場合はスキップ
 
         print(f"処理中: {name}  ...", end=" ")
         rec = {"name": name, "summary": None, "features": None, "wikidata": None}
@@ -378,30 +384,23 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
             summary = page.summary
             rec["summary"] = summary
             rec["features"] = extract_features_from_summary(summary)
-            # try wikidata
             wikibase_id = get_wikibase_item_from_wikipedia(name)
             if wikibase_id:
                 wd = fetch_wikidata_entity(wikibase_id)
                 rec["wikidata"] = wd
-                # if wikidata contains gender_qid or occupation_qids, we add simple derived flags
                 if wd:
-                    # gender qid mapping (Q6581097 male, Q6581072 female)
                     g = wd.get("gender_qid")
-                    if g:
-                        if g == "Q6581097":
-                            rec["features"]["gender"] = "male"
-                        elif g == "Q6581072":
-                            rec["features"]["gender"] = "female"
-                    # occupation qids: we can mark actor/singer/politician based on common Qs
+                    if g == "Q6581097":
+                        rec["features"]["gender"] = "male"
+                    elif g == "Q6581072":
+                        rec["features"]["gender"] = "female"
                     occ_qs = wd.get("occupation_qids", [])
-                    # known qids
-                    if "Q33999" in occ_qs:  # actor (wikidata actor Q33999)
+                    if "Q33999" in occ_qs:  # actor
                         rec["features"]["actor_wikidata"] = 1
-                    if "Q177220" in occ_qs or "Q639669" in occ_qs:  # singer / vocalist (Q177220 is singer)
+                    if "Q177220" in occ_qs:  # singer
                         rec["features"]["singer_wikidata"] = 1
-                    if "Q82955" in occ_qs or "Q82955" in occ_qs:
+                    if "Q82955" in occ_qs:  # politician
                         rec["features"]["politician_wikidata"] = 1
-                    # birth/death from wikidata
                     if wd.get("birth_time"):
                         rec["features"]["birth_time"] = wd.get("birth_time")
                     if wd.get("death_time"):
@@ -413,12 +412,14 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
         processed += 1
         time.sleep(sleep)
 
-    # merge existing + new
+    # 既存 + 新規データをマージして保存
     merged = list(existing.values()) + new_records
     with open(dataset_path, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)
+
     print(f"データセットを保存しました: {dataset_path}（合計 {len(merged)} 件）")
     return merged
+
 
 # -----------------------
 # Step3: アキネーター本体（datasetを読み込んで対話で絞り込み）
@@ -432,92 +433,150 @@ def load_dataset(dataset_path=DATASET_FILE):
         data = json.load(f)
     return data
 
-def generate_question_map():
-    # 質問キー -> (説明文, lambda to test record)
+#-----------------------
+# 質問マップの自動生成（カテゴリ選択に応じて）
+#-----------------------
+def generate_question_map(selected_categories=None):
+    """
+    改良版:
+    - summaryキーワードだけでなくWikidataの職業・性別・生存情報も使う
+    - 質問の意味がより明確になる
+    """
+
     qm = []
-    # add keyword-based features
-    for key, kws in FEATURE_KEYWORDS.items():
-        text = {
-            "taiga": "大河ドラマに出演しましたか？",
-            "tokusatsu": "特撮作品に出演しましたか？",
-            "romance_drama": "恋愛ドラマに出演しましたか？",
-            "movie": "映画にも出演していますか？",
-            "action": "アクション作品に出演していますか？",
-            "seiyuu": "声優としての仕事がありますか？",
-            "singer": "歌手活動もしていますか？",
-            "stage": "舞台（演劇・ミュージカル）にも出演していますか？",
-            "model": "モデルとして活動したことがありますか？",
-            "comedian": "お笑い芸人ですか？",
-            "anime": "アニメ作品に関わったことがありますか？",
-            "hollywood": "海外（ハリウッド等）にも進出していますか？",
-            "idol": "アイドル経験がありますか？",
-            "award": "演技賞などを受賞したことがありますか？",
-            "nhk": "NHKの番組に出演したことがありますか？",
-            "youtuber": "YouTubeチャンネルを持っていますか？",
-            "athlete": "スポーツ選手ですか？",
-            "politician": "政治家ですか？"
-        }.get(key, f"{key} に該当しますか？")
-        # test lambda: record->True/False or None
-        def make_test(k):
-            return lambda rec: bool(rec.get("features", {}).get(k, 0))
-        qm.append((key, text, make_test(key)))
-    # add Wikidata-derived tests
-    qm.append(("alive_text", "現在もご存命ですか？", lambda rec: rec.get("features", {}).get("alive_text") == 1))
-    qm.append(("gender_male", "男性ですか？", lambda rec: rec.get("features", {}).get("gender") == "male"))
-    qm.append(("gender_female", "女性ですか？", lambda rec: rec.get("features", {}).get("gender") == "female"))
+
+    # カテゴリごとのキーワードマップ
+    CATEGORY_KEYWORD_MAP = {
+        "日本の俳優": ["大河ドラマ", "特撮", "恋愛ドラマ", "映画", "アクション", "舞台", "受賞", "NHK", "海外映画"],
+        "日本の女優": ["大河ドラマ", "恋愛ドラマ", "映画", "舞台", "受賞", "NHK", "海外映画"],
+        "お笑い芸人": ["お笑い", "コント"],
+        "日本の声優": ["声優", "アニメ"],
+        "日本の歌手": ["歌手", "アイドル", "受賞"],
+        "日本のアイドル": ["アイドル", "歌手", "舞台"],
+        "日本のモデル": ["モデル", "舞台"],
+        "日本の政治家": ["政治家"],
+        "日本のスポーツ選手": ["スポーツ"],
+        "日本の作家": ["作家"],
+        "日本のYouTuber": ["YouTube"],
+    }
+
+    if not selected_categories:
+        selected_categories = CATEGORY_KEYWORD_MAP.keys()
+
+    # 使用キーワード
+    used_keywords = set()
+    for cat in selected_categories:
+        kws = CATEGORY_KEYWORD_MAP.get(cat, [])
+        used_keywords.update(kws)
+
+    # summaryベースの質問
+    QUESTION_TEMPLATES = [
+        "{} に関連しますか？",
+        "{} を経験したことがありますか？",
+        "{} が特徴的ですか？",
+    ]
+    for kw in used_keywords:
+        template = random.choice(QUESTION_TEMPLATES)
+        text = template.format(kw)
+        qm.append((f"kw_{kw}", text, lambda rec, k=kw: rec.get("summary") and k in rec["summary"]))
+
+    # Wikidataベースの質問（職業）
+    OCCUPATION_MAP = {
+        "声優": "Q2526255",  # seiyuu
+        "俳優": "Q33999",
+        "歌手": "Q177220",
+        "政治家": "Q82955",
+        "モデル": "Q4610558",
+        "YouTuber": "Q946478",  # YouTuber
+    }
+    for label, qid in OCCUPATION_MAP.items():
+        text = f"この人物は {label} ですか？"
+        qm.append((f"occ_{qid}", text,
+                   lambda rec, q=qid: rec.get("wikidata") and q in rec["wikidata"].get("occupation_qids", [])))
+
+    # 共通質問（性別・生存）
+    qm.append(("alive_text", "現在もご存命ですか？",
+               lambda rec: rec.get("features", {}).get("alive_text") == 1))
+    qm.append(("gender_male", "男性ですか？",
+               lambda rec: rec.get("features", {}).get("gender") == "male"))
+    qm.append(("gender_female", "女性ですか？",
+               lambda rec: rec.get("features", {}).get("gender") == "female"))
 
     return qm
 
-def akinator_play(dataset, max_questions=30):
-    # candidates is list of records (dicts)
+
+
+
+#-----------------------
+# アキネーター対話部分
+#-----------------------
+def akinator_play(dataset, max_questions=30, check_every=10):
+    """
+    dataset: list of 人物レコード（辞書）
+    max_questions: 最大質問回数
+    check_every: 何問質問したら候補確認を出すか
+    """
     candidates = dataset.copy()
     qm = generate_question_map()
     random.shuffle(qm)
 
     print("=== アキネーター開始 ===")
     print(f"候補人数: {len(candidates)} 件")
+
     asked = 0
-    for key, q_text, test in qm:
-        if asked >= max_questions:
-            break
-        # skip if too narrow
-        if len(candidates) <= 3:
-            break
+    i_qm = 0
+
+    while asked < max_questions and len(candidates) > 1 and i_qm < len(qm):
+        key, q_text, test = qm[i_qm]
+
         ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
         if ans not in ["はい", "いいえ"]:
             print("スキップ")
+            i_qm += 1
             continue
-        # filter candidates
+
+        # 回答に応じて候補を絞り込む
         if ans == "はい":
             candidates = [c for c in candidates if test(c)]
         else:
             candidates = [c for c in candidates if not test(c)]
-        asked += 1
-        print(f"現在の候補数: {len(candidates)}")
-        # show top 5 names as examples
-        print("（例）上位候補:", [c["name"] for c in candidates[:5]])
-        # quick stop if 1 left
-        if len(candidates) <= 1:
-            break
 
-    # final guess
+        asked += 1
+        i_qm += 1
+
+        # 質問を check_every 回したら候補確認
+        if asked % check_every == 0 or len(candidates) <= 3:
+            print(f"\nここまでの質問で絞り込んだ候補（上位3件）:")
+            for j, c in enumerate(candidates[:3], 1):
+                print(f"{j}. {c['name']}")
+            choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
+            if choice.isdigit():
+                idx = int(choice)-1
+                if 0 <= idx < len(candidates[:3]):
+                    print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
+                    return candidates[idx]
+            elif choice.lower() in ["なし", "n", "no"]:
+                print("わかりました。質問を続けます。")
+
+    # 質問終了後の最終推測
     if not candidates:
         print("候補が見つかりませんでした。")
         return None
-    # choose best: if features match many yes answers, prefer those with more matching features
-    # simple heuristic: count matched tests
-    # We'll ask user to confirm top 3
-    print("\n候補上位（3件）:")
+
+    print("\n最終候補（上位3件）:")
     for i, c in enumerate(candidates[:3], 1):
         print(f"{i}. {c['name']}")
-    choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または n) > ").strip()
+    choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
     if choice.isdigit():
         idx = int(choice)-1
         if 0 <= idx < len(candidates[:3]):
             print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
             return candidates[idx]
+
     print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
     return candidates[0]
+
+
 
 # -----------------------
 # 改良版: 並列処理でデータセット構築
@@ -643,11 +702,14 @@ def run_step(step="collect", **kwargs):
 
 
 
+# -----------------------
+# 実行部分
+# -----------------------
 if __name__ == "__main__":
     selected_categories = choose_categories()
     # データ収集
-    run_step("collect", categories=selected_categories, cmlimit=20, depth=1, sleep=0.0001)
+    run_step("collect", categories=selected_categories, cmlimit=20, depth=1, sleep=0.0)
     # データセットを構築
-    run_step("build", limit=200, sleep=0.0001)
+    run_step("build", limit=200, sleep=0.0)
     # アキネーターをプレイ
     run_step("play", max_questions=25)

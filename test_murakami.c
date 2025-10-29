@@ -9,4 +9,4 @@ int  main() {
     printf( "Hello, %s!\n" , buffer );
   }
  
-  "変更"
+ 
