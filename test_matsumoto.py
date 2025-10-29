@@ -5,6 +5,7 @@ import os
 import re
 import random
 import wikipediaapi
+import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Wikipediaにアクセスする際のユーザーエージェント
@@ -445,9 +446,12 @@ def load_dataset(dataset_path=DATASET_FILE):
 # -----------------------
 # 質問マップの自動生成
 # -----------------------
+#-----------------------
+# 質問マップの自動生成（カテゴリ選択に応じて）
+#-----------------------
 def generate_question_map(selected_categories=None):
     """
-    selected_categories: list of選択されたカテゴリ名（Noneなら全カテゴリ）
+    selected_categories: list of 選択されたカテゴリ名（Noneなら全カテゴリ）
     """
     qm = []
 
@@ -480,18 +484,18 @@ def generate_question_map(selected_categories=None):
     # 質問テンプレートで自動生成
     for kw in used_keywords:
         text = f"{kw} に関連しますか？"
-        # test lambda: features にキーワードがあれば True とする
+        # features や summary にキーワードが含まれるかで判定
         def make_test(k):
-            # ここでは summary や features からキーワードの有無を判定
             return lambda rec: rec.get("summary") and k in rec["summary"]
         qm.append((kw, text, make_test(kw)))
 
-    # 共通質問（性別・生存）
+    # 共通質問（性別・生存）も追加
     qm.append(("alive_text", "現在もご存命ですか？", lambda rec: rec.get("features", {}).get("alive_text") == 1))
     qm.append(("gender_male", "男性ですか？", lambda rec: rec.get("features", {}).get("gender") == "male"))
     qm.append(("gender_female", "女性ですか？", lambda rec: rec.get("features", {}).get("gender") == "female"))
 
     return qm
+
 
 
 
@@ -538,7 +542,7 @@ def akinator_play(dataset, max_questions=30):
         if len(candidates) <= 1:
             break
 
-        # 上位3件に絞った確認
+        # 上位3件に絞った確認（なしの場合は質問続行）
         while True:
             print("\n候補上位（3件）:")
             for j, c in enumerate(candidates[:3], 1):
@@ -551,8 +555,8 @@ def akinator_play(dataset, max_questions=30):
                     print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
                     return candidates[idx]
                 else:
-                    print("番号が範囲外です。再度質問を続けます。")
-                    continue
+                    print("番号が範囲外です。質問を続けます。")
+                    break  # 番号範囲外でも質問続行
             elif choice.lower() in ["なし", "n", "no"]:
                 print("わかりました。質問を続けます。")
                 break  # なしの場合は質問ループに戻る
