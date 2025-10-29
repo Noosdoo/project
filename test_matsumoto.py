@@ -628,7 +628,7 @@ def run_step(step="collect", **kwargs):
 if __name__ == "__main__":
     selected_categories = choose_categories()
     if not os.path.exists(PEOPLE_LIST_FILE):
-        run_step("collect", categories=selected_categories, cmlimit=20, depth=1, sleep=0.0001)
+        run_step("collect", categories=selected_categories, cmlimit=20, depth=0, sleep=0.0001)
     else:
         print("人物リストが既に存在するため、再取得をスキップします。")
 
