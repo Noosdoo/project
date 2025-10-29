@@ -609,10 +609,11 @@ def run_step(step="collect", **kwargs):
     """
     step = step.lower()
     if step == "collect":
+        categories = kwargs.get("categories", CATEGORIES)
         cmlimit = kwargs.get("cmlimit", 50)
         depth = kwargs.get("depth", 1)
         sleep = kwargs.get("sleep", 0.8)
-        return collect_people(categories=CATEGORIES, cmlimit=cmlimit, depth=depth, sleep=sleep)
+        return collect_people(categories=categories, cmlimit=cmlimit, depth=depth, sleep=sleep)
     elif step == "build":
         limit = kwargs.get("limit", None)
         sleep = kwargs.get("sleep", 0.8)
