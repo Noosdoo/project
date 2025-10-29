@@ -492,6 +492,7 @@ def generate_question_map(selected_categories=None):
         "{} というワードが説明文にありますか？",
         "この人物は {} と関係がありますか？"
     ]
+    
 
     # キーワードごとに質問を生成
     for kw in used_keywords:
