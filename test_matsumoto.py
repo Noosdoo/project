@@ -509,10 +509,13 @@ def build_dataset_parallel(limit=200):
 
     results = []
 
-    def fetch_data(person):
-        summary = get_wikipedia_summary(person)
-        wikidata = get_wikidata_entity(person)
-        return {"title": person, "summary": summary, "wikidata": wikidata}
+def fetch_data(person):
+    wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
+    page = wiki.page(person)
+    summary = page.summary if page.exists() else None
+    wikibase_id = get_wikibase_item_from_wikipedia(person)
+    wikidata = fetch_wikidata_entity(wikibase_id) if wikibase_id else None
+    return {"title": person, "summary": summary, "wikidata": wikidata}
 
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = [executor.submit(fetch_data, p) for p in people]
