@@ -344,7 +344,7 @@ def extract_features_from_summary(summary):
 # - limit: デバッグ用に処理件数を制限可能
 # -----------------------
 def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, limit=None, sleep=0.8):
-    # load people list
+    # 人物リストがなければ終了
     if not os.path.exists(people_list_path):
         print("人物リストが存在しません。まず collect_people を実行してください。")
         return None
@@ -352,24 +352,26 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
     with open(people_list_path, "r", encoding="utf-8") as f:
         people = json.load(f)
 
-    # load existing dataset to resume
+    # 既存データセットがあれば読み込み、処理済み人物をスキップ
     existing = {}
     if os.path.exists(dataset_path):
         with open(dataset_path, "r", encoding="utf-8") as f:
             try:
                 existing = {p["name"]: p for p in json.load(f)}
+                print(f"{len(existing)} 件の既存データを読み込みました。未処理の人物のみ処理します。")
             except:
                 existing = {}
 
     wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
-
     new_records = []
     processed = 0
+
     for name in people:
         if limit and processed >= limit:
             break
         if name in existing:
-            continue  # already processed
+            print(f"処理済み: {name} ... スキップ")
+            continue  # 既存データがある場合はスキップ
 
         print(f"処理中: {name}  ...", end=" ")
         rec = {"name": name, "summary": None, "features": None, "wikidata": None}
@@ -382,30 +384,23 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
             summary = page.summary
             rec["summary"] = summary
             rec["features"] = extract_features_from_summary(summary)
-            # try wikidata
             wikibase_id = get_wikibase_item_from_wikipedia(name)
             if wikibase_id:
                 wd = fetch_wikidata_entity(wikibase_id)
                 rec["wikidata"] = wd
-                # if wikidata contains gender_qid or occupation_qids, we add simple derived flags
                 if wd:
-                    # gender qid mapping (Q6581097 male, Q6581072 female)
                     g = wd.get("gender_qid")
-                    if g:
-                        if g == "Q6581097":
-                            rec["features"]["gender"] = "male"
-                        elif g == "Q6581072":
-                            rec["features"]["gender"] = "female"
-                    # occupation qids: we can mark actor/singer/politician based on common Qs
+                    if g == "Q6581097":
+                        rec["features"]["gender"] = "male"
+                    elif g == "Q6581072":
+                        rec["features"]["gender"] = "female"
                     occ_qs = wd.get("occupation_qids", [])
-                    # known qids
-                    if "Q33999" in occ_qs:  # actor (wikidata actor Q33999)
+                    if "Q33999" in occ_qs:  # actor
                         rec["features"]["actor_wikidata"] = 1
-                    if "Q177220" in occ_qs or "Q639669" in occ_qs:  # singer / vocalist (Q177220 is singer)
+                    if "Q177220" in occ_qs:  # singer
                         rec["features"]["singer_wikidata"] = 1
-                    if "Q82955" in occ_qs or "Q82955" in occ_qs:
+                    if "Q82955" in occ_qs:  # politician
                         rec["features"]["politician_wikidata"] = 1
-                    # birth/death from wikidata
                     if wd.get("birth_time"):
                         rec["features"]["birth_time"] = wd.get("birth_time")
                     if wd.get("death_time"):
@@ -417,12 +412,14 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
         processed += 1
         time.sleep(sleep)
 
-    # merge existing + new
+    # 既存 + 新規データをマージして保存
     merged = list(existing.values()) + new_records
     with open(dataset_path, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)
+
     print(f"データセットを保存しました: {dataset_path}（合計 {len(merged)} 件）")
     return merged
+
 
 # -----------------------
 # Step3: アキネーター本体（datasetを読み込んで対話で絞り込み）
