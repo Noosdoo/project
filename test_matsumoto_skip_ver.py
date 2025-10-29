@@ -439,60 +439,102 @@ def load_dataset(dataset_path=DATASET_FILE):
 def generate_question_map(selected_categories=None):
     """
     改良版:
-    - summaryキーワードだけでなくWikidataの職業・性別・生存情報も使う
-    - 質問の意味がより明確になる
+    - 質問を大カテゴリ→中カテゴリ→小カテゴリの順で並べる
+    - 候補に関係ない質問は初期段階でスキップ
+    - summary/Wikidata/特徴情報を使う
     """
 
+    import random
     qm = []
 
-    # カテゴリごとのキーワードマップ
+    # カテゴリごとのキーワードマップ（職業・活動・特徴）
     CATEGORY_KEYWORD_MAP = {
-        "日本の俳優": ["大河ドラマ", "特撮", "恋愛ドラマ", "映画", "アクション", "舞台", "受賞", "NHK", "海外映画"],
-        "日本の女優": ["大河ドラマ", "恋愛ドラマ", "映画", "舞台", "受賞", "NHK", "海外映画"],
-        "お笑い芸人": ["お笑い", "コント"],
-        "日本の声優": ["声優", "アニメ"],
-        "日本の歌手": ["歌手", "アイドル", "受賞"],
-        "日本のアイドル": ["アイドル", "歌手", "舞台"],
-        "日本のモデル": ["モデル", "舞台"],
-        "日本の政治家": ["政治家"],
-        "日本のスポーツ選手": ["スポーツ"],
-        "日本の作家": ["作家"],
-        "日本のYouTuber": ["YouTube"],
+        "日本の俳優": {
+            "occupation": ["俳優"],
+            "activity": ["大河ドラマ", "特撮", "映画", "舞台", "アクション", "恋愛ドラマ", "海外映画"],
+            "feature": ["受賞", "NHK"]
+        },
+        "日本の女優": {
+            "occupation": ["俳優"],
+            "activity": ["大河ドラマ", "映画", "舞台", "恋愛ドラマ", "海外映画"],
+            "feature": ["受賞", "NHK"]
+        },
+        "お笑い芸人": {
+            "occupation": ["お笑い芸人"],
+            "activity": ["コント", "舞台"],
+            "feature": []
+        },
+        "日本の声優": {
+            "occupation": ["声優"],
+            "activity": ["アニメ"],
+            "feature": []
+        },
+        "日本の歌手": {
+            "occupation": ["歌手"],
+            "activity": ["アイドル", "舞台"],
+            "feature": ["受賞"]
+        },
+        "日本のアイドル": {
+            "occupation": ["アイドル"],
+            "activity": ["歌手", "舞台"],
+            "feature": []
+        },
+        "日本のモデル": {
+            "occupation": ["モデル"],
+            "activity": ["舞台"],
+            "feature": []
+        },
+        "日本の政治家": {
+            "occupation": ["政治家"],
+            "activity": [],
+            "feature": []
+        },
+        "日本のスポーツ選手": {
+            "occupation": ["スポーツ選手"],
+            "activity": [],
+            "feature": []
+        },
+        "日本の作家": {
+            "occupation": ["作家", "漫画家", "小説家", "詩人"],
+            "activity": ["アニメ", "漫画", "小説"],
+            "feature": []
+        },
+        "日本のYouTuber": {
+            "occupation": ["YouTuber"],
+            "activity": [],
+            "feature": []
+        },
     }
 
     if not selected_categories:
         selected_categories = CATEGORY_KEYWORD_MAP.keys()
 
-    # 使用キーワード
-    used_keywords = set()
+    # 職業系質問（大カテゴリ）
     for cat in selected_categories:
-        kws = CATEGORY_KEYWORD_MAP.get(cat, [])
-        used_keywords.update(kws)
+        for occ in CATEGORY_KEYWORD_MAP[cat]["occupation"]:
+            qm.append((
+                f"occ_{occ}",
+                f"この人物は {occ} ですか？",
+                lambda rec, o=occ: rec.get("summary") and o in rec["summary"]
+            ))
 
-    # summaryベースの質問
-    QUESTION_TEMPLATES = [
-        "{} に関連しますか？",
-        "{} を経験したことがありますか？",
-        "{} が特徴的ですか？",
-    ]
-    for kw in used_keywords:
-        template = random.choice(QUESTION_TEMPLATES)
-        text = template.format(kw)
-        qm.append((f"kw_{kw}", text, lambda rec, k=kw: rec.get("summary") and k in rec["summary"]))
+    # 活動対象系質問（中カテゴリ）
+    for cat in selected_categories:
+        for act in CATEGORY_KEYWORD_MAP[cat]["activity"]:
+            qm.append((
+                f"act_{act}",
+                f"{act} に関連しますか？",
+                lambda rec, a=act: rec.get("summary") and a in rec["summary"]
+            ))
 
-    # Wikidataベースの質問（職業）
-    OCCUPATION_MAP = {
-        "声優": "Q2526255",  # seiyuu
-        "俳優": "Q33999",
-        "歌手": "Q177220",
-        "政治家": "Q82955",
-        "モデル": "Q4610558",
-        "YouTuber": "Q946478",  # YouTuber
-    }
-    for label, qid in OCCUPATION_MAP.items():
-        text = f"この人物は {label} ですか？"
-        qm.append((f"occ_{qid}", text,
-                   lambda rec, q=qid: rec.get("wikidata") and q in rec["wikidata"].get("occupation_qids", [])))
+    # 特徴系質問（小カテゴリ）
+    for cat in selected_categories:
+        for feat in CATEGORY_KEYWORD_MAP[cat]["feature"]:
+            qm.append((
+                f"feat_{feat}",
+                f"{feat} が特徴的ですか？",
+                lambda rec, f=feat: rec.get("summary") and f in rec["summary"]
+            ))
 
     # 共通質問（性別・生存）
     qm.append(("alive_text", "現在もご存命ですか？",
@@ -503,6 +545,7 @@ def generate_question_map(selected_categories=None):
                lambda rec: rec.get("features", {}).get("gender") == "female"))
 
     return qm
+
 
 
 
