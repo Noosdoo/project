@@ -5722,5 +5722,7313 @@
       "gender_qid": "Q6581072",
       "birth_time": "+1983-07-05T00:00:00Z"
     }
+  },
+  {
+    "name": "17歳教",
+    "summary": "17歳教（17才教、じゅうななさいきょう、zh:17岁教）は、非公式に創設された日本の女性声優グループの一派。\n同義のタイトルフレーズには「永遠の17歳」などもある。\n「17歳教」という用語は2007年11月14日、日本語新言語辞典『現代用語の基礎知識』にも掲載されている。\n類似グループには、西村ちなみ、葉月絵理乃らのチーム30と、後藤邑子と松来未祐の29歳教がある。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2007,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "A.rik",
+    "summary": "A.rik（エーリック、1993年9月30日‐）は、日本の俳優・タレント・歌手。パフォーマンスユニット『ENJIN』のメンバー。本名は福地 正(ふくち しょう)。沖縄県出身。吉本興業所属。\nアパレルブランド『%psh』を展開している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1993,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "ACE (モデル)",
+    "summary": "ACE（エース、1984年11月13日 - ）は、愛知県一宮市出身のモデル、司会（MC）、俳優、タレント。アルファクリエイター (芸能事務所)所属。\n子ども食堂（こどもテーブル）「ゆめとぴあ」を主催したり、維新隊東京ユネスコクラブが主催するごみ拾いボランティアイベント「胸キュン！GOMI拾い」では初回からマイスターを務めるほか、地域活性など社会貢献系のイベントには規模の大小を問わず、MCや講師、ゲストスピーカーとして積極的に参加している。また、日本文化・コンテンツのプロデュースなども行っている。\n運動が好きで、中学・高校では軟式テニス、大学では硬式庭球部に所属しており、今も主な移動にはロードバイクを使っている。\n事務所の代表であり、ファシリテーションデザイナーの吉田晃浩とは別人であり、他人の空似（という設定である）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1984,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1984-11-13T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1984-11-13T00:00:00Z"
+    }
+  },
+  {
+    "name": "ALEX (ファッションモデル)",
+    "summary": "ALEX（アレク、1988年3月19日 - ）は、日本のファッションモデル、俳優、ミュージシャン。ロックバンド「ONE OK ROCK」の元ギタリスト。本名：鬼澤アレクサンダー礼門（おにざわアレクサンダーれいもん）で、鬼澤 礼門（Ramon Onizawa, おにざわ れいもん）の名で写真家として活動している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1988,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1988-03-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1988-03-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "ALOHAGOTO",
+    "summary": "ALOHAGOTO及び後藤 アロハは、日本の作曲家及び実業家、声優である。\nU-Stellaの共同創業者兼代表取締役CEO。 (1998-12-14) 1998年12月14日生まれ。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1998,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1998-12-14T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q36834"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1998-12-14T00:00:00Z"
+    }
+  },
+  {
+    "name": "AMEMIYA",
+    "summary": "AMEMIYA（アメミヤ、本名：雨宮 陽平（あめみや ようへい）、1978年11月10日 - ）は、日本のお笑い芸人、歌手。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1978,
+      "alive_text": 1,
+      "gender": "male",
+      "singer_wikidata": 1,
+      "birth_time": "+1978-11-10T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1978-11-10T00:00:00Z"
+    }
+  },
+  {
+    "name": "ARCHE",
+    "summary": "ARCHE（アーチ）またはDJ ARCHE（ディージェー・アーチ、本名及び旧芸名：市川 博樹（いちかわ ひろき）、1967年9月20日 - ）は、サンディ所属のディスクジョッキー、ラジオパーソナリティ、ナレーター、ラッパー、俳優である。\n東京都新宿区神楽坂出身。血液型はB型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1967,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1967-09-20T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1967-09-20T00:00:00Z"
+    }
+  },
+  {
+    "name": "AZI a.k.a. 橋本悠一郎",
+    "summary": "AZI a.k.a. 橋本悠一郎（アジ エーケーエー はしもとゆういちろう、本名：橋本 悠一郎（はしもと　ゆういちろう）、1981年3月8日 - ）は、日本のグラフィティアーティスト。\n東京都出身。東京造形大学在学中に、アーク溶接免許、学芸員免許を取得。血液型は、O型。身長186cm。缶スプレーを使ってライヴペイントを行う。WACOM社製のタブレットを使ってのライヴペイントを行う。モデル、俳優としても活動。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1981-03-08T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q4610556",
+        "Q483501"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-03-08T00:00:00Z"
+    }
+  },
+  {
+    "name": "Ako Dachs",
+    "summary": "Ako Dachsは、女優、宝塚歌劇団卒業生である。日本名は種谷アツ子、宝塚歌劇団時代の芸名は夏海陽子、退団後（一時）の芸名は橘倫子、現在の芸名はAkoである。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "BETTANA!!",
+    "summary": "BETTANA!!（べったな、1990年5月15日 - ）は、日本の俳優。埼玉県出身。血液型はB型。コンプリート☆キッズ所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1990,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1990-05-15T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1990-05-15T00:00:00Z"
+    }
+  },
+  {
+    "name": "BJ FOX",
+    "summary": "BJ Fox（びーじぇー ふぉっくす、1981年8月9日 - ）は、日本の男性お笑いタレント、司会者、俳優、脚本家。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1981-08-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-08-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "BOBBY (俳優)",
+    "summary": "bobby kobayashi （ボビーコバヤシ、1979年7月11日 - ）は、日本の俳優。静岡県出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1979,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1979-07-11T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1979-07-11T00:00:00Z"
+    }
+  },
+  {
+    "name": "BOBI",
+    "summary": "BOBI（ボビイ、1965年3月1日 - ）は、東京都出身の日本の演出家、劇団EXILE演技講師、構成作家、舞台監督、俳優である。カロスエンターテイメントに所属する。\n\n2017年所属していた事務所を退社しカロスエンターテイメントに所属。\nAbemaTVで自身の番組を持ち即興生放送『BOBIの即劇Night』にゲストを迎えて出演中である。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1965,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1965-03-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1965-03-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "BOSS戸田",
+    "summary": "BOSS戸田（ぼす とだ）（英：BOSS TODA、実名は戸田有三Toda Yuzo、1956年8月31日生まれ、滋賀県大津市出身）は、日本の俳優、アーティスト、映画プロデューサー。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1956,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1956-08-31T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1956-08-31T00:00:00Z"
+    }
+  },
+  {
+    "name": "Bable",
+    "summary": "bable（ベイブル）は、日本の演出家、プロデューサー、振付師、実業家、俳優、ダンサー、MC。\n静岡県浜松市出身。学習院大学経済学部経営学科卒業。（株）ファントエンターテインメント代表取締役。\n在学中よりフランス喜劇やオリジナル戯曲に傾倒、振付演出家としての活動を開始。身長180cm、血液型AB型。\n大学在学中より劇団四季、その後、（有）ライトリンクミュージック、（株）キティエンターテインメントを経て現在フリー。現在はエンターテインメントによるPR演出コンテンツ用いて、企業PR・タウンマネジメントPR・区政イベントPR・フェスティバル演出など様々なPR事業を展開。Life Style Musical Inc.、オフィス・タキシードInc.、BISTRO CIRCUS（静岡県浜松市）の運営等。\n映画・舞台・PV・企業イベント等多岐にわたり企画プロデュース・演出・振付・出演と幅広く活動。\nファンや共演者から、愛称「べーちゃん」「べー様」と呼ばれることが多い。\n作品は、演劇的な手法や多ジャンルのパフォーマンス要素を掛け合わせることで、劇場的なものからストリート感溢れるものまでジャンルレスな演出が特徴的である。\n近年では『グリーティング』を用いたPRパフォーマンスを展開している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q2490358"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Bro.TOM",
+    "summary": "Bro.TOM（ブラザートム、1956年2月23日 - ）は、日本の俳優、タレント、歌手、ピアノ調律師。旧芸名は小柳 トム（こやなぎ トム）。別名はTOM3、ザートム船長。アメリカ・ハワイ州マウイ島出身、埼玉県熊谷市育ち。株式会社106所属。音楽デュオ「バブルガム・ブラザーズ」メンバー、Human Soul、Real Bloodメンバー。小柳心は長男、小柳友は次男（共に俳優）。身長188cm。血液型A型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1956,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1956-02-23T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q33999",
+        "Q822146",
+        "Q12330954",
+        "Q2705098",
+        "Q753110"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1956-02-23T00:00:00Z"
+    }
+  },
+  {
+    "name": "CAST-PRIX ZERO",
+    "summary": "『CAST-PRIX ZERO』（キャスプリ ゼロ）は映画や特撮作品、漫画・アニメ等を原作とする演劇に出演している俳優の情報を取り扱う日本の芸能雑誌（ムック扱い）。隔月刊。\n編集・pinpointbarrier、発売・メディアボーイ。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 1,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 1,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "CHaCK-UP",
+    "summary": "『CHaCK-UP』（チャックアップ）は、アイドルを題材とした若手俳優が出演する舞台シリーズ名および、同作品に登場するグループ名である。\nネルケプランニングのアイドルステージ第三弾として2014年8月にラフォーレミュージアム原宿にて上演された。以降シリーズとして2015年1月に新作、2015年12月にアイドルたちが出演するという劇中劇形式のミュージカルを上演した。ステージとライブの二部構成という演出が用いられている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2014,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "COMiNUM",
+    "summary": "COMiNUM（こみなみ）は、日本のシンガーソングライター。\n2021年より0amのメンバーとして活動中。\n東京都出身。身長160cm、血液型B型。青山学院大学卒業",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2021,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "birth_time": "+1991-11-15T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q970153"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1991-11-15T00:00:00Z"
+    }
+  },
+  {
+    "name": "DAIGO",
+    "summary": "DAIGO（ダイゴ、1978年4月8日 - ）は、日本の男性シンガーソングライター、ボーカリスト、マルチタレント、作詞家、作曲家。本名は内藤 大湖。東京都世田谷区出身。DAIGO☆STARDUSTの元メンバー、BREAKERZのメンバー。身長178cm。血液型はAB型。妻は女優の北川景子。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1978,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1978-04-08T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q488205",
+        "Q33999",
+        "Q622807",
+        "Q177220",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1978-04-08T00:00:00Z"
+    }
+  },
+  {
+    "name": "DAVE FROMM",
+    "summary": "DAVE FROMM（デーヴ・フロム、1959年3月31日 - ）は、日本でDJ、またTV-CM、映画、イベントで活動するタレント。ヴォイスガレージに所属。アメリカ合衆国ウィスコンシン州ミルウォーキー出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1959,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1959-03-31T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q130857"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1959-03-31T00:00:00Z"
+    }
+  },
+  {
+    "name": "DERAGAYA!",
+    "summary": "DERAGAYA!（デラガヤ!）は、主として愛知県名古屋市近郊で開催される、主に日本の声優や2.5次元俳優のトークを中心としたイベントの名称。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "DIAMOND☆DOGS",
+    "summary": "DIAMOND☆DOGS（ダイアモンドドッグス）は、日本のヴォーカル&パフォーマンスグループである。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "Dio Kobayashi",
+    "summary": "Dio（ディオ、海外名 Dio Kobayashi、1972年8月28日 - ）は、石川県羽咋郡志賀町出身の日本のサーカスプレーヤー。ウェップジャパン所属。身長172cm、体重68kg。血液型はA型。サーカスを中心に映画、テレビドラマ、舞台、テレビコマーシャルと幅広く活躍している。\nDio はデビュー時のキャラクター名が定着した呼び名。海外ではDio.Kobayashiの名で活動。本名は小林 睦史（コバヤシ アツシ）。この他にも、ピエロジョーカー、乙羽起之介(オトワキノスケ)、Kinosukeなどのキャラクター名でも活動。Ramuは長女（元妻との実子）。元妻はモデルのYu-Ko。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1972,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1972-08-28T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q17307272"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1972-08-28T00:00:00Z"
+    }
+  },
+  {
+    "name": "Dramagix",
+    "summary": "Dramagix（ドラマジックス）とは、過去に存在した日本の声優を主役にした実写ドラマのレーベルである。\nこの項では、その延長線として企画された『DSE〜DRAMAGIX SEIYU ENERGY』シリーズや、その姉妹レーベル『FSE〜FUNTAGIX SEIYU ENERGY〜』シリーズに関しても取り上げる。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "ECD (ミュージシャン)",
+    "summary": "ECD（イーシーディー、本名：石田 義則（いしだ よしのり）、1960年3月29日 - 2018年1月24日）は、日本のヒップホップミュージシャン。妻は写真家の植本一子。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1960,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1960-03-29T00:00:00Z",
+      "death_time": "+2018-01-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1960-03-29T00:00:00Z",
+      "death_time": "+2018-01-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "ELLY",
+    "summary": "ELLY（エリー、1987年9月21日 - ）は、日本のダンサー、ラッパー。三代目 J SOUL BROTHERS from EXILE TRIBEのパフォーマー。本名、エリオット・ロシャード・昂矢（エリオット・ロシャード・こうや）。ラッパー活動時の名義は、CB（シービー）。青森県三沢市出身。血液型A型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1987,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1987-09-21T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q5716684",
+        "Q2490358",
+        "Q2252262",
+        "Q177220"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1987-09-21T00:00:00Z"
+    }
+  },
+  {
+    "name": "EP (俳優)",
+    "summary": "eP（イーピ、1983年8月6日 - ）は、日本の俳優。韓国出身。身長175cm。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1983,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1983-08-06T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1983-08-06T00:00:00Z"
+    }
+  },
+  {
+    "name": "EXILE AKIRA",
+    "summary": "EXILE AKIRA（エグザイル アキラ、1981年8月23日 - ）は、日本のダンサー、俳優。EXILE、EXILE THE SECONDのメンバー。RATHER UNIQUEの元メンバー。神奈川県大和市出生、静岡県磐田市出身。血液型はA型。妻は台湾人モデルの林志玲。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1981-08-23T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q5716684",
+        "Q10798782"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-08-23T00:00:00Z"
+    }
+  },
+  {
+    "name": "EXILE MAKIDAI",
+    "summary": "EXILE MAKIDAI（エグザイル マキダイ、1975年10月27日 - ）は、日本の元ダンサー、DJ、俳優。EXILE、PKCZのメンバー。J Soul Brothers、RATHER UNIQUEの元メンバー。神奈川県横浜市出身。身長180cm。血液型O型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1975,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1975-10-27T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q5716684",
+        "Q130857"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1975-10-27T00:00:00Z"
+    }
+  },
+  {
+    "name": "EXILE NAOTO",
+    "summary": "EXILE NAOTO（エグザイル ナオト、1983年8月30日 - ）は、日本のダンサー、俳優。EXILE、三代目 J SOUL BROTHERS from EXILE TRIBEのメンバー。D.LEAGUEのチームLDH SCREAMのディレクター。埼玉県所沢市出身。LDH JAPAN所属。血液型はB型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1983,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1983-08-30T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q5716684"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1983-08-30T00:00:00Z"
+    }
+  },
+  {
+    "name": "EXILE TAKAHIRO",
+    "summary": "EXILE TAKAHIRO（エグザイル タカヒロ、1984年12月8日 - ）は、日本の歌手。EXILEのメンバー。山口県下関市出生、長崎県佐世保市出身。身長180cm。血液型はO型。妻は女優の武井咲。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1984,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1984-12-08T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1984-12-08T00:00:00Z"
+    }
+  },
+  {
+    "name": "EXILE TETSUYA",
+    "summary": "EXILE TETSUYA（エグザイル テツヤ、1981年2月18日 - ）は、日本のダンサー。EXILE、EXILE THE SECONDのメンバー。J Soul Brothersの元メンバー。秋田県出生、神奈川県横須賀市出身。血液型はO型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1981-02-18T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q5716684"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-02-18T00:00:00Z"
+    }
+  },
+  {
+    "name": "Eden Kai",
+    "summary": "Eden Kai（イーデン・カイ、本名：鮎澤 悠介（あいざわ ゆうすけ）、1998年9月24日 - ）は、東京都・八王子市出身のギタリスト・ウクレレ奏者、シンガーソングライター、俳優。所属事務所はEDEN KAI LLC。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1998,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1998-09-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q488205",
+        "Q60643157"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1998-09-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "EntertainerHi2",
+    "summary": "EntertainerHi2（エンターティナーヒッツ、1990年 - ）は日本の東京都を拠点に活動する大道芸人、パフォーマー、マジシャン、俳優。株式会社アリゲーターカンパニー所属。（Hi2、大道芸人ヒッツ）\nidio2（イディオッツ）は Hi2 と こ〜すけ によるスタイリッシュコメディユニット。2人ならではの掛け合いとショーで様々な場所で活躍、優勝などの成績を収める。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1990,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1990-09-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q15855449"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1990-09-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "E・H・エリック",
+    "summary": "E・H・エリック（E. H. Erick、本名：岡田 泰美（おかだ たいび）、1929年8月1日 - 2000年8月17日）は、日本で活躍した男性タレント、俳優、司会者。日本人の父とデンマーク人の母をもつ、ハーフタレント。弟は俳優・タレントの岡田眞澄。次女はタレントの岡田美里、長女・三女はいずれも一般人。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1929,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1929-08-01T00:00:00Z",
+      "death_time": "+2000-08-17T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q2705098",
+        "Q122767025"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1929-08-01T00:00:00Z",
+      "death_time": "+2000-08-17T00:00:00Z"
+    }
+  },
+  {
+    "name": "FISHBOY",
+    "summary": "FISHBOY（フィッシュボーイ、本名：中田 啓之（なかだ ひろゆき）、1985年12月19日 - ）は、日本のストリートダンサー、振付師、D.LEAGUEチーム・CyberAgent Legitディレクター。ダンス&ボーカルグループ・RADIO FISHのメンバーとしても活動している。所属事務所はワタナベエンターテインメント。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1985,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1985-12-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q5716684",
+        "Q2490358",
+        "Q19772737"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1985-12-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "Fumiya",
+    "summary": "Fumiya（フミヤ、1995年3月19日 - ）は、フィリピンを拠点に活動する日本の俳優、歌手、タレント、YouTuber。本名は三海郁弥（さんかい ふみや）。静岡県浜松市出身で、浜松市の観光大使「やらまいかアンバサダー」を務めている。「フィリピンで一番有名な日本人」と言われている。時にソーシャルメディアクリエイターとも称されSNSの総フォロワー数は620万人を超えている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 1,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1995,
+      "alive_text": 1,
+      "gender": "male",
+      "singer_wikidata": 1,
+      "birth_time": "+1995-03-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q639669",
+        "Q4110598"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1995-03-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "GACKT",
+    "summary": "GACKT（ガクト、1973年7月4日 - ）は、日本の男性シンガーソングライター、俳優。\n沖縄県出身。本名は大城 ガクト（おおしろ がくと）。旧芸名はGackt（読み同じ）、別名義は神威 楽斗（かむい がくと、Gackt Camui）。日本の個人事務所は（合）VENUS、ファンクラブ運営は（株）ファンタス。GACKTのファンの総称は「LOVERS」。マレーシア・クアラルンプール在住。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1973,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1973-07-04T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q488205",
+        "Q177220",
+        "Q33999",
+        "Q622807",
+        "Q36834",
+        "Q183945",
+        "Q486748",
+        "Q49757",
+        "Q4610556",
+        "Q855091",
+        "Q1327329"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1973-07-04T00:00:00Z"
+    }
+  },
+  {
+    "name": "GANXSTA D.X",
+    "summary": "GANXSTA D.X（ギャングスタ ディーエックス）本名 野田 修一（Shuichi Noda）は、日本のヒップホップMC・音楽プロデューサー・俳優。神奈川県横須賀市出身。GDXまたはSHUとも名乗る。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Gendy",
+    "summary": "Gendy （ゲンディ、本名：源田 泰章（げんだ やすあき、Yasuaki Genda）、1982年1月27日 - ）は、日本の映画プロデューサー、映画監督、タレント、シンガーソングライター、ラジオパーソナリティ、実業家。長野県諏訪郡下諏訪町出身。源田企画株式会社所属・同代表取締役。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1982,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1982-01-27T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q2722764"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1982-01-27T00:00:00Z"
+    }
+  },
+  {
+    "name": "HAZUKI KATO",
+    "summary": "HAZUKI KATO（ハヅキ・カトウ）は、ロサンゼルスを拠点にするバイリンガルの女優・モデル。埼玉県出身。所属事務所はKevin's Entertainment。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q10800557",
+        "Q10798782"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "HIRO (お笑い芸人)",
+    "summary": "HIRO（ヒロ、1977年4月20日 - ）は、日本のお笑いタレント、俳優、声優、ナレーター、ラジオパーソナリティ、YouTuber。お笑いトリオ・安田大サーカスのボケ担当。中村部屋所属の元大相撲力士。和歌山県和歌山市出身。松竹芸能所属。ニックネームは「HIROくん」。大相撲時代の四股名は和歌桜（わかざくら）、最高位は序二段163枚目。血液型O型、星座おうし座。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 1,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1977,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1977-04-20T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q2727289",
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1977-04-20T00:00:00Z"
+    }
+  },
+  {
+    "name": "HIRO (モデル)",
+    "summary": "HIRO（ひろ、1970年9月25日 - ）は日本のモデル・俳優である。本名、関口 寛之（せきぐち ひろゆき）。株式会社エス・プログレスを経て株式会社バークインスタイルに所属。\n東京都出身。身長186cm。血液型A型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1970,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1970-09-25T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1970-09-25T00:00:00Z"
+    }
+  },
+  {
+    "name": "Homer",
+    "summary": "Homer（ホーマー、1990年2月28日 - ）は、日本のダンサー・俳優 ・振付家・歌手 ・演出家である。\nFREE STYLE DANCE TEAMのTHE AVENGERZに所属し、海外・国内アーティストの振付やバックダンサー出演を行う。\n2019年5月31日、ヴォーカル&パフォーマンスグループDIAMOND☆DOGSに加入。現在は舞台を中心に活動中。\nダンサーとしての受賞歴は、埼玉 FREE STYLE CREW BATTLE 優勝。\nパーティー vol.14 2ON2 BATTLE準優勝。\n横浜 FREE STYLE BATTLE MVP受賞。 \n浦和 FREESTYLE 2on2 準優勝。\na.d.g vol.10 SOLO BATTLE 準優勝。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 1,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1990,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "IKKAN",
+    "summary": "IKKAN（いっかん、本名：新井 一貫、1971年〈昭和46年〉3月1日 - ）は、日本の俳優、声優、作家、演出家、お笑い芸人、漫画家。\n北海道旭川市出身。劇団テアトル・エコー所属。オフィス★怪人社代表。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1971,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1971-03-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807",
+        "Q36180",
+        "Q943995"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1971-03-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "ISSA (歌手)",
+    "summary": "ISSA（イッサ、1978年〈昭和53年〉12月9日 - ）は、日本の歌手、ラッパー、ダンサー、俳優、DA PUMPのリーダー、ボーカル担当 。血液型はB型。ライジングプロダクション所属。\n沖縄県沖縄市出身。本名は邊土名 一茶（へんとな いっさ）。旧芸名は辺土名 一茶（読み同じ）。所属レコード会社はエイベックス（レーベルはSONIC GROOVE）。メンバーカラーは赤。既婚。2児の父。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1978,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1978-12-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q970153",
+        "Q177220",
+        "Q2252262",
+        "Q5716684",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1978-12-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "ISSAY",
+    "summary": "ISSAY（イッセイ、本名：藤崎一成、1962年7月6日 - 2023年8月5日）は、日本の歌手、作詞家、俳優、パントマイミスト。静岡県出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1962,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "death_time": "+2023-08-05T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q822146",
+        "Q33999",
+        "Q674067"
+      ],
+      "gender_qid": "Q6581097",
+      "death_time": "+2023-08-05T00:00:00Z"
+    }
+  },
+  {
+    "name": "ISSEI (歌手)",
+    "summary": "ISSEI（イッセイ、2004年〈平成16年〉2月9日 - ）は、日本の歌手、俳優、タレント。ジュニア内男性アイドルグループ・美 少年の元メンバーであり、金指 一世（かなさし いっせい）の芸名で活動していた。\n東京都出身。TOBE所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2004,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+2004-02-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q33999",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+2004-02-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "IZAM",
+    "summary": "IZAM（イザム、1972年4月23日 - ）は、日本のミュージシャン、タレント、俳優。本名は日根 良和（ひね よしかず）。\n東京都府中市出身。身長180cm。血液型はO型。東京都立松が谷高等学校卒業。ベニバラ兎団主宰。日本芸術専門学校特別講師。妻は女優の吉岡美穂。3児の父。父は元国鉄スワローズ投手の日根紘三（ひね こうぞう）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1972,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1972-04-23T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q822146"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1972-04-23T00:00:00Z"
+    }
+  },
+  {
+    "name": "JA-JA",
+    "summary": "JA-JA（ジャジャ）は、1988年「ビギニング!!チャチャ」（日本テレビ系）より生まれた、東京キッドブラザース所属（当時）の俳優、長戸勝彦と水谷敦（現・水谷あつし）からなるユニットである。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1988,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Jin Dogg",
+    "summary": "Jin Dogg（ジン ドッグ、1990年9月10日 - ）は、日本出身のラッパー、または俳優。\n「Jin Dogg」の名前はSnoop Doggと珍島犬（韓：진돗개、Jindotgae）に由来する。本名はJake Yoon。\n日本語、英語、韓国語の3ヶ国語を話すトリリンガル。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1990,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1990-09-10T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q2252262",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1990-09-10T00:00:00Z"
+    }
+  },
+  {
+    "name": "K (&TEAM)",
+    "summary": "K（ケイ、朝: 케이、1997年10月21日 - ）は、日本の歌手、俳優。東京都出身。ボーイズグループ・&TEAMのメンバーである。YX LABELS所属。本名、古賀 祐大（こが ゆうだい）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1997,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1997-10-21T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q5716684",
+        "Q177220",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1997-10-21T00:00:00Z"
+    }
+  },
+  {
+    "name": "K-SUKE",
+    "summary": "K-SUKE（ケースケ、1990年4月29日 - ）は、千葉県船橋市出身のマジシャン、俳優。身長180cm。血液型A型。\nテレビ朝日の日本一のマジシャンを決める対決企画「最強No.1決定戦 マジック王-KING-」にて優勝。対戦相手はKiLa、山上兄弟、ほか。「マジック王」の称号を持つ。絵コンテの制作から携わった株式会社JALカードのCM「新しすぎるクレジットカードの支払い方」と「楽しすぎるクレジットカードの支払い方」では、全てのシーンにトリックを仕込んでいたことが話題を集めた。\n2018年にミュージカル版「恋する♡ヴァンパイア」でミュージカル俳優デビュー。SixTONESの京本大我と共にBlack Iceというグループを結成。\n2020年には日本一タキシードが似合う男性として「ミスタータキシード」の称号を、JFCA日本フォーマルウェア文化普及協会から授与された。\n2022年4月29日に芸名がK-SUKEから漢字表記の白百合慶祐に。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1990,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "KAZUYA (俳優)",
+    "summary": "KAZUYA（かずや、1996年11月1日 - ）は、日本の俳優、アイドルである。愛知県出身。ダンス&ボーカルユニットのFLSのメンバー。都内のライブハウスを中心に活躍中。前身のグループはVIRAL。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1996,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "KEI (ダンサー)",
+    "summary": "KEI（けい、2006年7月17日生まれ）は、日本の歌手、ダンサー、俳優。元スターダストプロモーションでEDAMAME BEANSのメンバーとしてメジャー・デビューし、主演映画『WAO』では複数の国際映画祭で選出された。韓国のサバイバルオーディション番組『BOYS PLANET』や、国内のオーディション番組『THE LAST PIECE』に出演。現在はBMSGにトレーニーとして所属し、新グループでのデビューが決定している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2006,
+      "alive_text": 1
+    },
+    "wikidata": null
+  },
+  {
+    "name": "KENN",
+    "summary": "KENN（ケン、1982年3月24日 - ）は、日本の声優、俳優、歌手。東京都出身。Zynchro所属。本名は大橋 賢一郎（おおはし けんいちろう）。\n代表作に『ミュージカル テニスの王子様』（不二裕太）、『宇宙兄弟』（南波日々人）、『逆転裁判4』（王泥喜法介）、『遊☆戯☆王デュエルモンスターズGX』（遊城十代）などがある。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 1,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1982,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1982-03-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807",
+        "Q177220"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1982-03-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "KENROKU",
+    "summary": "KENROKU（けんろく、1980年8月19日-）は、兵庫県芦屋市出身の俳優。身長182cm、体重75kg。血液型はO型。趣味はボディビルディング、一人旅、神社仏閣巡り、プロレス・格闘技観戦。特技はボクシング、華道、英会話。NESTA（全米エクササイズ＆スポーツトレーナー協会）認定パーソナルフィットネストレーナー、NESTA認定ダイエット＆ビューティースペシャルリスト資格やボクシングのプロライセンスも取得している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1980,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1980-08-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1980-08-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "KENTA (俳優)",
+    "summary": "KENTA（けんた、1992年1月19日 - ）は、日本の元俳優、元タレントである。本名はダルビッシュ 賢太（ダルビッシュ けんた）。大阪府出身。活動時はエイベックス・マネジメントに所属していた。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1992,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1992-01-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1992-01-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "KENTARO",
+    "summary": "KENTARO（けんたろう、1969年5月2日 - ）は、神奈川県出身の俳優。身長177cm。舞台を中心にミュージカルやストレートプレイ、コンサート等、幅広く活動中。株式会社グランクリアー所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1969,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1969-05-02T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1969-05-02T00:00:00Z"
+    }
+  },
+  {
+    "name": "KIMERU",
+    "summary": "KIMERU（きめる、1980年6月17日 - ）は、日本の男性歌手・俳優である。熊本県出身。身長162 cm、血液型はB型。\n以前の芸名はKimeru。2017年、以前所属していた株式会社デルファイサウンドに所属したタイミングで全大文字「KIMERU」に改名。現在はフリーランス(業務提携:株式会社ハルエンターテイメント、株式会社トキエンタテインメント)として活動中。\n資格を取得し、心理カウンセラーとしても活動中。\n趣味は乗馬、馬場馬術3級も取得している。\nミュージカルテニスの王子様では越前リョーマ役の柳浩太郎を気にかけており当時住んでいた1kのアパートに泊まらせていた。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1980,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1980-06-17T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1980-06-17T00:00:00Z"
+    }
+  },
+  {
+    "name": "KIMIHIRO",
+    "summary": "KIMIHIRO（きみひろ、1995年8月22日 - ）は、日本のラッパー、歌手、作詞家。YellowSavageTokyoおよびDDTプロレスリングのユニット、STRANGE LOVE CONNECTIONのメンバー。東京都稲城市出身。血液型O型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 1,
+      "politician": 0,
+      "birth_year": 1995,
+      "alive_text": 1
+    },
+    "wikidata": null
+  },
+  {
+    "name": "KINYA (タレント)",
+    "summary": "KINYA（きんや、1949年9月6日 - ）は、日本のマルチタレント。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1949,
+      "alive_text": 1,
+      "gender": "male",
+      "singer_wikidata": 1,
+      "birth_time": "+1949-09-06T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1949-09-06T00:00:00Z"
+    }
+  },
+  {
+    "name": "KOBA",
+    "summary": "KOBA（コバ)は、日本のダンサー、俳優、振付家、演出家、ダンス講師、演技講師。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1969-06-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1969-06-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "KONTA",
+    "summary": "KONTA（コンタ、1960年7月25日 - ）は、日本のミュージシャン、サックスプレイヤー、俳優、声優、ナレーター。本名及び別名、近藤 敦（こんどう あつし）。東京都新宿区出身。ロックバンドBARBEE BOYSのメンバー。\n近年は弾き語りによるソロライブやナレーターを中心に、バンド僕らのしぜんの冒険（深町純、佐藤正治）、TRIVANDRUM（本田達也、小野雅司）などで活動。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1960,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1960-07-25T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807",
+        "Q177220",
+        "Q12800682"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1960-07-25T00:00:00Z"
+    }
+  },
+  {
+    "name": "KYO-SUKE",
+    "summary": "KYO-SUKE（キョウスケ、本名：中村 恭輔（なかむら きょうすけ）、1974年11月28日 - ）は日本のマジシャン、創作家、俳優。岩手県盛岡市出身。\n至近距離で演じるクロースアップ・マジックからステージで演じるステージ・マジックまで幅広いジャンルをこなす。\n“マジックとは仮想現実（ヴァーチャル・リアリティ）を現実世界に創造するエンターテインメントである”という哲学を持ち、『ヴァーチャリスト』を称する。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1974,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1974-11-28T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2705098",
+        "Q15855449"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1974-11-28T00:00:00Z"
+    }
+  },
+  {
+    "name": "KYOHEI (歌手)",
+    "summary": "KYOHEI（キョウヘイ、1981年11月29日 - ）は、日本の男性シンガーソングライター、ギタリスト、作詞家、作曲家、編曲家、音楽プロデューサー、音楽ディレクター、音楽監督、俳優。本名非公表。Honey L Daysのメンバー。Roudz、DIAMOND☆DOGSの元メンバー。神奈川県川崎市出身。血液型はB型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1981-11-29T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q36834",
+        "Q822146"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-11-29T00:00:00Z"
+    }
+  },
+  {
+    "name": "Kaito (俳優)",
+    "summary": "Kaito（かいと、本名：長江 海星（ながえ かいと）、旧芸名KAITO 1997年11月1日 - ）は日本の俳優。イズム・エンターテインメントに所属していた。身長169cm。体重48kg。靴サイズ25.0cm。頭周り59cm。丑年。さそり座。\n「快斗」は黒の女教師出演時のみの芸名。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1997,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1997-11-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1997-11-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "KenKen",
+    "summary": "KenKen（ケンケン、本名：金子 賢輔（かねこ けんすけ）、1985年12月30日 - ）は、日本のミュージシャン。ロックバンドRIZEのベーシスト。\n東京都世田谷区下北沢出身。血液型はAB型。\n父はドラマーのジョニー吉長。母はシンガーの金子マリ。兄はRIZEのドラマー金子ノブアキ。　2024年2月1日にポールダンサーPOPOと結婚した。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1985,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1985-12-30T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q584301",
+        "Q36834",
+        "Q822146",
+        "Q3922505"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1985-12-30T00:00:00Z"
+    }
+  },
+  {
+    "name": "Koji (俳優)",
+    "summary": "Koji（コージ、1977年2月5日 - ） Koji Sueyoshiは、日本の俳優。旧芸名は末吉 宏司（すえよし こうじ）。東京都出身。かつてはフロム・ファーストプロダクション、メディアワークスS&Dプロモーションに所属していた。メキシコシティ在住。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1977,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1977-02-05T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1977-02-05T00:00:00Z"
+    }
+  },
+  {
+    "name": "Kyowhey",
+    "summary": "Kyowhey（キョウヘイ、本名：寺田恭平（てらだきょうへい）、1981年7月13日 - ）は、日本の俳優。東京都出身。身長168cm、血液型AB型。\nハイブリッド・アミューズメント・ショウ「bpm」、パフォーマンス集団『G-S.A.C.』、劇団「DMF」に所属していた。現在は退団。\nどこの団体も公式でのコメントはしていない。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1981-07-13T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-07-13T00:00:00Z"
+    }
+  },
+  {
+    "name": "LUY",
+    "summary": "LUY（ルイ、12月21日 - ）は、東京都町田市出身の女優、モデル。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "MANNY",
+    "summary": "MANNY（マニー、1985年8月1日 - ）は、日本の男性俳優、ファッションモデル。日本名のレノ 聡（レノ さとし）名義でも活動する。アクロス エンタテインメント所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1985,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1985-08-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1985-08-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "MAOTO",
+    "summary": "MAOTO （まおと）は、日本のダンサー、俳優である。実父はミュージカル俳優の川口竜也。伯父に劇団四季所属の川口雄二がいる。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q5716684",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "MASAYA (俳優)",
+    "summary": "MASAYA(まさや、1995年11月22日-) 日本の俳優・モデルである。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1995,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1995-11-22T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1995-11-22T00:00:00Z"
+    }
+  },
+  {
+    "name": "MASUMI",
+    "summary": "MASUMI（マスミ）は、日米両国で活動する女優兼シンガーソングライター。2025年3月20日発売のゲーム『アサシン クリード シャドウズ』で主演キャラクターを担当することが発表されている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2025,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2405480"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "MCU (ラッパー)",
+    "summary": "MCU（エムシーユー、1973年8月1日 - ）は、東京都豊島区巣鴨出身のヒップホップMC、ソングライター、俳優である。本名は小泉 雄志。\n芸名の由来は、本名の雄志およびビースティ・ボーイズのMCAから。KICK THE CAN CREW及びマツリルカ、SEALのMC担当。愛称は「雄志くん」。所属レコード会社はBMG JAPAN。FUNKY GRAMMAR UNIT、神輿ロッカーズ、DJとしてTRIBAL FRUITS CAFEの一員。かつてはU、MC Uという名で活動していた。現在はKICK THE CAN CREWのLITTLEと共にULのMCとして活動している。プロデューサーは同じくKICK THE CAN CREWのKREVAである。既婚。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1973,
+      "alive_text": 1,
+      "gender": "male",
+      "singer_wikidata": 1,
+      "birth_time": "+1973-08-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q497240",
+        "Q36834",
+        "Q822146",
+        "Q639669"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1973-08-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "MEHWA",
+    "summary": "MEHWA（メファ）は、日本のラジオパーソナリティ・モデル・タレント・女優・MCである。F-FactoryJapan所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q2722764"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "MITCH",
+    "summary": "MITCH（ミッチ、1974年2月13日 - ）は、日本のミュージシャン、トランペット奏者、歌手、バンドリーダー、音頭取り、俳優。血液型A型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1974,
+      "alive_text": 1,
+      "gender": "male",
+      "singer_wikidata": 1,
+      "birth_time": "+1974-02-13T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q639669"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1974-02-13T00:00:00Z"
+    }
+  },
+  {
+    "name": "MITSUAKI",
+    "summary": "MITSUAKI（ミツアキ、1980年5月22日 - ）は、日本の男性歌手、俳優。本名は東山 光明。Honey L Daysのメンバー。DIAMOND☆DOGSの元メンバー。所属芸能事務所は株式会社アシスト。大阪府出身。血液型はA型。兄は同じく俳優と歌手の東山義久。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1980,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1980-05-22T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1980-05-22T00:00:00Z"
+    }
+  },
+  {
+    "name": "MITSUGI",
+    "summary": "MITSUGI（ミツギ、1991年6月27日 - ）は、フランスのシンガーソングライター、作曲家、俳優、モデルである。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1991,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Maechang",
+    "summary": "maechang（マエチャン）は、日本の役者、BLACK★TIGHTS主宰。sword　works所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Micro",
+    "summary": "Micro（マイクロ、本名：西宮 佑騎（にしみや ゆうき）、1980年8月28日 - ）は、東京都出身のボーカリスト、ソングライター、音楽プロデューサー。\nハワイ育ちのShenと共にDef Techのメンバー\"My Way\"を含む1stアルバム『Def Tech』を2005年に発売。280万枚超を売り上げ、インディーズのセールス記録を塗り替えた。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1980,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1980-08-28T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q488205",
+        "Q183945",
+        "Q36834",
+        "Q822146"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1980-08-28T00:00:00Z"
+    }
+  },
+  {
+    "name": "Milet",
+    "summary": "milet（ミレイ）は、日本のシンガーソングライター。プロフィールは非公表。所属事務所はソニー・ミュージックアーティスツ。レーベルはSME Records。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q488205"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "Mr.オクレ",
+    "summary": "Mr.オクレ（ミスターオクレ、1953年〈昭和28年〉4月30日 - ）は、日本のお笑いタレント、喜劇俳優。吉本新喜劇の座員。\n本名は岡田 信行（おかだ のぶゆき）。吉本興業所属。かつてはベーシストとして活動していた。\n兵庫県明石市出身。兵庫県立明石南高等学校卒業。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1953,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1953-04-30T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q245068",
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1953-04-30T00:00:00Z"
+    }
+  },
+  {
+    "name": "Mummy-D",
+    "summary": "Mummy-D（マミーディー、1970年4月14日 - ）は、日本のヒップホップMC、俳優、プロデューサー、タレント。本名、坂間 大介（さかま だいすけ）。\nRHYMESTERおよびマボロシのメンバー。弟は同じくヒップホップMCのKOHEI JAPAN。トラックメイカーとしてはMr.Drunk名義で活動している。その他、『クイズプレゼンバラエティー Qさま!!』（テレビ朝日）に出演するなどタレント業も行っている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1970,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1970-04-14T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q497240"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1970-04-14T00:00:00Z"
+    }
+  },
+  {
+    "name": "NAO-G",
+    "summary": "NAO-G（ナオジー、本名：後藤直人（ごとうなおと）、1983年12月19日 - ）は、日本の俳優。東京都出身。ダンデライオン所属。\nハイブリッド・アミューズメント・ショウ「bpm」に所属していたが、2018年8月19日にユニット卒業。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1983,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1983-12-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1983-12-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "NOAH (タレント)",
+    "summary": "NOAH（ノア、1993年10月14日 - ）は、日本の俳優、ラッパー、プロサーファー、タレント。父は真木蔵人。祖父はマイク眞木。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1993,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1993-10-14T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1993-10-14T00:00:00Z"
+    }
+  },
+  {
+    "name": "NORO",
+    "summary": "NORO（のろ）は、日本のシンガーソングライター、レコーディング・エンジニア、マスタリング・エンジニア、マニピュレーター。広島県広島市出身。WEBデザイナーや女優としても活動している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "NaoTo",
+    "summary": "NaoTo（なおと、1995年8月11日 - ）は、日本の俳優、YouTuber、タレント。東京都練馬区出身。Grit Agency所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 1,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1995,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Nissy",
+    "summary": "Nissy（ニッシー、本名：西島 隆弘〈にしじま たかひろ〉、1986年9月30日 - ）は、日本の歌手、俳優。\n2005年、男女8人編成の音楽ダンスグループ・AAAが結成され、メンバーに選ばれ、シングル『BLOOD on FIRE』でメジャーデビュー。同年の日本レコード大賞新人賞を受賞した。\n現在はソロアーティストとして活動しており、ソロとして3曲目にリリースした「GIFT」では日本のiTunesチャート1位を獲得した。\n2016年にはソロとして初のアルバム『HOCUS POCUS』をリリースし、発売当日にiTunesアルバムランキング日本1位、週間ランキング1位を獲得した。\n2019年、日本人男性ソロアーティスト史上最年少記録となる4大ドームツアーを開催した。また、活動を始めて5年でドームツアーを開催するのは日本人男性ソロアーティストとしては史上最速となる。\n2022年から2023年にかけ6大ドームツアーを開催し、全公演ソールドアウト、総動員規模は45万人となった。\n身長170cm、血液型O型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 1,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1986,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1986-09-30T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q5716684",
+        "Q55960555"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1986-09-30T00:00:00Z"
+    }
+  },
+  {
+    "name": "Phonon (レーベル)",
+    "summary": "Phonon（フォノン）は、株式会社テンフィートが制作する日本の声優番組のレーベルである。2009年から声優番組を制作していたが、2012年11月にレーベルが設立され、今でも数多くの声優番組の制作及び声優企画DVDを発売している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2009,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "Pinky Sky",
+    "summary": "Pinky Sky（ピンキースカイ）は佐賀県を拠点に活動するローカルアイドルグループ（デュオ）・女優・MC・タレント。略称は「ピンスカ」。\n佐賀県佐賀市の芸能プロダクションSAGANPRO（サガンプロ）所属。\nピンキースカイファンの総称は「ピンスカ中毒」で「ぴかちゅう」。ファンのカラーは黄色。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "R-指定 (ラッパー)",
+    "summary": "R-指定（アールしてい、本名：野上 恭平〈のがみ きょうへい〉、1991年〈平成3年〉9月10日 - ）は、日本のラッパー、歌手、作詞家、俳優。Creepy Nutsおよび梅田サイファーのメンバー。MCバトルでは、ULTIMATE MC BATTLE3連覇を達成。大阪府堺市出身。妻はタレントの江藤菜摘。妻の姉の夫（義兄）は落語家の桂笹丸。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1991,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1991-09-10T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q2252262",
+        "Q33999",
+        "Q177220",
+        "Q822146"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1991-09-10T00:00:00Z"
+    }
+  },
+  {
+    "name": "RAN (MAZZEL)",
+    "summary": "RAN（ラン、本名：古家 蘭〈ふるいえ らん〉、2002年8月23日 - ）は、日本の歌手、ダンサー、ファッションモデル、俳優。熊本県出身。BMSG所属のダンス＆ボーカルグループ・MAZZELのメンバー。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2002,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "RBプロジェクト",
+    "summary": "RBプロジェクト（あーるびープロジェクト）は、2008年に結成された日本のサウンドドラマ制作集団。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2008,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "ROLAND (ホスト)",
+    "summary": "ROLAND（ローランド、1992年〈平成4年〉7月27日 - ）は、日本の元ホスト、実業家、投資家、タレント。株式会社ROLAND GROUP HD 代表取締役。血液型AB型。\n元ホストであり、「ホスト界の帝王」と称される。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1992,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1992-07-27T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q43845",
+        "Q3357567",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1992-07-27T00:00:00Z"
+    }
+  },
+  {
+    "name": "ROLLY",
+    "summary": "ROLLY（ローリー、1963年9月6日 - ）は、日本のロックシンガー、ギタリスト、音楽プロデューサー、俳優。旧名はローリー寺西（ローリーてらにし）および寺西 一雄（てらにし かずお：本名）。身長171cm、体重55.5kg。既婚。従弟はシンガーソングライターの槇原敬之。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1963,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1963-09-06T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q488205",
+        "Q855091"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1963-09-06T00:00:00Z"
+    }
+  },
+  {
+    "name": "RYEKA",
+    "summary": "RYEKA（りえか）は、東京出身の女優・シンガー。本名は水原里枝香。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "ReeSya",
+    "summary": "ReeSya（リーシャ、2月27日 - ）は、日本の女優、歌手、ラジオパーソナリティである。福島県郡山市出身、本名長本 梨沙（ながもと りさ）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "Remi (女性ファッションモデル)",
+    "summary": "Remi (レミ、生年月日非公開) は、日本の女性ファッションモデル、女優。ロシア×日本のクォーター。子役時代は劇団日本児童に所属の確認有り。大手モデル事務所JUNES国内部。国内外の雑誌やファッションショー、ドラマなどで活躍。3歳で子役デビュー。日本芸術学園高等部芸術科、上智大学比較文化学部卒業。英・ケンブリッジ大学1年留学（天体物理学部）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q3357567",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "SADA",
+    "summary": "AST（アスト、1984年〈昭和59年〉6月5日 - ）は、日本のアーティスト、俳優、モデル、プロデューサー、実業家。\n11月5日より名前を『SADA』から『AST』に改名。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1984,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1984-06-05T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1984-06-05T00:00:00Z"
+    }
+  },
+  {
+    "name": "SAORI (モデル)",
+    "summary": "SAORI（さおり、10月27日 - ）は、日本のモデル、女優、歌手。FMG所属。\n浦和明の星女子高等学校卒、聖心女子大学文学部哲学科卒業。\n元ミス日本（2003年度ミス日本フォトジェニック賞）。\n本名の「今村さおり」で受賞。その後、モデル活動を開始。\nWacoal『W-wing』のトップページ等で活躍。\nモデル活動の傍ら、サイト『kampostyle』を立ち上げ、\n2008年には「漢方スタイリスト・今村早里」として「新コッコアポA錠」のイメージキャラクターに起用される。\nモデルの未祐（みゆう）と共同で『透貴茶』を開発。\n2009年にミュージシャンの中西俊夫と入籍。\n結婚を機に漢方スタイリストを休止し、モデル活動に専念。\n同年男児一人をもうける。\n現在はSAORIと改名し、夫・中西俊夫のバンド「Plastic Sex」のコーラス・フルート担当している。\n2010年、PLASTICSのライブツアーに参加。\n2017年、夫・中西が食道がんで死去。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 1,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2003,
+      "alive_text": 0,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q4610556"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "SEIGO",
+    "summary": "SEIGO（せいご、1965年3月15日 - ）は、日本の俳優&民謡歌手及びドラム奏者。身長168cm、体重63kg。血液型はB型。東京都新宿区出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1965,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1965-03-15T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1965-03-15T00:00:00Z"
+    }
+  },
+  {
+    "name": "SEITO",
+    "summary": "SEITO（セイト、本名：網代 聖人〈あじろ せいと〉、2001年（平成13年）12月26日 - ）は、日本の歌手、ダンサー、ファッションモデル、俳優。ダンス＆ボーカルグループ・MAZZELのメンバー、ダンス＆ボーカルグループ「Zero PLANET」の元メンバー。兵庫県出身。血液型はO型。BMSG所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2001,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+2001-12-26T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+2001-12-26T00:00:00Z"
+    }
+  },
+  {
+    "name": "SHOGO (歌手)",
+    "summary": "SHOGO（ショーゴ、本名：木下 将吾（きのした しょうご）、1980年3月24日 - ）は、日本のミュージシャン、歌手である。175Rのボーカリスト。福岡県北九州市小倉北区出身。豊国学園高等学校卒業。2009年175Rとして北九州市の観光大使にも任命された。\n元妻は元SPEEDで参議院議員の今井絵理子。2004年6月に結婚。同年10月に長男・今井礼夢が誕生したものの2007年9月24日に離婚を発表。\n2010年9月に175Rの活動休止を発表。12月30日に幕張メッセにて行われたCOUNTDOWN JAPAN 10/11の出演を最後に活動休止をした。\n2014年1月 玉置浩二と共作した1st SOLO Single「太陽」でソロデビュー。\n2014年の春に石井あみと再婚。\n2016年12月幕張メッセにて行われた骸骨祭り に出演し、175Rとしての活動を6年ぶりに再開。現妻との間に子供（娘）は2人いる。\n堀江貴文がオーナーの球団福岡北九州フェニックスのテーマソングを担当することが発表された。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 1,
+      "birth_year": 1980,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1980-03-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q488205"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1980-03-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "SUNPLUS",
+    "summary": "SUNPLUS（サンプラス）は、サンミュージックに所属する若手男性俳優で構成されるユニット。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "SWAY (ラッパー)",
+    "summary": "SWAY（スウェイ、1986年6月9日 - ）は、日本のラッパー、俳優、クリエイター。DOBERMAN INFINITYのMC、劇団EXILEのメンバー。北海道札幌市出身。身長180cm。血液型AB型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1986,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1986-06-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q10798782",
+        "Q2252262",
+        "Q822146",
+        "Q183945"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1986-06-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "Sa-ya",
+    "summary": "Sa-ya（さーや）は、日本のタレント、マジシャン、女優。愛知県名古屋市出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "Sawa",
+    "summary": "Sawa（サワ、1月22日 - ）は、日本の看護師、女優。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "ShunKan",
+    "summary": "ShunKan(シュンカン)とは関西地方を中心に活動する男性若手俳優により構成されたグループである。所属事務所はACT-21。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Spi (俳優)",
+    "summary": "spi（すぴ、1987年10月30日 - ）は、日本の俳優、歌手、モデル。\n神奈川県横須賀市出身、青山学院大学法学部卒。\nフリーにて活動中。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1987,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1987-10-30T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1987-10-30T00:00:00Z"
+    }
+  },
+  {
+    "name": "TABO",
+    "summary": "ターボー（たーぼー、1966年9月27日 - ）は東京都出身の株式会社 キサラエンタープライズに所属する日本のものまねタレント、お笑いタレントである。身長178cm、バスト97cm　ウエスト85cm　ヒップ98cm。特技:タップダンス、剣道。\n石原慎太郎元東京都知事、石破茂衆議院議員の爆笑政治家ものまねを得意とし、映画、「地球防衛未亡人」では石倉元東京都知事を演じ、その才を発揮した。フジテレビ『第29、30回　日本モノマネ大賞』（アイデア賞）（熱演賞）受賞。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 1,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 1,
+      "birth_year": 1966,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1966-09-27T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q1148872",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1966-09-27T00:00:00Z"
+    }
+  },
+  {
+    "name": "TAKA (1993年生の俳優)",
+    "summary": "TAKA（たか、1993年11月14日 - ）は、日本の元アイドル、元俳優である。愛媛県出身。つばさエンタテインメント所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1993,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1993-11-14T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q226008"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1993-11-14T00:00:00Z"
+    }
+  },
+  {
+    "name": "TAKA (Libraian)",
+    "summary": "TAKA（タカ、10月6日 - ）は、日本のミュージシャン、俳優。La'cryma Christi及びLibraianのボーカル。株式会社ベルエトワール代表取締役社長／ジュエリーエネルギーアドバイザー。本名は岡本 敬人（おかもと たかひと）",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q488205"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "TEAH",
+    "summary": "TEAH（テア、本名：小金井 てあ、1978年4月14日 - ）は、日本の俳優。東京都出身。血液型はO型。身長188cm、体重81kg。所属事務所はサードポジション。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1978,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1978-04-14T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1978-04-14T00:00:00Z"
+    }
+  },
+  {
+    "name": "TERU (俳優)",
+    "summary": "TERU（てる、1967年9月27日 - ）は、長崎県出身の俳優。本名、浦上 照彦（うらがみ てるひこ）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1967,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1967-09-27T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1967-09-27T00:00:00Z"
+    }
+  },
+  {
+    "name": "Tekkan",
+    "summary": "tekkan（てっかん）は日本の男性俳優、歌手。大阪府出身。身長170cm。特技はピアノ。趣味は旅行。本名・和田哲監。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q639669"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "Template:各世紀日本の俳優",
+    "summary": "",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": null
+  },
+  {
+    "name": "U.K. (タレント)",
+    "summary": "U.K.（ユーケー、1974年〈昭和49年〉10月4日 - ）は、ラジオDJ、タレント、MC、俳優、作家、新聞社編集長、もりぐち夢・未来大使、国際金融都市OSAKAアンバサダー、エアギタリスト。　大阪府大阪市西区出身。関西を中心に活動している。本名および別名は楠 雄二朗（くすのき ゆうじろう）で、愛称はくっすん。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1974,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1974-10-04T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q130857",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1974-10-04T00:00:00Z"
+    }
+  },
+  {
+    "name": "VART",
+    "summary": "VART（ヴァート）は、日本のレーシングチーム。「Voice Actors Racing Team（ヴォイスアクターズレーシングチーム）」の略称。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "Web版TVスター名鑑",
+    "summary": "Web版TVスター名鑑（ウェブばんテレビスターめいかん）は、日本のテレビ出演者についての日本のデータベースサイトである。2014年9月30日にサービス終了した。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2014,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "YOH (俳優)",
+    "summary": "YOH（ヨウ、1980年4月16日 - ）は、日本の俳優、ファッションモデル、写真家、デザイナー。\n東京都出身。ギグマネジメントジャパン所属。身長182cm。2014年4月16日から2017年10月までの期間、名前の表記をYOHから一乃瀬洋介に改名していたが、その間もクリエイターとしての名義はYOHであった。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1980,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1980-04-16T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1980-04-16T00:00:00Z"
+    }
+  },
+  {
+    "name": "YOSHI (歌手)",
+    "summary": "YOSHI（ヨシ、2003年〈平成15年〉2月26日 - 2022年〈令和4年〉11月5日）は、日本のシンガーソングライター、ファッションモデル、俳優。本名は佐々木 嘉純（ささき よしずみ）。広島県尾道市出身。所属芸能事務所はSTARBASE。所属レコード会社はユニバーサルミュージックで、レーベルはVirgin Music。血液型はA型。身長は2019年12月4日時点で173cm。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2003,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+2003-02-26T00:00:00Z",
+      "death_time": "+2022-11-05T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q4610556",
+        "Q488205",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+2003-02-26T00:00:00Z",
+      "death_time": "+2022-11-05T00:00:00Z"
+    }
+  },
+  {
+    "name": "YOUNG DAIS",
+    "summary": "YOUNG DAIS（ヤング ダイス、1981年10月11日 - ）は、日本の男性ヒップホップミュージシャン。北海道旭川市出身。俳優としても園子温監督作品に数多く出演。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1981-10-11T00:00:00Z"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-10-11T00:00:00Z"
+    }
+  },
+  {
+    "name": "Yuruki",
+    "summary": "Yuruki（ゆるき、1983年）は、日本の男性ファッションモデル、俳優。ドイツと日本のハーフ",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1983,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1983-04-17T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1983-04-17T00:00:00Z"
+    }
+  },
+  {
+    "name": "ØMI",
+    "summary": "ØMI（オミ、1987年3月12日 - ）は、日本の歌手。三代目 J SOUL BROTHERS from EXILE TRIBEのボーカル。本名、登坂 広臣（とさか ひろおみ）。東京都羽村市出身。身長178cm。血液型A型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1987,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1987-03-12T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1987-03-12T00:00:00Z"
+    }
+  },
+  {
+    "name": "★☆北区AKT STAGE",
+    "summary": "★☆北区AKT STAGE（きたくあくとすてーじ）は、東京都北区ココキタ内に本拠地を置く日本の劇団・NPO法人。「★☆北区つかこうへい劇団」解散当時の劇団員有志により設立した新たな団体。 2011年8月1日に結成し、2012年4月に法人格を取得した、特定非営利活動法人北区AKT STAGE。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2011,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "★☆北区つかこうへい劇団",
+    "summary": "★☆北区つかこうへい劇団（きたくつかこうへいげきだん）は、劇作家のつかこうへいが主宰し、東京都北区に本拠地を置いた日本の劇団。1994年4月に結成され、2011年7月に解散した。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1994,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "あいざき進也",
+    "summary": "あいざき 進也（あいざき しんや、本名：相崎 進也、1956年〈昭和31年〉10月26日 - ）は、日本の歌手・タレント。\n身長162cm、体重47kg。渡辺プロダクション、ミヤエンタープライズ、クラッチ.を経て、個人事務所「オフィスイマージュ」に所属する。1974年に「気になる17才」でデビューした。小柄なルックスと甘い歌声で70年代アイドル全盛期時代の一翼を担う。元祖アクロバットアイドル。近年はコンサートやテレビ出演の他、TASTE4のメンバーとしてユニット活動を行なっている。趣味は磯釣り、料理 、映画鑑賞 、ゴルフ 。愛猫家。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1956,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1956-10-26T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q2705098",
+        "Q33999",
+        "Q2722764",
+        "Q822146",
+        "Q11774202"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1956-10-26T00:00:00Z"
+    }
+  },
+  {
+    "name": "あいはら友子",
+    "summary": "あいはら 友子（あいはら ともこ、1954年〈昭和29年〉7月14日 - ）は、日本の女優、株式評論家、画家。日本テクニカルアナリスト協会公認テクニカルアナリスト。高野山真言宗僧籍・高野山宝亀院福寿会理事。兵庫県神戸市出身。兵庫県立御影高等学校、関西学院大学法学部卒業。あいはら友子事務所所属。\n本名：高木 かよ子（旧姓名、原 かよ子）。旧芸名、原田 真弓（はらだ まゆみ）、相原 友子（あいはら ともこ）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1954,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "birth_time": "+1954-07-14T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1954-07-14T00:00:00Z"
+    }
+  },
+  {
+    "name": "あおい洋一郎",
+    "summary": "あおい 洋一郎（あおい よういちろう、1963年9\n月26日 - ）は、日本の男性俳優、ナレーター。ベルベットオフィス所属。愛知県一宮市出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1963,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1963-09-26T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1963-09-26T00:00:00Z"
+    }
+  },
+  {
+    "name": "あおい輝彦",
+    "summary": "あおい 輝彦（あおい てるひこ、本名：青井 輝彦〈読み同じ〉、1948年1月10日 - ）は、日本の俳優、歌手、声優。男性アイドルグループ・ジャニーズの元メンバー。日本大学鶴ヶ丘高等学校、日本大学芸術学部卒業。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1948,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1948-01-10T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807",
+        "Q177220",
+        "Q2722764"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1948-01-10T00:00:00Z"
+    }
+  },
+  {
+    "name": "あがた森魚",
+    "summary": "あがた 森魚（あがた もりお、1948年9月12日 - ）は、日本のフォークシンガー、シンガーソングライター、映画監督、俳優、エッセイスト。北海道留萌市出身。埼玉県川口市在住。本名は山縣 森雄（やまがた もりお）。函館ラ・サール高等学校卒業、明治大学中退。所属はDargelos。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1948,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1948-09-12T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q753110",
+        "Q2526255",
+        "Q488205",
+        "Q11774202"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1948-09-12T00:00:00Z"
+    }
+  },
+  {
+    "name": "あき竹城",
+    "summary": "あき 竹城（あき たけじょう、本名：竹田 明子〈たけだ あきこ〉、1947年〈昭和22年〉4月4日 - 2022年〈令和4年〉12月15日）は、日本の女優、タレント。山形県米沢市出身。米沢市観光親善大使。所属はオフィスあきこ。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1947,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "birth_time": "+1947-04-04T00:00:00Z",
+      "death_time": "+2022-12-15T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2705098",
+        "Q5716684"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1947-04-04T00:00:00Z",
+      "death_time": "+2022-12-15T00:00:00Z"
+    }
+  },
+  {
+    "name": "あさひ7オユキ",
+    "summary": "あさひ7おゆき（あさひな なおゆき、本名・旧芸名：朝比奈 尚行、1948年〈昭和23年〉8月9日 - ）は、日本の俳優、放送作家。神奈川県出身。ノックアウト所属。本名名義で作曲や脚本、美術、演出も手がけている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1948,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1948-08-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1948-08-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "あぜち守",
+    "summary": "あぜち 守（あぜち まもる、9月3日 - ）は、日本の俳優、ナレーター。ギャラクシーオーシャン所属。以前は81プロデュースに所属していた。神奈川県出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "あづみ昌宏",
+    "summary": "あづみ 昌宏（あづみ まさひろ〈旧芸名：田中 昌宏〔たなか まさひろ〕〉、1960年12月21日 - ）は、神奈川県出身の日本の俳優。宝井プロジェクト所属。身長173 cm。体重63 kg。特技は日舞、落語、トランペット。趣味はテニス、アロマテラピー、神社仏閣巡り。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1960,
+      "alive_text": 1,
+      "actor_wikidata": 1,
+      "birth_time": "+1960-12-21T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "birth_time": "+1960-12-21T00:00:00Z"
+    }
+  },
+  {
+    "name": "あべかつのり",
+    "summary": "あべ かつのり（1962年2月10日 - ）は、岩手県出身の俳優。身長177cm、体重68kg、バスト98cm、ウェスト72cm、ヒップ83cm、靴サイズ26cm。趣味は筋力トレーニング/茶道/草野球/水泳、特技はタップダンス/東北弁。たむらプロ所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 1,
+      "politician": 0,
+      "birth_year": 1962,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1962-02-10T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1962-02-10T00:00:00Z"
+    }
+  },
+  {
+    "name": "あべこうじ",
+    "summary": "あべ こうじ（本名：阿部 公二〈読み同じ〉、1975年〈昭和50年〉2月19日 - ）は、日本のお笑いタレント、漫談家、俳優、作詞家。神奈川県横浜市南区出身。吉本興業所属。R-1ぐらんぷり2010優勝者。妻は元モーニング娘。のメンバーでタレントの高橋愛。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1975,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1975-02-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q822146",
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1975-02-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "あめんぼぷらす",
+    "summary": "あめんぼぷらす（英語: AmenboPlus）は、日本の男性2人組YouTuber。メンバーは、しょーた（羽谷勝太）とおまつ（松井尚斗）。主に「野球部あるある」や「野球部員のルーティン」など野球部を舞台にしたコメディドラマを投稿している。GROVE所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 1,
+      "director": 0,
+      "athlete": 1,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "あらい汎",
+    "summary": "あらい 汎（あらい はん、1944年7月30日 - ）は、日本の役者、演出家、作家。パントマイム劇団「汎マイム工房」主宰。本名は荒井 範昭（あらい のりあき）。旧劇団転形劇場　プロダクション旧ザッコ所属。\n劇団、及び付属養成所の主事、東京女子体育大学非常勤講師、他劇団、養成所講師暦任。日本児童青少年演劇協同組合会員。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1944,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "いいむろなおき",
+    "summary": "いいむろ なおき（11月11日 - ）は、日本のマイム俳優・演出家・振付家。いいむろなおきマイムカンパニー主宰。兵庫県在住。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male"
+    },
+    "wikidata": {
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "いかりや長介",
+    "summary": "いかりや 長介（いかりや ちょうすけ、1931年〈昭和6年〉11月1日 - 2004年〈平成16年〉3月20日）は、日本の男性コメディアン、ミュージシャン（ベーシスト）、俳優、司会者。「ザ・ドリフターズ」の3代目リーダー。東京市本所区中之郷横川町（現在の東京都墨田区東駒形）出身。本名は碇矢 長一（いかりや ちょういち）。後年は俳優としても活動した。\n愛称は「長さん」。ドリフ時代初期は芸名を「いかり矢 長介」としていた。ドリフ映画で使われる呼び名は「ゴリラ」「下唇」。身長175.2cm。\n東京府東京市本所区中之郷横川町（現・東京都墨田区東駒形）生まれ。渡辺プロダクションを経てイザワオフィスに所属し、没後もイザワオフィス所属扱いとなっている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1931,
+      "alive_text": 0,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1931-11-01T00:00:00Z",
+      "death_time": "+2004-03-20T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q584301",
+        "Q33999",
+        "Q245068",
+        "Q947873"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1931-11-01T00:00:00Z",
+      "death_time": "+2004-03-20T00:00:00Z"
+    }
+  },
+  {
+    "name": "いか八朗",
+    "summary": "いか 八朗（いか はちろう、本名：近藤 角悟（こんどう かくご）、1934年4月12日 - 2018年5月28日）は、日本のタレント、作曲家、俳優、リポーター。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1934,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1934-04-12T00:00:00Z",
+      "death_time": "+2018-05-28T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q36834",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1934-04-12T00:00:00Z",
+      "death_time": "+2018-05-28T00:00:00Z"
+    }
+  },
+  {
+    "name": "いけうちしん",
+    "summary": "いけうち しん（1972年2月8日 - ）日本の俳優・パフォーマー・ラジオパーソナリティ・漫画家・脚本家。劇団とんとこパピィ代表。血液型はA型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1972,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1972-01-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q191633"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1972-01-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "いさお名ゴ支部",
+    "summary": "いさお名ゴ支部（いさお なごしぶ、本名：神山 功（かみやま いさお）、1974年9月17日 - ）は、沖縄県で活動するローカルタレントである。沖縄県名護市出身。FECオフィス所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1974,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1974-09-17T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1974-09-17T00:00:00Z"
+    }
+  },
+  {
+    "name": "いしいすぐる",
+    "summary": "いしい すぐる（1986年11月6日 - ）は、愛知県名古屋市北区出身。元子役。本名は石井 卓（読み方は同じ）。血液型はAB型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1986,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1986-11-06T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q970153"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1986-11-06T00:00:00Z"
+    }
+  },
+  {
+    "name": "いしだあゆみ",
+    "summary": "いしだ あゆみ（1948年〈昭和23年〉3月26日 - 2025年〈令和7年〉3月11日）は、日本の歌手・俳優・フィギュアスケート選手。イザワオフィス所属。大阪府池田市出身。本名・旧芸名：石田 良子（いしだ よしこ）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 1,
+      "politician": 0,
+      "birth_year": 1948,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1948-03-26T00:00:00Z",
+      "death_time": "+2025-03-11T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1948-03-26T00:00:00Z",
+      "death_time": "+2025-03-11T00:00:00Z"
+    }
+  },
+  {
+    "name": "いしだ壱成",
+    "summary": "いしだ 壱成（いしだ いっせい、1974年〈昭和49年〉12月7日 - ）は、日本の俳優、歌手。本名：星川 一星（ほしかわ いっせい、旧姓：石田）。2024年個人事務所ぷりますてら設立。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1974,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1974-12-07T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q639669",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1974-12-07T00:00:00Z"
+    }
+  },
+  {
+    "name": "いしのようこ",
+    "summary": "いしの ようこ（本名及び旧芸名：石野 陽子（読み同じ）、1968年〈昭和43年〉2月20日 - ）は、日本の女優、歌手、コメディエンヌ。\n兵庫県出身。芦屋市内の公立中学校→甲子園学院高等学校→堀越高等学校に転入・卒業。グランドスラム所属。姉は女優・歌手の石野真子。妹は女優・タレントの宝乃純。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1968,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "birth_time": "+1968-02-20T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1968-02-20T00:00:00Z"
+    }
+  },
+  {
+    "name": "いずみよしはる",
+    "summary": "いずみ よしはる（1965年2月27日 - ）は、日本の俳優・脚本家・演出家・監督・プロデューサー。香川県高松市出身。合同会社ハルベリーオフィス代表。日本映画監督協会所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1965,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1965-02-27T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q28389",
+        "Q3387717"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1965-02-27T00:00:00Z"
+    }
+  },
+  {
+    "name": "いずみ尚",
+    "summary": "いずみ 尚（いずみ ひさし、1962年8月9日 - ）は、日本の俳優、声優、ナレーター。秋田県大館市出身。東京俳優生活協同組合所属。旧芸名に泉 尚摯（いずみ しょうじ）、ヰズミ（いずみ）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1962,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1962-08-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1962-08-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "いとうせいこう",
+    "summary": "いとう せいこう（本名：伊藤 正幸（読み同じ）、1961年〈昭和36年〉3月19日 - ）は、日本のラッパー、タレント、小説家、作詞家、俳優。2008年3月よりキューブに所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1961,
+      "alive_text": 1,
+      "gender": "male",
+      "singer_wikidata": 1,
+      "birth_time": "+1961-03-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q6625963",
+        "Q177220",
+        "Q822146",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1961-03-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "いながわしろう",
+    "summary": "いながわしろう（1963年11月18日 - ）は在日韓国人3世、大阪府出身の俳優。独自でも映画撮影を行っている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 1,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1963,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1963-11-18T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1963-11-18T00:00:00Z"
+    }
+  },
+  {
+    "name": "いまむらのりお",
+    "summary": "いまむら のりお（本名:今村 清憲（いまむら きよのり）、1954年4月17日 - ）は、日本の舞台俳優、声優。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1954,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1954-04-17T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1954-04-17T00:00:00Z"
+    }
+  },
+  {
+    "name": "いわいのふ健",
+    "summary": "いわいのふ 健（いわいのふ けん、1977年12月6日 - ）は、日本の俳優・ナレーター。ヘリンボーン所属。広島県東広島市出身。身長181cm、体重76kg。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1977,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1977-12-06T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1977-12-06T00:00:00Z"
+    }
+  },
+  {
+    "name": "いんげん",
+    "summary": "いんげん（1965年7月5日 - ）は、日本の俳優・声優・ナレーター。富山県出身。身長174cm、血液型はO型。劇団ハラホロシャングリラ所属。マネジメントはラザリス。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1965,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1965-07-05T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1965-07-05T00:00:00Z"
+    }
+  },
+  {
+    "name": "うえきやサトシ",
+    "summary": "うえきやサトシ（1990年6月21日 - ）は、日本の俳優、歌手、タレントで、劇団4ドル50セントの劇団員である。東京都出身。現役の植木職人でもある。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1990,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "うえずみのる",
+    "summary": "うえず みのる（1946年9月16日 - ）は、日本の俳優。神奈川県横浜市出身。\n本名：植頭 実（読みは同じ）。旧芸名・別名はうえず・みのる。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1946,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1946-09-16T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1946-09-16T00:00:00Z"
+    }
+  },
+  {
+    "name": "うえだゆうじ",
+    "summary": "うえだ ゆうじ（1967年〈昭和42年〉6月15日 - ）は、日本の声優、舞台俳優。福岡県北九州市出身。ポマランチ所属。本名および旧芸名は上田 祐司（読み同じ）。\n代表作に『るろうに剣心 -明治剣客浪漫譚-』（相楽左之助）、『機動戦艦ナデシコ』（テンカワ・アキト）、『ポケットモンスター』（タケシ）、『おじゃる丸』（キスケ）などがある。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1967,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1967-06-15T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q622807",
+        "Q33999",
+        "Q177220"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1967-06-15T00:00:00Z"
+    }
+  },
+  {
+    "name": "うえだ峻",
+    "summary": "うえだ 峻（うえだ しゅん、1943年（昭和18年）11月24日 - ）は、日本の俳優。本名・旧芸名は植田 峻（読み同じ）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1943,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1943-11-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1943-11-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "うじきつよし",
+    "summary": "うじき つよし（本名：氏木 毅（読みは同じ）、1957年9月18日 - ）は、日本のバンドマン、ギタリスト、俳優、タレント。\nTRU オフィス所属。\n愛称はJICK。血液型A型。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1957,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1957-09-18T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q2705098",
+        "Q855091"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1957-09-18T00:00:00Z"
+    }
+  },
+  {
+    "name": "うじすけ",
+    "summary": "うじすけ（1976年1月24日 - ）は、日本の俳優である。東京都出身で、IMPACT ONEに所属している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1976,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1976-01-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1976-01-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "えなりかずき",
+    "summary": "えなり かずき（1984年11月9日 - ）は、日本の俳優、タレント、司会者。本名及び旧芸名は江成 和己（読み同じ）。東京都世田谷区出身。江成正元は弟。愛称はえなりくん。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1984,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1984-11-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q970153",
+        "Q947873"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1984-11-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "おいでやす小田",
+    "summary": "おいでやす小田（おいでやすおだ、1978年7月25日 - ）は、日本のピン芸人、俳優。吉本興業所属。本名は小田 芳裕（おだ よしひろ）。身長173 cm、体重65 kg、血液型A型。京都府文化観光大使に任命されている。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1978,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1978-07-25T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1978-07-25T00:00:00Z"
+    }
+  },
+  {
+    "name": "おいでよ宮城",
+    "summary": "おいでよ宮城（おいでよみやぎ、1986年 - ）は、東京都在住の役者・料理人・ゆるキャラプロデューサーである。通称おい宮さん（おいみやさん）。\nTwitterアカウント群・おいでよの一つである「おいでよ宮城」を運用している。宮城県名取市出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1986,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q1294787"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "おおたけこういち",
+    "summary": "おおたけ こういち（旧芸名：大竹 浩一、1981年7月14日 - ）は、福島県出身の俳優、ダンサー、振付師。身長167cm。体重58kg。血液型はB型。劇団SET（スーパー・エキセントリック・シアター）所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1981-07-14T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q5716684",
+        "Q2490358"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-07-14T00:00:00Z"
+    }
+  },
+  {
+    "name": "おかやまはじめ",
+    "summary": "おかやま はじめ（1964年〈昭和39年〉4月22日 - ）は、日本の俳優。宮城県栗原市出身。宮城県築館高等学校、大東文化大学経済学部経営学科1987年度卒業。\n大学在学中に同大学の劇団「劇団虚構」に照明係として入り、そのうち役者としても活動した。のち、在学中に劇団ラッパ座に入団した。そのまま30歳を迎え、「今さら就職も難しい。そこでプロの俳優としてやっていこうと腹を括ったのです。」と語っている。\n藤賀事務所→2023年よりファザーズコーポレーション所属。劇団ラッパ屋の団員。趣味でフットサルチームに所属している。\n大学の語学ではインドネシア語を専攻していたが、インドネシア語専攻は計4人しかいなかった。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1964,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1964-04-22T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1964-04-22T00:00:00Z"
+    }
+  },
+  {
+    "name": "おくだかずな",
+    "summary": "おくだかずな（2000年9月21日 - ）は、日本の俳優、元子役である。愛知県名古屋市出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 2000,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+2000-09-21T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q970153"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+2000-09-21T00:00:00Z"
+    }
+  },
+  {
+    "name": "おぐらとしひろ",
+    "summary": "おぐら としひろ（1971年〈昭和46年〉5月9日 - ）は、日本の俳優、アクション監督である。スタントマンや特撮番組のスーツアクターとしての活躍で知られている。ジャパンアクションエンタープライズ（JAE）所属。\n本名・旧芸名は小倉 敏博（読み同じ）。東京都出身。体重52kg。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 1,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 1,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1971,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1971-05-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q465501",
+        "Q2833480"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1971-05-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "おはキッズ",
+    "summary": "おはキッズは、テレビ東京の朝のバラエティ番組『おはスタ』に出演するの子役タレントのキャラクターである。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1
+    },
+    "wikidata": {}
+  },
+  {
+    "name": "おりも政夫",
+    "summary": "おりも 政夫（おりも まさお、1953年7月4日 - ）は、日本の司会者、タレント、歌手、俳優。1970年代を代表する男性アイドルグループ・フォーリーブスのメンバー。東京都江東区亀戸出身。orimo company所属。本名・織茂 政男（読み同じ）。愛称はマー坊。血液型B型。\n妻は、元・女優の松岡かおり。堀越高等学校卒業。長女はおりもりお（女優・2016年度ミス日本コンテスト「ミス着物」受賞。本名：織茂璃穏）。婿（義理の息子で璃穏の夫）は税理士の大塚亮一。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 1,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1953,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1953-07-04T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1953-07-04T00:00:00Z"
+    }
+  },
+  {
+    "name": "かいばしら",
+    "summary": "九十九黄助（1988年〈昭和63〉6月2日 - ）は、日本の俳優、YouTuber。\n鹿児島県・種子島出身。マグニファイエンタテインメント所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 1,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1988,
+      "alive_text": 1,
+      "birth_time": "+1988-06-02T00:00:00Z"
+    },
+    "wikidata": {
+      "birth_time": "+1988-06-02T00:00:00Z"
+    }
+  },
+  {
+    "name": "かたせ梨乃",
+    "summary": "かたせ 梨乃（かたせ りの、1957年〈昭和32年〉5月8日 - ）は、日本の女優、タレント。東京都豊島区出身。雙葉小学校、雙葉中学校・高等学校卒業、獨協大学外国語学部英語学科中退。特技は英語。所属事務所はパーフィットプロダクション。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1957,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "birth_time": "+1957-05-08T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1957-05-08T00:00:00Z"
+    }
+  },
+  {
+    "name": "かとうあつき",
+    "summary": "かとう あつき（1969年5月31日 - ）は、日本の女優、元子役である。旧芸名は加藤 陵子（かとう りょうこ）。東京都足立区出身。身長160cm、血液型B型。所属事務所はキャストパワー。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1969,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "birth_time": "+1969-05-31T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q970153",
+        "Q3286043"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1969-05-31T00:00:00Z"
+    }
+  },
+  {
+    "name": "かとうれいこ",
+    "summary": "かとう れいこ（1969年2月19日 - ）は、日本のタレント・女優・歌手・元グラビアアイドル。埼玉県越谷市出身。江戸川女子短期大学（当時）卒業。出生名は加藤 房江（かとう ふさえ）、現在の本名は横尾 房江（よこお ふさえ）。所属事務所はThanks。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1969,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1,
+      "birth_time": "+1969-02-19T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2705098",
+        "Q4610556"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1969-02-19T00:00:00Z"
+    }
+  },
+  {
+    "name": "かとう哲也",
+    "summary": "かとう 哲也（かとう てつや、1941年1月15日 - 1983年10月24日）は、日本の俳優・歌手・芸能プロモーター。三代目山口組（組長は田岡一雄）系益田組（組長は益田佳於）舎弟頭。本名は加藤 益夫（のち加藤哲也に改名）、元の芸名は小野透。実姉に美空ひばり・佐藤勢津子（ひばり・哲也の死後に演歌歌手としてデビュー）、実弟に香山武彦、実子に加藤和也（後にひばりの養子になった）がいる。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1941,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1941-01-15T00:00:00Z",
+      "death_time": "+1983-10-24T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q177220",
+        "Q36834"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1941-01-15T00:00:00Z",
+      "death_time": "+1983-10-24T00:00:00Z"
+    }
+  },
+  {
+    "name": "かとう有花",
+    "summary": "かとう 有花（かとう ゆか、9月16日 - ）は、日本の女性声優。RME所属。岐阜県下呂市出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q622807",
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "かないしゅう",
+    "summary": "かない しゅう（旧芸名：金井 修）1981年10月5日 - ）は、日本の俳優。神奈川県出身。 クロスロード合同会社所属。出身劇団は富良野GROUP。身長182cm。体重68キロ。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1981,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1981-10-05T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1981-10-05T00:00:00Z"
+    }
+  },
+  {
+    "name": "かなやす慶行",
+    "summary": "かなやす 慶行（かなやす よしゆき 1970年6月23日- ）とは日本の俳優である。東京都出身、血液型はAB型、身長174cm。\n本名：金安 慶行（かなやす よしゆき）。大学卒業後、自動車販売会社の営業職を経て俳優に転向。\nふくふくや劇団員でもあり、ゴツプロ!のメンバーでもある。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1970,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1970-06-23T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1970-06-23T00:00:00Z"
+    }
+  },
+  {
+    "name": "かぬか光明",
+    "summary": "かぬか 光明（かぬか みつあき、1980年2月5日 - ）は、日本の声優、舞台俳優。東京都出身。ケンユウオフィス所属。\n本名・旧芸名は鹿糠 光明（読み同じ）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1980,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1980-02-05T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q622807"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1980-02-05T00:00:00Z"
+    }
+  },
+  {
+    "name": "かねこはりい",
+    "summary": "かねこ はりい（1969年8月26日 - ）は、日本の俳優、声優。希楽星所属。東京都出身。旧芸名は金子 はりい。希楽星でのプロフィールでの表記はカネコ ハリー。\nシェイクスピア劇団に入り、ウィリアム・シェイクスピアの演劇作品に数多く出演。劇団退団後はフリーの舞台俳優・声優として活動し、2006年にペルビスミュージックに所属する。\n声種はテノール。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1969,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1969-08-26T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1969-08-26T00:00:00Z"
+    }
+  },
+  {
+    "name": "かねさだ雪緒",
+    "summary": "かねさだ 雪緒（かねさだ ゆきお、6月11日 - ）は、日本の漫画家、女優、タレント。長崎県五島市出身。所属事務所は太田プロダクション。旧芸名、川端 良香。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q191633"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "かまやつひろし",
+    "summary": "かまやつ ひろし / ムッシュかまやつ（本名：釜萢 弘（かまやつ ひろし）、1939年〈昭和14年〉1月12日 - 2017年〈平成29年〉3月1日）は、日本のミュージシャン、俳優。通称「ムッシュ」。「ザ・スパイダース」の元メンバーでもある。1989年以降は、ミュージシャンとしては「ムッシュかまやつ」が正式な活動名である。東京府（現・東京都）千代田区出身。\n父はジャズシンガーのティーブ・釜萢。長男のTAROかまやつことかまやつ太郎はアーティスト。ジャズシンガーの浅田陽子は母方の叔母、ジャズ・トランペッターの森山久は義理の叔父（浅田の夫）。フォーク歌手の森山良子は従妹、元・歌手の森山奈歩は従姪、シンガーソングライターの森山直太朗は従甥にあたる。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 1,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1939,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "singer_wikidata": 1,
+      "birth_time": "+1939-01-12T00:00:00Z",
+      "death_time": "+2017-03-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q177220",
+        "Q36834",
+        "Q33999",
+        "Q855091"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1939-01-12T00:00:00Z",
+      "death_time": "+2017-03-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "かわい瞳",
+    "summary": "かわい 瞳（かわい ひとみ）7月7日 - ）は、日本の女優、モデル、タレント、グラビアアイドルである。\nスリーサイズは、B85/W54/H85 靴のサイズは、23.5cm衣装のサイズは、5である。\n東京都出身",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 1,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "かわさきひろゆき",
+    "summary": "かわさき ひろゆき（1962年6月26日 - ）は、日本の監督、俳優、舞台演出家、脚本家、プロデューサー。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 1,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1962,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1962-06-26T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q2526255"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1962-06-26T00:00:00Z"
+    }
+  },
+  {
+    "name": "かわのをとや",
+    "summary": "かわの をとや（1965年8月18日 - ）は、日本の男性俳優、声優。ジェイ・クリップ所属。大分県竹田市出身。本名は河野 靖（かわの やすし）。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1965,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1965-08-18T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1965-08-18T00:00:00Z"
+    }
+  },
+  {
+    "name": "かんこ",
+    "summary": "かんこは、日本の女優。\n岡山県出身。身長165cm。血液型B型。愛称は「かんこちゃん」「かんちゃん」。\n殺陣・アクション・アクロバットを学び、階段落ちなどスタントも自身で演じ、吹替えのいらない本格的アクションもできる女優。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 1,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "female",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q5716684"
+      ],
+      "gender_qid": "Q6581072"
+    }
+  },
+  {
+    "name": "きくち英一",
+    "summary": "きくち 英一（きくち えいいち、1942年8月21日 - ）は、日本の俳優、スタントマン、殺陣師、司会者。本名および旧芸名：菊池 英一（読み同じ）。アイティ企画所属。東京都世田谷区経堂出身。育英工業高等学校、日本大学芸術学部演劇学科卒業。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 1,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1942,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1942-08-21T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1942-08-21T00:00:00Z"
+    }
+  },
+  {
+    "name": "きたろう",
+    "summary": "きたろう（1948年8月25日 - ）は、日本の俳優、タレント。本名：古関 安広（こせき やすひろ）。コントグループシティボーイズのメンバー。\n千葉県市川市出身。ASH&Dコーポレーション所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1948,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1948-08-25T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1948-08-25T00:00:00Z"
+    }
+  },
+  {
+    "name": "きだつよし",
+    "summary": "きだ つよし（1969年〈昭和44年〉8月3日 - ）は、日本の脚本家、劇作家、演出家、絵本作家、ライター。主な作品に特撮「仮面ライダー」シリーズ、嵐・大野智の舞台「（風）プーシリーズ」、NHK Eテレのテレビアニメ「クラシカロイド」など。俳優として、劇団TEAM 発砲・B・ZINを主宰していた。\n大阪府出身。大阪府立清水谷高等学校、日本大学芸術学部演劇学科卒業。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 1,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 1,
+      "model": 0,
+      "comedian": 0,
+      "anime": 1,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 1,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1969,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1969-08-03T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q28389",
+        "Q214917",
+        "Q943995"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1969-08-03T00:00:00Z"
+    }
+  },
+  {
+    "name": "きづき",
+    "summary": "きづき（1990年12月28日 - ）は、日本の俳優。本名・旧芸名は城築 創（きづき はじめ）。\n東京都出身。身長155cm。慶應義塾大学経済学部中退。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1990,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1990-01-01T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1990-01-01T00:00:00Z"
+    }
+  },
+  {
+    "name": "きみと歩実",
+    "summary": "きみと 歩実（きみと あゆみ、1994年3月7日 - ）は、日本の女優およびAV女優。マインズ所属。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1994,
+      "alive_text": 1,
+      "gender": "female",
+      "birth_time": "+1994-03-07T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q1079215",
+        "Q488111"
+      ],
+      "gender_qid": "Q6581072",
+      "birth_time": "+1994-03-07T00:00:00Z"
+    }
+  },
+  {
+    "name": "きょん",
+    "summary": "きょん（1987年11月18日 - ）は、日本のお笑い芸人、俳優。お笑いコンビ「コットン」のボケ担当であり、アイドルグループ吉本坂46のメンバーである。埼玉県草加市出身。さそり座。本名、富士田 恭兵（ふじた きょうへい）。R-1グランプリ2023準優勝。妻はタレントのまつきりな。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 1,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1987,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1987-11-18T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1987-11-18T00:00:00Z"
+    }
+  },
+  {
+    "name": "ぎたろー",
+    "summary": "ぎたろー（1982年1月9日 - ）は、日本の俳優である。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1982,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1982-01-09T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q5716684"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1982-01-09T00:00:00Z"
+    }
+  },
+  {
+    "name": "くっきー!",
+    "summary": "くっきー！（1976年〈昭和51年〉3月12日 - ）は、日本のお笑いタレント、画家、ミュージシャン。野性爆弾のボケ、ネタ作り担当。吉本興業（東京本社）所属。本名および旧芸名は川島 邦裕（かわしま くにひろ）。別名は肉糞太郎（にくぐそたろう）、肉糞亭スポーツ、引田くっきー。愛称はくーちゃん。滋賀県守山市出身。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1976,
+      "alive_text": 1,
+      "gender": "male",
+      "birth_time": "+1976-03-12T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q12330954"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1976-03-12T00:00:00Z"
+    }
+  },
+  {
+    "name": "くまだまさし",
+    "summary": "くまだ まさし（1973年〈昭和48年〉7月26日 - ）は、日本のお笑い芸人である。本名、熊田 雅志（読み同じ）。\n東京都荒川区東日暮里出身。吉本興業東京本社（東京吉本）所属。荒川区立第八中学校、関東第一高等学校卒業。既婚。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1973,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1973-07-26T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q12330954",
+        "Q2705098"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1973-07-26T00:00:00Z"
+    }
+  },
+  {
+    "name": "けいたろう",
+    "summary": "けいたろう（12月14日 - ）は、日本の俳優、男性声優。千葉県出身。以前はC&Oプロダクションに所属していた。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 1,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": null,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999",
+        "Q622807"
+      ],
+      "gender_qid": "Q6581097"
+    }
+  },
+  {
+    "name": "こいづか登",
+    "summary": "こいづか 登（こいづか のぼる、1974年6月13日 - ）は、日本の男性俳優。本名は小井塚登。福島県出身。A型。\n演劇集団イヌッコロに所属している。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 0,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "birth_year": 1974,
+      "alive_text": 1,
+      "gender": "male",
+      "actor_wikidata": 1,
+      "birth_time": "+1974-06-13T00:00:00Z"
+    },
+    "wikidata": {
+      "occupation_qids": [
+        "Q33999"
+      ],
+      "gender_qid": "Q6581097",
+      "birth_time": "+1974-06-13T00:00:00Z"
+    }
   }
 ]
