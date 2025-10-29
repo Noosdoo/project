@@ -503,11 +503,58 @@ def akinator_play(dataset, max_questions=30):
 # -----------------------
 # 改良版: 並列処理でデータセット構築
 # -----------------------
-def build_dataset_parallel(limit=200):
+def build_dataset_parallel(limit=200, workers=10):
+    if not os.path.exists(PEOPLE_LIST_FILE):
+        print("まず collect_people を実行してください")
+        return
+
     with open(PEOPLE_LIST_FILE, "r", encoding="utf-8") as f:
         people = json.load(f)[:limit]
 
     results = []
+    wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
+
+    def fetch_data(person):
+        page = wiki.page(person)
+        summary = page.summary if page.exists() else None
+        wikibase_id = get_wikibase_item_from_wikipedia(person)
+        wikidata = fetch_wikidata_entity(wikibase_id) if wikibase_id else None
+        features = extract_features_from_summary(summary)
+        if wikidata:
+            # gender
+            g = wikidata.get("gender_qid")
+            if g:
+                if g == "Q6581097":
+                    features["gender"] = "male"
+                elif g == "Q6581072":
+                    features["gender"] = "female"
+            # occupation
+            occ_qs = wikidata.get("occupation_qids", [])
+            if "Q33999" in occ_qs:  # actor
+                features["actor_wikidata"] = 1
+            if "Q177220" in occ_qs:  # singer
+                features["singer_wikidata"] = 1
+            if "Q82955" in occ_qs:  # politician
+                features["politician_wikidata"] = 1
+            # birth/death
+            if wikidata.get("birth_time"):
+                features["birth_time"] = wikidata.get("birth_time")
+            if wikidata.get("death_time"):
+                features["death_time"] = wikidata.get("death_time")
+        return {"name": person, "summary": summary, "features": features, "wikidata": wikidata}
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = [executor.submit(fetch_data, p) for p in people]
+        for i, future in enumerate(as_completed(futures), 1):
+            results.append(future.result())
+            print(f"\r処理中: {i}/{len(people)}", end="", flush=True)
+
+    with open(DATASET_FILE, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+    print(f"\nデータセット作成完了: {len(results)} 件")
+    return results
+
 
 def fetch_data(person):
     wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
