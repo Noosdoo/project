@@ -5,6 +5,7 @@ import os
 import re
 import random
 import wikipediaapi
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Wikipediaにアクセスする際のユーザーエージェント
 USER_AGENT = "CelebrityAkinatorBot/1.0 (https://github.com/yourproject; contact@example.com)"
@@ -20,7 +21,7 @@ CATEGORIES = [
     "日本の俳優",
     "日本の女優",
     "日本の歌手",
-    "日本のお笑いタレント",
+    "日本のお笑い芸人",
     "日本の声優",
     "日本の政治家",
     "日本のスポーツ選手",
@@ -128,6 +129,25 @@ def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=0.
 
 
 
+def choose_categories():
+    print("=== カテゴリを選択してください ===")
+    for i, cat in enumerate(CATEGORIES, 1):
+        print(f"{i}. {cat}")
+    print("複数選ぶ場合はカンマ区切りで番号を入力してください (例: 1,3,5)")
+
+    choice = input("> ").strip()
+    selected = []
+    for part in choice.split(","):
+        try:
+            idx = int(part)-1
+            if 0 <= idx < len(CATEGORIES):
+                selected.append(CATEGORIES[idx])
+        except:
+            pass
+    if not selected:
+        print("カテゴリが選択されなかったため、全カテゴリを対象にします。")
+        return CATEGORIES
+    return selected
 
 
 
@@ -500,8 +520,84 @@ def akinator_play(dataset, max_questions=30):
     return candidates[0]
 
 # -----------------------
+# 改良版: 並列処理でデータセット構築
+# -----------------------
+def build_dataset_parallel(limit=200, workers=10):
+    if not os.path.exists(PEOPLE_LIST_FILE):
+        print("まず collect_people を実行してください")
+        return
+
+    with open(PEOPLE_LIST_FILE, "r", encoding="utf-8") as f:
+        people = json.load(f)[:limit]
+
+    results = []
+    wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
+
+    def fetch_data(person):
+        page = wiki.page(person)
+        summary = page.summary if page.exists() else None
+        wikibase_id = get_wikibase_item_from_wikipedia(person)
+        wikidata = fetch_wikidata_entity(wikibase_id) if wikibase_id else None
+        features = extract_features_from_summary(summary)
+        if wikidata:
+            # gender
+            g = wikidata.get("gender_qid")
+            if g:
+                if g == "Q6581097":
+                    features["gender"] = "male"
+                elif g == "Q6581072":
+                    features["gender"] = "female"
+            # occupation
+            occ_qs = wikidata.get("occupation_qids", [])
+            if "Q33999" in occ_qs:  # actor
+                features["actor_wikidata"] = 1
+            if "Q177220" in occ_qs:  # singer
+                features["singer_wikidata"] = 1
+            if "Q82955" in occ_qs:  # politician
+                features["politician_wikidata"] = 1
+            # birth/death
+            if wikidata.get("birth_time"):
+                features["birth_time"] = wikidata.get("birth_time")
+            if wikidata.get("death_time"):
+                features["death_time"] = wikidata.get("death_time")
+        return {"name": person, "summary": summary, "features": features, "wikidata": wikidata}
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = [executor.submit(fetch_data, p) for p in people]
+        for i, future in enumerate(as_completed(futures), 1):
+            results.append(future.result())
+            print(f"\r処理中: {i}/{len(people)}", end="", flush=True)
+
+    with open(DATASET_FILE, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+    print(f"\nデータセット作成完了: {len(results)} 件")
+    return results
+
+
+def fetch_data(person):
+    wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
+    page = wiki.page(person)
+    summary = page.summary if page.exists() else None
+    wikibase_id = get_wikibase_item_from_wikipedia(person)
+    wikidata = fetch_wikidata_entity(wikibase_id) if wikibase_id else None
+    return {"title": person, "summary": summary, "wikidata": wikidata}
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(fetch_data, p) for p in people]
+        for future in as_completed(futures):
+            results.append(future.result())
+
+    with open(PEOPLE_DATASET_FILE, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+
+
+
+# -----------------------
 # エントリポイント用関数
 # -----------------------
+
 def run_step(step="collect", **kwargs):
     """
     step: "collect" / "build" / "play"
@@ -513,26 +609,45 @@ def run_step(step="collect", **kwargs):
         kwargs: max_questions
     """
     step = step.lower()
+
     if step == "collect":
+        save_path = kwargs.get("save_path", PEOPLE_LIST_FILE)
+        #if os.path.exists(save_path):
+        #    print(f"{save_path} が既に存在するため、collect はスキップします。")
+        #    with open(save_path, "r", encoding="utf-8") as f:
+        #        return json.load(f)
         cmlimit = kwargs.get("cmlimit", 50)
         depth = kwargs.get("depth", 1)
         sleep = kwargs.get("sleep", 0.8)
-        return collect_people(categories=CATEGORIES, cmlimit=cmlimit, depth=depth, sleep=sleep)
+        return collect_people(categories=kwargs.get("categories", CATEGORIES),
+                              cmlimit=cmlimit, depth=depth, sleep=sleep)
+
     elif step == "build":
+        dataset_path = kwargs.get("dataset_path", DATASET_FILE)
+        #if os.path.exists(dataset_path):
+        #    print(f"{dataset_path} が既に存在するため、build はスキップします。")
+        #    with open(dataset_path, "r", encoding="utf-8") as f:
+        #        return json.load(f)
         limit = kwargs.get("limit", None)
         sleep = kwargs.get("sleep", 0.8)
         return build_dataset(limit=limit, sleep=sleep)
+
     elif step == "play":
         ds = load_dataset()
         if not ds:
             return None
         return akinator_play(ds, max_questions=kwargs.get("max_questions", 30))
+
     else:
         raise ValueError("step must be one of: collect, build, play")
 
+
+
 if __name__ == "__main__":
-    # ここでステップを選択
-    # 例: collect -> build -> play
-    run_step("collect", cmlimit=20, depth=1, sleep=0.01)
+    selected_categories = choose_categories()
+    # データ収集
+    run_step("collect", categories=selected_categories, cmlimit=20, depth=1, sleep=0.0001)
+    # データセットを構築
     run_step("build", limit=200, sleep=0.0001)
+    # アキネーターをプレイ
     run_step("play", max_questions=25)
