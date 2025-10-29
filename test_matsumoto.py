@@ -48,6 +48,15 @@ HEADERS = {"User-Agent": USER_AGENT}
 
 
 
+# -----------------------
+# 除外ルール: 人物ページかどうか判定
+# -----------------------
+def is_person_page(title):
+    """
+    タイトルに特定のキーワードが含まれていたら除外
+    """
+    exclude_keywords = ["一覧", "号", "歴史", "編"]
+    return not any(k in title for k in exclude_keywords)
 
 
 
