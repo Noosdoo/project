@@ -5,6 +5,7 @@ import os
 import re
 import random
 import wikipediaapi
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Wikipediaにアクセスする際のユーザーエージェント
 USER_AGENT = "CelebrityAkinatorBot/1.0 (https://github.com/yourproject; contact@example.com)"
@@ -500,6 +501,31 @@ def akinator_play(dataset, max_questions=30):
     return candidates[0]
 
 # -----------------------
+# 改良版: 並列処理でデータセット構築
+# -----------------------
+def build_dataset_parallel(limit=200):
+    with open(PEOPLE_LIST_FILE, "r", encoding="utf-8") as f:
+        people = json.load(f)[:limit]
+
+    results = []
+
+    def fetch_data(person):
+        summary = get_wikipedia_summary(person)
+        wikidata = get_wikidata_entity(person)
+        return {"title": person, "summary": summary, "wikidata": wikidata}
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(fetch_data, p) for p in people]
+        for future in as_completed(futures):
+            results.append(future.result())
+
+    with open(PEOPLE_DATASET_FILE, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+
+
+
+# -----------------------
 # エントリポイント用関数
 # -----------------------
 def run_step(step="collect", **kwargs):
@@ -531,8 +557,13 @@ def run_step(step="collect", **kwargs):
         raise ValueError("step must be one of: collect, build, play")
 
 if __name__ == "__main__":
-    # ここでステップを選択
+    # 既に people_list.json が存在する場合は skip
+    if not os.path.exists(PEOPLE_LIST_FILE):
+        run_step("collect", cmlimit=20, depth=1, sleep=0.0001)
+    else:
+        print("人物リストが既に存在するため、再取得をスキップします。")
+    # 既に people_dataset.json が存在する場合は skip
+
     # 例: collect -> build -> play
-    run_step("collect", cmlimit=20, depth=1, sleep=0.01)
     run_step("build", limit=200, sleep=0.0001)
     run_step("play", max_questions=25)
