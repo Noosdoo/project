@@ -569,70 +569,44 @@ def generate_question_map(selected_categories=None):
 #-----------------------
 # アキネーター対話部分
 #-----------------------
-def akinator_play(dataset, max_questions=30, check_every=10):
-    candidates = dataset.copy()
-    qm_dict = generate_question_map()
-    
-    # occupation / activity / feature / common を全部まとめる
-    qm = []
-    for qlist in qm_dict.values():
-        qm.extend(qlist)
-    
-    random.shuffle(qm)
+def akinator_play(dataset, question_map):
+    """
+    dataset: build_dataset で生成されたデータ
+    question_map: generate_question_map() で生成された質問リスト
+    """
+    asked = set()  # 出題済み質問キーを保存
+    candidates = dataset[:]  # 現在の候補者リスト
+    all_questions = (
+        question_map["occupation"]
+        + question_map["activity"]
+        + question_map["feature"]
+        + question_map["common"]
+    )
+    random.shuffle(all_questions)
 
-    print("=== アキネーター開始 ===")
-    print(f"候補人数: {len(candidates)} 件")
+    for q in all_questions:
+        if q["key"] in asked:
+            continue  # 同じ質問はスキップ
+        asked.add(q["key"])
 
-    asked = 0
-    i_qm = 0
-
-    while asked < max_questions and len(candidates) > 1 and i_qm < len(qm):
-        question = qm[i_qm]
-        key, q_text, test = question.get("key"), question.get("text"), question.get("check")
-
-        ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
-        if ans not in ["はい", "いいえ"]:
-            print("スキップ")
-            i_qm += 1
+        print(q["text"])
+        ans = input("はい / いいえ / わからない > ").strip()
+        if ans not in ["はい", "いいえ", "わからない"]:
             continue
 
         if ans == "はい":
-            candidates = [c for c in candidates if test(c)]
-        else:
-            candidates = [c for c in candidates if not test(c)]
+            candidates = [r for r in candidates if q["check"](r)]
+        elif ans == "いいえ":
+            candidates = [r for r in candidates if not q["check"](r)]
+        # "わからない" の場合は絞り込みを行わない
 
-        asked += 1
-        i_qm += 1
+        print(f"候補数: {len(candidates)}")
 
-        if asked % check_every == 0 or len(candidates) <= 3:
-            print(f"\nここまでの質問で絞り込んだ候補（上位3件）:")
-            for j, c in enumerate(candidates[:3], 1):
-                print(f"{j}. {c['name']}")
-            choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
-            if choice.isdigit():
-                idx = int(choice)-1
-                if 0 <= idx < len(candidates[:3]):
-                    print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
-                    return candidates[idx]
-            elif choice.lower() in ["なし", "n", "no"]:
-                print("わかりました。質問を続けます。")
+        if len(candidates) <= 3:
+            print("最終候補:", [c["name"] for c in candidates])
+            break
+    print("終了")
 
-    if not candidates:
-        print("候補が見つかりませんでした。")
-        return None
-
-    print("\n最終候補（上位3件）:")
-    for i, c in enumerate(candidates[:3], 1):
-        print(f"{i}. {c['name']}")
-    choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
-    if choice.isdigit():
-        idx = int(choice)-1
-        if 0 <= idx < len(candidates[:3]):
-            print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
-            return candidates[idx]
-
-    print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
-    return candidates[0]
 
 
 
