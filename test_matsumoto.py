@@ -646,7 +646,7 @@ def run_step(step="collect", **kwargs):
 if __name__ == "__main__":
     selected_categories = choose_categories()
     # データ収集
-    run_step("collect", cmlimit=20, depth=1, sleep=0.0001)
+    run_step("collect", categories=selected_categories, cmlimit=20, depth=1, sleep=0.0001)
     # データセットを構築
     run_step("build", limit=200, sleep=0.0001)
     # アキネーターをプレイ
