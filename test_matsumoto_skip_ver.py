@@ -439,13 +439,19 @@ def load_dataset(dataset_path=DATASET_FILE):
 def generate_question_map(selected_categories=None):
     """
     改良版:
-    - 質問を大カテゴリ→中カテゴリ→小カテゴリの順で並べる
-    - 候補に関係ない質問は初期段階でスキップ
+    - カテゴリごとの質問マップは残す
     - summary/Wikidata/特徴情報を使う
+    - 同じ質問は出ないようにする
     """
-
     import random
-    qm = []
+
+    # 質問マップを格納
+    qm = {
+        "occupation": [],
+        "activity": [],
+        "feature": [],
+        "common": []
+    }
 
     # カテゴリごとのキーワードマップ（職業・活動・特徴）
     CATEGORY_KEYWORD_MAP = {
@@ -509,42 +515,52 @@ def generate_question_map(selected_categories=None):
     if not selected_categories:
         selected_categories = CATEGORY_KEYWORD_MAP.keys()
 
-    # 職業系質問（大カテゴリ）
+    # 大カテゴリ（職業）質問
     for cat in selected_categories:
         for occ in CATEGORY_KEYWORD_MAP[cat]["occupation"]:
-            qm.append((
-                f"occ_{occ}",
-                f"この人物は {occ} ですか？",
-                lambda rec, o=occ: rec.get("summary") and o in rec["summary"]
-            ))
+            qm["occupation"].append({
+                "key": f"occ_{occ}",
+                "text": f"この人物は {occ} ですか？",
+                "check": lambda rec, o=occ: rec.get("summary") and o in rec["summary"]
+            })
 
-    # 活動対象系質問（中カテゴリ）
+    # 中カテゴリ（活動対象）質問
     for cat in selected_categories:
         for act in CATEGORY_KEYWORD_MAP[cat]["activity"]:
-            qm.append((
-                f"act_{act}",
-                f"{act} に関連しますか？",
-                lambda rec, a=act: rec.get("summary") and a in rec["summary"]
-            ))
+            qm["activity"].append({
+                "key": f"act_{act}",
+                "text": f"{act} に関連しますか？",
+                "check": lambda rec, a=act: rec.get("summary") and a in rec["summary"]
+            })
 
-    # 特徴系質問（小カテゴリ）
+    # 小カテゴリ（特徴）質問
     for cat in selected_categories:
         for feat in CATEGORY_KEYWORD_MAP[cat]["feature"]:
-            qm.append((
-                f"feat_{feat}",
-                f"{feat} が特徴的ですか？",
-                lambda rec, f=feat: rec.get("summary") and f in rec["summary"]
-            ))
+            qm["feature"].append({
+                "key": f"feat_{feat}",
+                "text": f"{feat} が特徴的ですか？",
+                "check": lambda rec, f=feat: rec.get("summary") and f in rec["summary"]
+            })
 
     # 共通質問（性別・生存）
-    qm.append(("alive_text", "現在もご存命ですか？",
-               lambda rec: rec.get("features", {}).get("alive_text") == 1))
-    qm.append(("gender_male", "男性ですか？",
-               lambda rec: rec.get("features", {}).get("gender") == "male"))
-    qm.append(("gender_female", "女性ですか？",
-               lambda rec: rec.get("features", {}).get("gender") == "female"))
+    qm["common"].append({
+        "key": "alive_text",
+        "text": "現在もご存命ですか？",
+        "check": lambda rec: rec.get("features", {}).get("alive_text") == 1
+    })
+    qm["common"].append({
+        "key": "gender_male",
+        "text": "男性ですか？",
+        "check": lambda rec: rec.get("features", {}).get("gender") == "male"
+    })
+    qm["common"].append({
+        "key": "gender_female",
+        "text": "女性ですか？",
+        "check": lambda rec: rec.get("features", {}).get("gender") == "female"
+    })
 
     return qm
+
 
 
 
