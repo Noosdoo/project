@@ -438,76 +438,55 @@ def load_dataset(dataset_path=DATASET_FILE):
 #-----------------------
 def generate_question_map(selected_categories=None):
     """
-    改良版:
-    - カテゴリごとの質問マップは残す
-    - summary/Wikidata/特徴情報を使う
-    - 同じ質問は出ないようにする
+    アキネーター形式質問マップ生成：
+    - 質問をカテゴリ階層（職業→活動→特徴）に整理
+    - カテゴリ外質問を除外
+    - 質問重複を防止
     """
+
     import random
+    qm = {"occupation": [], "activity": [], "feature": [], "common": []}
 
-    # 質問マップを格納
-    qm = {
-        "occupation": [],
-        "activity": [],
-        "feature": [],
-        "common": []
-    }
-
-    # カテゴリごとのキーワードマップ（職業・活動・特徴）
+    # --- カテゴリ別の質問データ ---
     CATEGORY_KEYWORD_MAP = {
         "日本の俳優": {
             "occupation": ["俳優"],
-            "activity": ["大河ドラマ", "特撮", "映画", "舞台", "アクション", "恋愛ドラマ", "海外映画"],
+            "activity": ["大河ドラマ", "映画", "舞台", "特撮", "恋愛ドラマ", "海外映画"],
             "feature": ["受賞", "NHK"]
         },
         "日本の女優": {
             "occupation": ["俳優"],
-            "activity": ["大河ドラマ", "映画", "舞台", "恋愛ドラマ", "海外映画"],
+            "activity": ["大河ドラマ", "映画", "舞台", "恋愛ドラマ"],
             "feature": ["受賞", "NHK"]
         },
         "お笑い芸人": {
             "occupation": ["お笑い芸人"],
-            "activity": ["コント", "舞台"],
+            "activity": ["コント", "漫才", "バラエティ番組"],
             "feature": []
         },
         "日本の声優": {
             "occupation": ["声優"],
-            "activity": ["アニメ"],
+            "activity": ["アニメ", "ゲーム", "吹き替え"],
             "feature": []
         },
         "日本の歌手": {
             "occupation": ["歌手"],
-            "activity": ["アイドル", "舞台"],
+            "activity": ["ライブ", "舞台", "音楽番組"],
             "feature": ["受賞"]
         },
         "日本のアイドル": {
             "occupation": ["アイドル"],
-            "activity": ["歌手", "舞台"],
-            "feature": []
-        },
-        "日本のモデル": {
-            "occupation": ["モデル"],
-            "activity": ["舞台"],
-            "feature": []
-        },
-        "日本の政治家": {
-            "occupation": ["政治家"],
-            "activity": [],
-            "feature": []
-        },
-        "日本のスポーツ選手": {
-            "occupation": ["スポーツ選手"],
-            "activity": [],
+            "activity": ["歌手", "バラエティ番組"],
             "feature": []
         },
         "日本の作家": {
             "occupation": ["作家", "漫画家", "小説家", "詩人"],
-            "activity": ["アニメ", "漫画", "小説"],
-            "feature": []
+            "activity": ["アニメ化", "漫画", "小説"],
+            "feature": ["受賞"]
         },
         "日本のYouTuber": {
             "occupation": ["YouTuber"],
-            "activity": [],
+            "activity": ["配信", "動画制作"],
             "feature": []
         },
     }
@@ -515,7 +494,7 @@ def generate_question_map(selected_categories=None):
     if not selected_categories:
         selected_categories = CATEGORY_KEYWORD_MAP.keys()
 
-    # 大カテゴリ（職業）質問
+    # --- 職業（大カテゴリ） ---
     for cat in selected_categories:
         for occ in CATEGORY_KEYWORD_MAP[cat]["occupation"]:
             qm["occupation"].append({
@@ -524,16 +503,16 @@ def generate_question_map(selected_categories=None):
                 "check": lambda rec, o=occ: rec.get("summary") and o in rec["summary"]
             })
 
-    # 中カテゴリ（活動対象）質問
+    # --- 活動対象（中カテゴリ） ---
     for cat in selected_categories:
         for act in CATEGORY_KEYWORD_MAP[cat]["activity"]:
             qm["activity"].append({
                 "key": f"act_{act}",
-                "text": f"{act} に関連しますか？",
+                "text": f"{act} に関係していますか？",
                 "check": lambda rec, a=act: rec.get("summary") and a in rec["summary"]
             })
 
-    # 小カテゴリ（特徴）質問
+    # --- 特徴（小カテゴリ） ---
     for cat in selected_categories:
         for feat in CATEGORY_KEYWORD_MAP[cat]["feature"]:
             qm["feature"].append({
@@ -542,24 +521,24 @@ def generate_question_map(selected_categories=None):
                 "check": lambda rec, f=feat: rec.get("summary") and f in rec["summary"]
             })
 
-    # 共通質問（性別・生存）
-    qm["common"].append({
-        "key": "alive_text",
-        "text": "現在もご存命ですか？",
-        "check": lambda rec: rec.get("features", {}).get("alive_text") == 1
-    })
-    qm["common"].append({
-        "key": "gender_male",
-        "text": "男性ですか？",
-        "check": lambda rec: rec.get("features", {}).get("gender") == "male"
-    })
-    qm["common"].append({
-        "key": "gender_female",
-        "text": "女性ですか？",
-        "check": lambda rec: rec.get("features", {}).get("gender") == "female"
-    })
+    # --- 共通質問（性別・生存） ---
+    qm["common"] = [
+        {
+            "key": "alive_text",
+            "text": "現在もご存命ですか？",
+            "check": lambda rec: rec.get("features", {}).get("alive_text") == 1
+        },
+        {
+            "key": "gender_male",
+            "text": "男性ですか？",
+            "check": lambda rec: rec.get("features", {}).get("gender") == "male"
+        },
+        {
+            "key": "gender_female",
+            "text": "女性ですか？",
+            "check": lambda rec: rec.get("features", {}).get("gender") == "female"
+        }
 
-    return qm
 
 
 
@@ -569,44 +548,70 @@ def generate_question_map(selected_categories=None):
 #-----------------------
 # アキネーター対話部分
 #-----------------------
-def akinator_play(dataset, question_map):
-    """
-    dataset: build_dataset で生成されたデータ
-    question_map: generate_question_map() で生成された質問リスト
-    """
-    asked = set()  # 出題済み質問キーを保存
-    candidates = dataset[:]  # 現在の候補者リスト
-    all_questions = (
-        question_map["occupation"]
-        + question_map["activity"]
-        + question_map["feature"]
-        + question_map["common"]
-    )
-    random.shuffle(all_questions)
+def akinator_play(dataset, max_questions=30, check_every=10):
+    candidates = dataset.copy()
+    qm_dict = generate_question_map()
+    
+    # occupation / activity / feature / common を全部まとめる
+    qm = []
+    for qlist in qm_dict.values():
+        qm.extend(qlist)
+    
+    random.shuffle(qm)
 
-    for q in all_questions:
-        if q["key"] in asked:
-            continue  # 同じ質問はスキップ
-        asked.add(q["key"])
+    print("=== アキネーター開始 ===")
+    print(f"候補人数: {len(candidates)} 件")
 
-        print(q["text"])
-        ans = input("はい / いいえ / わからない > ").strip()
-        if ans not in ["はい", "いいえ", "わからない"]:
+    asked = 0
+    i_qm = 0
+
+    while asked < max_questions and len(candidates) > 1 and i_qm < len(qm):
+        question = qm[i_qm]
+        key, q_text, test = question.get("key"), question.get("text"), question.get("check")
+
+        ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
+        if ans not in ["はい", "いいえ"]:
+            print("スキップ")
+            i_qm += 1
             continue
 
         if ans == "はい":
-            candidates = [r for r in candidates if q["check"](r)]
-        elif ans == "いいえ":
-            candidates = [r for r in candidates if not q["check"](r)]
-        # "わからない" の場合は絞り込みを行わない
+            candidates = [c for c in candidates if test(c)]
+        else:
+            candidates = [c for c in candidates if not test(c)]
 
-        print(f"候補数: {len(candidates)}")
+        asked += 1
+        i_qm += 1
 
-        if len(candidates) <= 3:
-            print("最終候補:", [c["name"] for c in candidates])
-            break
-    print("終了")
+        if asked % check_every == 0 or len(candidates) <= 3:
+            print(f"\nここまでの質問で絞り込んだ候補（上位3件）:")
+            for j, c in enumerate(candidates[:3], 1):
+                print(f"{j}. {c['name']}")
+            choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
+            if choice.isdigit():
+                idx = int(choice)-1
+                if 0 <= idx < len(candidates[:3]):
+                    print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
+                    return candidates[idx]
+            elif choice.lower() in ["なし", "n", "no"]:
+                print("わかりました。質問を続けます。")
 
+    if not candidates:
+        print("候補が見つかりませんでした。")
+        return None
+
+    print("\n最終候補（上位3件）:")
+    for i, c in enumerate(candidates[:3], 1):
+        print(f"{i}. {c['name']}")
+    choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
+    if choice.isdigit():
+        idx = int(choice)-1
+        if 0 <= idx < len(candidates[:3]):
+            print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
+            return candidates[idx]
+
+    print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
+    return candidates[0]
 
 
 
