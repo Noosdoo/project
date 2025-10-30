@@ -16,7 +16,7 @@ WIKIDATA_ENTITY_URL = "https://www.wikidata.org/wiki/Special:EntityData/{}.json"
 PEOPLE_LIST_FILE = "people_list.json"  # 取得した人物タイトルのリスト
 DATASET_FILE = "people_dataset.json"   # 各人物の属性データ
 
-# 取得対象カテゴリ（変更なし）
+# 取得対象カテゴリ（変更なし）　お笑い芸人ではだめ
 CATEGORIES = [
     # 俳優・芸能
     "日本の俳優", "日本の女優", "お笑い芸人", "日本の声優", "日本のアイドル", "日本のモデル", "日本の歌手",
