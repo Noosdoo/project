@@ -161,6 +161,7 @@ def get_wikibase_item_from_wikipedia(title):
 
 # -----------------------
 # Wikidataから構造化属性を取得 
+# Wikidata の「プロパティ (Property)」 を表すID番号から各種属性を抽出
 # -----------------------
 def fetch_wikidata_entity(wikibase_id):
     try:
@@ -171,7 +172,7 @@ def fetch_wikidata_entity(wikibase_id):
         claims = entity.get("claims", {})
         result = {}
         
-        # P106 (occupation)
+        # P106 (occupation)　# 職業を取得
         if "P106" in claims:
             occ = []
             for c in claims["P106"]:
@@ -181,28 +182,28 @@ def fetch_wikidata_entity(wikibase_id):
                 except Exception: pass
             if occ: result["occupation_qids"] = occ
             
-        # P21 (gender)
+        # P21 (gender) # 性別を取得
         if "P21" in claims:
             try:
                 v = claims["P21"][0]["mainsnak"]["datavalue"]["value"]
                 if isinstance(v, dict) and "id" in v: result["gender_qid"] = v["id"]
             except Exception: pass
             
-        # P569 (birth time)
+        # P569 (birth time) # 生年月日
         if "P569" in claims:
             try:
                 t = claims["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
                 result["birth_time"] = t
             except Exception: pass
             
-        # P570 (death time)
+        # P570 (death time) # 没年月日    
         if "P570" in claims:
             try:
                 t = claims["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
                 result["death_time"] = t
             except Exception: pass
             
-        # P19 (birth place)
+        # P19 (birth place) # 出生地
         if "P19" in claims:
             try:
                 v = claims["P19"][0]["mainsnak"]["datavalue"]["value"]
@@ -210,7 +211,7 @@ def fetch_wikidata_entity(wikibase_id):
                     result["birth_place_qid"] = v["id"] 
             except Exception: pass
             
-        # P69 (education)
+        # P69 (education) # 学歴
         if "P69" in claims:
             edu_qids = []
             for c in claims["P69"]:
@@ -220,7 +221,7 @@ def fetch_wikidata_entity(wikibase_id):
                 except Exception: pass
             if edu_qids: result["education_qids"] = edu_qids 
 
-        # P166 (awards)
+        # P166 (awards) # 受賞歴
         if "P166" in claims:
             award_qids = []
             for c in claims["P166"]:
