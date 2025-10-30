@@ -6,6 +6,7 @@ import re
 import random
 import wikipediaapi
 import random
+# ★ ThreadPoolExecutor は使わないため削除
 
 # Wikipediaにアクセスする際のユーザーエージェント
 USER_AGENT = "CelebrityAkinatorBot/1.0 (https://github.com/yourproject; contact@example.com)"
@@ -13,7 +14,7 @@ WIKI_API = "https://ja.wikipedia.org/w/api.php"
 WIKIDATA_ENTITY_URL = "https://www.wikidata.org/wiki/Special:EntityData/{}.json"
 
 # 保存先ファイル名
-PEOPLE_LIST_FILE = "people_list.json"  # 取得した人物タイトルのリスト
+PEOPLE_LIST_FILE = "people_list.json"  # 取得した人物タイTpルのリスト
 DATASET_FILE = "people_dataset.json"   # 各人物の属性データ
 
 # 取得対象カテゴリ（必要に応じて増やす）
@@ -40,6 +41,7 @@ CATEGORIES = [
 
 # Wikipedia APIに送る際のヘッダー
 HEADERS = {"User-Agent": USER_AGENT}
+
 
 # -----------------------
 # 除外ルール: 人物ページかどうか判定
@@ -76,11 +78,9 @@ def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=0.
         except Exception as e:
             print("HTTPエラー:", e)
             return collected
-
         if res.status_code == 403:
-            print("403 Forbidden: Wikipediaがアクセスを拒否しました。")
+            print("403 Forbidden: Wikipediaがアクセスを拒否しました。時間を置いて再試行してください。")
             return collected
-
         try:
             data = res.json()
         except Exception as e:
@@ -142,17 +142,37 @@ def choose_categories():
     return selected
 
 # -----------------------
-# Step1: 全カテゴリから人物を収集して保存
+# Step1: 全カテゴリから人物を収集して保存 (★ 10/30 修正版)
 # -----------------------
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_path=PEOPLE_LIST_FILE):
+    
+    target_categories = sorted(list(set(categories)))
+
     if os.path.exists(save_path):
-        print(f"{save_path} が既に存在するため、collect はスキップします。")
-        with open(save_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(save_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            # 新しい保存形式（メタデータ + リスト本体）
+            saved_categories = data.get("meta", {}).get("categories")
+            people_list = data.get("people")
+            
+            if saved_categories == target_categories and people_list is not None:
+                print(f"{save_path} が存在し、カテゴリが一致するため、collect はスキップします。")
+                return people_list # リスト本体を返す
+            else:
+                print("カテゴリが変更されたため、人物リストを再収集します。")
+                if os.path.exists(DATASET_FILE):
+                    print(f"古いデータセット {DATASET_FILE} をリセットします。")
+                    os.remove(DATASET_FILE)
+
+        except Exception as e:
+            print(f"既存ファイルの形式が古いか壊れています: {e}。再収集します。")
+            if os.path.exists(DATASET_FILE):
+                os.remove(DATASET_FILE)
 
     print("=== カテゴリから人物リストを収集します ===")
     all_people = set()
-    for cat in categories:
+    for cat in target_categories:
         print(f"取得中: {cat}")
         people = get_category_members(cat, cmlimit=cmlimit, depth=depth, sleep=sleep)
         print(f"  → {len(people)} 人取得")
@@ -160,13 +180,22 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_p
         time.sleep(sleep)
 
     people_list = sorted(list(all_people))
+    
+    save_data = {
+        "meta": {
+            "categories": target_categories,
+            "last_updated": time.strftime("%Y-%m-%dT%H:%M:%S")
+        },
+        "people": people_list
+    }
+    
     with open(save_path, "w", encoding="utf-8") as f:
-        json.dump(people_list, f, ensure_ascii=False, indent=2)
+        json.dump(save_data, f, ensure_ascii=False, indent=2)
     print(f"保存しました: {save_path} （合計 {len(people_list)} 人）")
     return people_list
 
 # -----------------------
-# Wikidata取得補助: Wikipediaページからwikibase_itemを得る
+# Wikidata取得補助
 # -----------------------
 def get_wikibase_item_from_wikipedia(title):
     params = {
@@ -198,7 +227,7 @@ def fetch_wikidata_entity(wikibase_id):
         entity = data.get("entities", {}).get(wikibase_id, {})
         claims = entity.get("claims", {})
         result = {}
-        # occupation (P106) -> list of ids
+        # occupation (P106)
         if "P106" in claims:
             occ = []
             for c in claims["P106"]:
@@ -233,7 +262,7 @@ def fetch_wikidata_entity(wikibase_id):
         return None
 
 # -----------------------
-# summaryからキーワードベースで特徴を抽出する
+# summaryからキーワードベースで特徴を抽出
 # -----------------------
 FEATURE_KEYWORDS = {
     "taiga": ["大河ドラマ", "大河"],
@@ -275,15 +304,35 @@ def extract_features_from_summary(summary):
     return features
 
 # -----------------------
-# Step2: people list -> build dataset (逐次処理版)
+# Step2: people list -> build dataset (★ 10/30 修正版)
 # -----------------------
-def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, limit=None, sleep=0.8):
+
+# ★ build_dataset の「前」に、このヘルパー関数を追加
+def load_people_list(people_list_path=PEOPLE_LIST_FILE):
+    """people_list.json から人物リスト本体だけを読み込む"""
     if not os.path.exists(people_list_path):
-        print("人物リストが存在しません。まず collect_people を実行してください。")
+        return None
+    try:
+        with open(people_list_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        # 新しい形式 (dict) の場合
+        if isinstance(data, dict):
+            return data.get("people")
+        # 古い形式 (list) の場合
+        elif isinstance(data, list):
+            return data
+        return None
+    except Exception:
         return None
 
-    with open(people_list_path, "r", encoding="utf-8") as f:
-        people = json.load(f)
+def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, limit=None, sleep=0.8):
+    
+    # ★ 修正点: people = json.load(f) の代わりにヘルパー関数を使う
+    people = load_people_list(people_list_path) 
+    
+    if people is None:
+        print("人物リストが存在しません。まず collect_people を実行してください。")
+        return None
 
     existing = {}
     if os.path.exists(dataset_path):
@@ -344,7 +393,6 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
                         rec["features"]["birth_time"] = wd.get("birth_time")
                     if wd.get("death_time"):
                         rec["features"]["death_time"] = wd.get("death_time")
-                        # Wikidataに死亡日があれば、alive_textを上書き
                         rec["features"]["alive_text"] = 0 
             print("OK")
         except Exception as e:
@@ -352,9 +400,8 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
         
         new_records.append(rec)
         processed += 1
-        time.sleep(sleep) # APIリクエストの合間にスリープ
+        time.sleep(sleep) 
 
-    # 既存 + 新規データをマージして保存
     merged = list(existing.values()) + new_records
     with open(dataset_path, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)
@@ -363,7 +410,7 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
     return merged
 
 # -----------------------
-# Step3: アキネーター本体（datasetを読み込んで対話で絞り込み）
+# Step3: アキネーター本体
 # -----------------------
 def load_dataset(dataset_path=DATASET_FILE):
     if not os.path.exists(dataset_path):
@@ -374,12 +421,15 @@ def load_dataset(dataset_path=DATASET_FILE):
     return data
 
 # -----------------------
-# 質問マップの自動生成（改良版）
+# ★ 質問マップの自動生成（改良版）
 # -----------------------
 def generate_question_map(dataset):
     """
     データセットの特徴量(features)キーに基づいて、
     質問マップ（階層化された辞書）を自動生成します。
+    
+    引数:
+    dataset (list): load_dataset() で読み込んだデータのリスト
     """
     qm = {"occupation": [], "activity": [], "feature": [], "common": []}
     added_keys = set() # 質問の重複を防ぐ
@@ -389,17 +439,21 @@ def generate_question_map(dataset):
         ("gender_male", "男性ですか？", "common"),
         ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
+        # (Wikidata由来の職業)
         ("actor_wikidata", "本業は俳優ですか？", "occupation"),
         ("singer_wikidata", "本業は歌手ですか？", "occupation"),
         ("politician_wikidata", "本業は政治家ですか？", "occupation"),
     ]
 
     for key, text, category in common_questions_def:
+        # このキーがデータセットに実際に存在するか確認
         key_exists = any(key in rec.get("features", {}) for rec in dataset)
+        
         if key_exists and key not in added_keys:
             qm[category].append({
                 "key": key,
                 "text": text,
+                # rec.get("features", {}).get(key) は 1 (Yes) または 0/None (No) になる
                 "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
             })
             added_keys.add(key)
@@ -428,6 +482,7 @@ def generate_question_map(dataset):
         "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature"),
     }
 
+    # FEATURE_KEYWORDS に定義されているキーに基づいて質問を生成
     for key in FEATURE_KEYWORDS.keys():
         if key in feature_questions_def and key not in added_keys:
             text, category = feature_questions_def[key]
@@ -443,12 +498,12 @@ def generate_question_map(dataset):
     return qm
 
 #-----------------------
-# アキネーター対話部分（階層化対応・改良版）
+# ★ アキネーター対話部分（階層化対応・改良版）
 #-----------------------
 def akinator_play(dataset, max_questions=30, check_every=10):
     candidates = dataset.copy()
     
-    # データセットを渡して質問マップを生成
+    # ★修正点1: データセットを渡して質問マップを生成
     qm_dict = generate_question_map(dataset) 
     
     print("=== アキネーター開始 ===")
@@ -457,14 +512,15 @@ def akinator_play(dataset, max_questions=30, check_every=10):
     asked_keys = set() # 質問の重複を防ぐ
     asked_count = 0
 
-    # 質問ループを階層化 (重要な順: 職業 -> 共通 -> 活動 -> 特徴)
+    # ★修正点2: 質問ループを階層化
+    # 重要な質問（職業、共通）から先に聞く
     for q_category in ["occupation", "common", "activity", "feature"]:
         
         if len(candidates) <= 1 or asked_count >= max_questions:
-            break 
+            break # 候補が1人 or 最大質問数に達したら抜ける
 
         question_list = qm_dict[q_category]
-        random.shuffle(question_list) # カテゴリ内ではシャッフル
+        random.shuffle(question_list) # カテゴリ内ではシャッフルする
 
         for question in question_list:
             if asked_count >= max_questions or len(candidates) <= 1:
@@ -472,10 +528,12 @@ def akinator_play(dataset, max_questions=30, check_every=10):
             
             key, q_text, test = question.get("key"), question.get("text"), question.get("check")
 
+            # 重複チェック
             if key in asked_keys:
                 continue
             
-            # 「賢いスキップ」: 候補者全員がYes/Noになる質問は無駄
+            # ★修正点3: 「賢いスキップ」
+            # 候補者全員がYesまたは全員がNoになる質問は、聞くだけ無駄
             yes_count = 0
             no_count = 0
             for c in candidates:
@@ -484,13 +542,14 @@ def akinator_play(dataset, max_questions=30, check_every=10):
                 else:
                     no_count += 1
             
+            # 全員Yesか全員Noなら、その質問はスキップ
             if yes_count == 0 or no_count == 0:
-                asked_keys.add(key) # 聞いたことにしてスキップ
+                asked_keys.add(key) # (聞いたことにしてスキップ)
                 continue
 
             # --- 質問実行 ---
             ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
-            asked_keys.add(key) 
+            asked_keys.add(key) # 質問したキーとして記録
 
             if ans not in ["はい", "いいえ"]:
                 print("スキップ")
@@ -538,18 +597,20 @@ def akinator_play(dataset, max_questions=30, check_every=10):
     return candidates[0]
 
 # -----------------------
-# エントリポイント用関数
+# エントリポイント用関数 (★ 10/30 修正版)
 # -----------------------
 def run_step(step="collect", **kwargs):
     step = step.lower()
 
     if step == "collect":
+        # (10/30 修正版の collect_people が呼ばれる)
         return collect_people(categories=kwargs.get("categories", CATEGORIES),
                               cmlimit=kwargs.get("cmlimit", 50),
                               depth=kwargs.get("depth", 1),
                               sleep=kwargs.get("sleep", 0.8))
 
     elif step == "build":
+        # (10/30 修正版の build_dataset が呼ばれる)
         return build_dataset(limit=kwargs.get("limit", None),
                              sleep=kwargs.get("sleep", 0.8))
 
@@ -557,7 +618,7 @@ def run_step(step="collect", **kwargs):
         ds = load_dataset()
         if not ds:
             return None
-        # dataset を akinator_play に渡す
+        # ★修正点: dataset を akinator_play に渡す
         return akinator_play(ds, max_questions=kwargs.get("max_questions", 30))
 
     else:
@@ -568,16 +629,10 @@ def run_step(step="collect", **kwargs):
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    # APIへの負荷を考慮し、sleepは 0.5 以上を推奨
-    # cmlimit: 1回のリクエストで取得する件数 (50-500)
-    # depth: サブカテゴリを掘る深さ (0 or 1推奨)
-    # limit: build_dataset で処理する人数の上限 (Noneで全員)
-    # max_questions: ゲームの最大質問数
-    
     SLEEP = 0.5     # APIアクセス間隔 (秒)
     CMLIMIT = 50
     DEPTH = 1
-    BUILD_LIMIT = 200 # お試しビルドの人数上限 (Noneで無制限)
+    BUILD_LIMIT = 200 # お試しビルドの人数上限 (Noneで全員)
     MAX_QUESTIONS = 25
 
     # --- 実行フロー ---
