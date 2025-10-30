@@ -664,7 +664,7 @@ if __name__ == "__main__":
     CMLIMIT = 50
     DEPTH = 1
     # 現在は200件としている
-    BUILD_LIMIT = 200  
+    BUILD_LIMIT = 10  
     MAX_QUESTIONS = 25
 
     # --- 実行フロー ---
