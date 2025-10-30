@@ -5,8 +5,6 @@ import os
 import re
 import random
 import wikipediaapi
-import random
-# ★ ThreadPoolExecutor は使わないため削除
 
 # Wikipediaにアクセスする際のユーザーエージェント
 USER_AGENT = "CelebrityAkinatorBot/1.0 (https://github.com/yourproject; contact@example.com)"
@@ -14,7 +12,7 @@ WIKI_API = "https://ja.wikipedia.org/w/api.php"
 WIKIDATA_ENTITY_URL = "https://www.wikidata.org/wiki/Special:EntityData/{}.json"
 
 # 保存先ファイル名
-PEOPLE_LIST_FILE = "people_list.json"  # 取得した人物タイTpルのリスト
+PEOPLE_LIST_FILE = "people_list.json"  # 取得した人物タイトルのリスト
 DATASET_FILE = "people_dataset.json"   # 各人物の属性データ
 
 # 取得対象カテゴリ（必要に応じて増やす）
@@ -421,15 +419,12 @@ def load_dataset(dataset_path=DATASET_FILE):
     return data
 
 # -----------------------
-# ★ 質問マップの自動生成（改良版）
+# ★ 質問マップの自動生成（カテゴリ連動・改良版）
 # -----------------------
-def generate_question_map(dataset):
+def generate_question_map(dataset, selected_categories=None):
     """
-    データセットの特徴量(features)キーに基づいて、
+    データセットの特徴量と「選ばれたカテゴリ」に基づいて、
     質問マップ（階層化された辞書）を自動生成します。
-    
-    引数:
-    dataset (list): load_dataset() で読み込んだデータのリスト
     """
     qm = {"occupation": [], "activity": [], "feature": [], "common": []}
     added_keys = set() # 質問の重複を防ぐ
@@ -439,28 +434,25 @@ def generate_question_map(dataset):
         ("gender_male", "男性ですか？", "common"),
         ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
-        # (Wikidata由来の職業)
         ("actor_wikidata", "本業は俳優ですか？", "occupation"),
         ("singer_wikidata", "本業は歌手ですか？", "occupation"),
         ("politician_wikidata", "本業は政治家ですか？", "occupation"),
     ]
 
     for key, text, category in common_questions_def:
-        # このキーがデータセットに実際に存在するか確認
         key_exists = any(key in rec.get("features", {}) for rec in dataset)
-        
         if key_exists and key not in added_keys:
             qm[category].append({
                 "key": key,
                 "text": text,
-                # rec.get("features", {}).get(key) は 1 (Yes) または 0/None (No) になる
                 "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
             })
             added_keys.add(key)
 
     # --- 2. FEATURE_KEYWORDS に基づく質問 (NLP由来) ---
+    
+    # (質問キー, 質問文, 階層) の定義
     feature_questions_def = {
-        # 職業系
         "comedian": ("お笑い芸人ですか？", "occupation"),
         "seiyuu": ("声優として活動していますか？", "occupation"),
         "athlete": ("スポーツ選手ですか？", "occupation"),
@@ -468,8 +460,6 @@ def generate_question_map(dataset):
         "idol": ("アイドル活動をしていましたか（していますか）？", "occupation"),
         "youtuber": ("YouTuberとして活動していますか？", "occupation"),
         "director": ("監督（映画やアニメなど）ですか？", "occupation"),
-        
-        # 活動・特徴系
         "taiga": ("大河ドラマに出演しましたか？", "activity"),
         "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity"),
         "romance_drama": ("恋愛ドラマに出演しましたか？", "activity"),
@@ -482,8 +472,42 @@ def generate_question_map(dataset):
         "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature"),
     }
 
-    # FEATURE_KEYWORDS に定義されているキーに基づいて質問を生成
-    for key in FEATURE_KEYWORDS.keys():
+    # ★ カテゴリと、それに関連する質問キーの「対応表」 ★
+    CATEGORY_TO_FEATURE_MAP = {
+        # 芸能
+        "日本の俳優": ["taiga", "tokusatsu", "romance_drama", "movie", "action", "stage", "nhk", "award", "hollywood"],
+        "日本の女優": ["taiga", "romance_drama", "movie", "stage", "nhk", "award", "model"],
+        "お笑い芸人": ["comedian", "youtuber", "movie", "stage"],
+        "日本の声優": ["seiyuu", "anime", "singer", "stage"],
+        "日本のアイドル": ["idol", "singer", "model", "movie", "stage"],
+        "日本のモデル": ["model", "romance_drama"],
+        "日本の歌手": ["singer", "award", "nhk", "movie"],
+        "日本のYouTuber": ["youtuber", "comedian"],
+        # スポーツ (関連キー "athlete" のみ)
+        "日本のスポーツ選手": ["athlete"], "日本のサッカー選手": ["athlete"], "日本の野球選手": ["athlete"],
+        "日本の柔道家": ["athlete"], "日本のレスリング選手": ["athlete"], "日本のオリンピック選手": ["athlete"],
+        "日本の水泳選手": ["athlete"], "日本の陸上競技選手": ["athlete"], "日本のテニス選手": ["athlete"],
+        "日本のバレーボール選手": ["athlete"], "日本のバスケットボール選手": ["athlete"],
+        # 政治
+        "日本の政治家": ["politician"], "日本の外交官": ["politician"], "日本の官僚": ["politician"],
+        # 文化
+        "日本の作家": ["award", "movie", "anime"], # 作品が映画化・アニメ化
+        "日本の漫画家": ["award", "movie", "anime"],
+        "日本の小説家": ["award", "movie", "anime"],
+        # (他のカテゴリも必要に応じて追加)
+    }
+    
+    allowed_feature_keys = set()
+    if not selected_categories or len(selected_categories) == len(CATEGORIES):
+        # もしカテゴリが未選択（＝全部）なら、全ての質問を許可
+        allowed_feature_keys = set(feature_questions_def.keys())
+    else:
+        # 選ばれたカテゴリに関連する質問キーだけを許可する
+        for cat in selected_categories:
+            allowed_feature_keys.update(CATEGORY_TO_FEATURE_MAP.get(cat, []))
+
+    # 許可されたキーに基づいて質問を生成
+    for key in allowed_feature_keys:
         if key in feature_questions_def and key not in added_keys:
             text, category = feature_questions_def[key]
             
@@ -500,11 +524,11 @@ def generate_question_map(dataset):
 #-----------------------
 # ★ アキネーター対話部分（階層化対応・改良版）
 #-----------------------
-def akinator_play(dataset, max_questions=30, check_every=10):
+def akinator_play(dataset, selected_categories=None, max_questions=30, check_every=10):
     candidates = dataset.copy()
     
-    # ★修正点1: データセットを渡して質問マップを生成
-    qm_dict = generate_question_map(dataset) 
+    # ★修正点: selected_categories を渡す
+    qm_dict = generate_question_map(dataset, selected_categories) 
     
     print("=== アキネーター開始 ===")
     print(f"候補人数: {len(candidates)} 件")
@@ -512,15 +536,14 @@ def akinator_play(dataset, max_questions=30, check_every=10):
     asked_keys = set() # 質問の重複を防ぐ
     asked_count = 0
 
-    # ★修正点2: 質問ループを階層化
-    # 重要な質問（職業、共通）から先に聞く
+    # ★修正点: 質問ループを階層化 (職業 -> 共通 -> 活動 -> 特徴)
     for q_category in ["occupation", "common", "activity", "feature"]:
         
         if len(candidates) <= 1 or asked_count >= max_questions:
-            break # 候補が1人 or 最大質問数に達したら抜ける
+            break 
 
         question_list = qm_dict[q_category]
-        random.shuffle(question_list) # カテゴリ内ではシャッフルする
+        random.shuffle(question_list) # カテゴリ内ではシャッフル
 
         for question in question_list:
             if asked_count >= max_questions or len(candidates) <= 1:
@@ -528,12 +551,10 @@ def akinator_play(dataset, max_questions=30, check_every=10):
             
             key, q_text, test = question.get("key"), question.get("text"), question.get("check")
 
-            # 重複チェック
             if key in asked_keys:
                 continue
             
-            # ★修正点3: 「賢いスキップ」
-            # 候補者全員がYesまたは全員がNoになる質問は、聞くだけ無駄
+            # ★修正点: 「賢いスキップ」
             yes_count = 0
             no_count = 0
             for c in candidates:
@@ -542,14 +563,13 @@ def akinator_play(dataset, max_questions=30, check_every=10):
                 else:
                     no_count += 1
             
-            # 全員Yesか全員Noなら、その質問はスキップ
             if yes_count == 0 or no_count == 0:
-                asked_keys.add(key) # (聞いたことにしてスキップ)
+                asked_keys.add(key) # 聞いたことにしてスキップ
                 continue
 
             # --- 質問実行 ---
             ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
-            asked_keys.add(key) # 質問したキーとして記録
+            asked_keys.add(key) 
 
             if ans not in ["はい", "いいえ"]:
                 print("スキップ")
@@ -597,20 +617,18 @@ def akinator_play(dataset, max_questions=30, check_every=10):
     return candidates[0]
 
 # -----------------------
-# エントリポイント用関数 (★ 10/30 修正版)
+# ★ エントリポイント用関数 (修正版)
 # -----------------------
 def run_step(step="collect", **kwargs):
     step = step.lower()
 
     if step == "collect":
-        # (10/30 修正版の collect_people が呼ばれる)
         return collect_people(categories=kwargs.get("categories", CATEGORIES),
                               cmlimit=kwargs.get("cmlimit", 50),
                               depth=kwargs.get("depth", 1),
                               sleep=kwargs.get("sleep", 0.8))
 
     elif step == "build":
-        # (10/30 修正版の build_dataset が呼ばれる)
         return build_dataset(limit=kwargs.get("limit", None),
                              sleep=kwargs.get("sleep", 0.8))
 
@@ -618,14 +636,20 @@ def run_step(step="collect", **kwargs):
         ds = load_dataset()
         if not ds:
             return None
-        # ★修正点: dataset を akinator_play に渡す
-        return akinator_play(ds, max_questions=kwargs.get("max_questions", 30))
+        
+        # ★修正点: kwargs から selected_categories を取り出す
+        selected_categories = kwargs.get("selected_categories")
+        
+        # ★修正点: akinator_play に selected_categories を渡す
+        return akinator_play(ds, 
+                             selected_categories=selected_categories, 
+                             max_questions=kwargs.get("max_questions", 30))
 
     else:
         raise ValueError("step must be one of: collect, build, play")
 
 # -----------------------
-# 実行部分
+# ★ 実行部分 (修正版)
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
@@ -651,8 +675,9 @@ if __name__ == "__main__":
                  limit=BUILD_LIMIT, 
                  sleep=SLEEP)
         
-        # アキネーターをプレイ
+        # ★修正点: selected_categories を "play" ステップに渡す
         run_step("play", 
+                 selected_categories=selected_categories, 
                  max_questions=MAX_QUESTIONS)
                  
     except KeyboardInterrupt:
