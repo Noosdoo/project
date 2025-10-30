@@ -659,7 +659,7 @@ def run_step(step="collect", **kwargs):
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.5     # APIアクセス間隔 (秒)
+    SLEEP = 0.01     # APIアクセス間隔 (秒)
     CMLIMIT = 50
     DEPTH = 1
     # 現在は200件としている
