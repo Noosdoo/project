@@ -652,7 +652,7 @@ if __name__ == "__main__":
     SLEEP = 0.5     # APIアクセス間隔 (秒)
     CMLIMIT = 50
     DEPTH = 1
-    BUILD_LIMIT = 1000  # ★ 1000人程度に増やすことを推奨します
+    BUILD_LIMIT = 200  # ★ 1000人程度に増やすことを推奨します
     MAX_QUESTIONS = 25
 
     # --- 実行フロー ---
