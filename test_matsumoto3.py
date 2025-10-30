@@ -400,13 +400,13 @@ def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, 
 
 
 
-def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, limit=None, max_workers=10, sleep=0.5):
+def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
+                            limit=None, max_workers=10, sleep=0.5):
     """
     build_dataset の並行処理版。
     各人物ごとのWikipediaアクセスとWikidata取得を並列化。
     max_workers: 同時スレッド数（Wikipediaへのアクセス制限を考慮して10程度まで推奨）
     """
-
     people = load_people_list(people_list_path)
     if people is None:
         print("人物リストが存在しません。まず collect_people を実行してください。")
@@ -419,10 +419,17 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             with open(dataset_path, "r", encoding="utf-8") as f:
                 existing = {p["name"]: p for p in json.load(f)}
                 print(f"{len(existing)} 件の既存データを読み込みました。未処理のみ並列処理します。")
-        except:
+        except Exception as e:
+            print("既存データ読み込み失敗:", e)
             existing = {}
 
-    # Wikipedia API オブジェクトはスレッドセーフではないため、各スレッドで再生成
+    # 処理対象を絞る
+    targets = [n for n in people if n not in existing]
+    if limit:
+        targets = targets[:limit]
+    print(f"処理対象: {len(targets)} 件")
+
+    # スレッドで個別処理
     def process_person(name):
         try:
             wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
@@ -447,60 +454,67 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                 rec["wikidata"] = wd
                 if wd:
                     g = wd.get("gender_qid")
-                    if g == "Q6581097": features["gender"] = "male"
-                    elif g == "Q6581072": features["gender"] = "female"
+                    if g == "Q6581097":
+                        features["gender"] = "male"
+                    elif g == "Q6581072":
+                        features["gender"] = "female"
 
                     occ_qs = wd.get("occupation_qids", [])
-                    if "Q33999" in occ_qs: features["actor_wikidata"] = 1
-                    if "Q177220" in occ_qs or "Q639669" in occ_qs: features["singer_wikidata"] = 1
-                    if "Q82955" in occ_qs: features["politician_wikidata"] = 1
+                    if "Q33999" in occ_qs:
+                        features["actor_wikidata"] = 1
+                    if "Q177220" in occ_qs or "Q639669" in occ_qs:
+                        features["singer_wikidata"] = 1
+                    if "Q82955" in occ_qs:
+                        features["politician_wikidata"] = 1
 
                     place_qid = wd.get("birth_place_qid")
-                    if place_qid == "Q1490": features["from_tokyo"] = 1
-                    elif place_qid in ["Q172582", "Q16997", "Q486245"]: features["from_kansai"] = 1
+                    if place_qid == "Q1490":
+                        features["from_tokyo"] = 1
+                    elif place_qid in ["Q172582", "Q16997", "Q486245"]:
+                        features["from_kansai"] = 1
 
                     edu_qids = wd.get("education_qids", [])
-                    if "Q7981" in edu_qids: features["grad_todai"] = 1
-                    elif "Q174019" in edu_qids: features["grad_waseda"] = 1
-                    elif "Q302302" in edu_qids: features["grad_keio"] = 1
+                    if "Q7981" in edu_qids:
+                        features["grad_todai"] = 1
+                    elif "Q174019" in edu_qids:
+                        features["grad_waseda"] = 1
+                    elif "Q302302" in edu_qids:
+                        features["grad_keio"] = 1
 
                     award_qids = wd.get("award_qids", [])
-                    if "Q1138032" in award_qids: features["award_shiju"] = 1
+                    if "Q1138032" in award_qids:
+                        features["award_shiju"] = 1
 
             return rec
+
         except Exception as e:
             return {"name": name, "error": str(e)}
 
-    # 並列処理の実行
+    # 並列実行
     new_records = []
-    to_process = [p for p in people if p not in existing]
-    if limit:
-        to_process = to_process[:limit]
-    total = len(to_process)
-    print(f"=== {total} 件の人物を並行処理で取得します（max_workers={max_workers}） ===")
-
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(process_person, name): name for name in to_process}
-        for i, future in enumerate(as_completed(futures), 1):
-            name = futures[future]
+        future_to_name = {executor.submit(process_person, name): name for name in targets}
+        for future in as_completed(future_to_name):
+            name = future_to_name[future]
             try:
                 rec = future.result()
-                if "error" in rec:
-                    print(f"[{i}/{total}] {name} → エラー: {rec['error']}")
-                else:
-                    print(f"[{i}/{total}] {name} → OK")
                 new_records.append(rec)
+                if "error" in rec:
+                    print(f"× {name}: {rec['error']}")
+                else:
+                    print(f"✓ {name}")
             except Exception as e:
-                print(f"[{i}/{total}] {name} → 例外: {e}")
-            time.sleep(sleep)
+                print(f"⚠ {name}: {e}")
+            time.sleep(sleep)  # 過剰アクセス防止の軽いディレイ
 
-    # 保存処理
+    # 結合と保存
     merged = list(existing.values()) + new_records
     with open(dataset_path, "w", encoding="utf-8") as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)
 
     print(f"データセットを保存しました: {dataset_path}（合計 {len(merged)} 件）")
     return merged
+
 
 
 # -----------------------
