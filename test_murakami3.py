@@ -109,7 +109,7 @@ def choose_categories():
     print(f"選択されたカテゴリ: {', '.join(selected)}"); return selected
 
 # -----------------------
-# Step1: 全カテゴリから人物を収集して保存 (メタデータ対応版)
+# Step1: 全カテゴリから人物を収集して保存 
 # -----------------------
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_path=PEOPLE_LIST_FILE):
     target_categories = sorted(list(set(categories)))
@@ -160,7 +160,7 @@ def get_wikibase_item_from_wikipedia(title):
     except Exception: return None
 
 # -----------------------
-# Wikidataから構造化属性を取得 (拡張版)
+# Wikidataから構造化属性を取得 
 # -----------------------
 def fetch_wikidata_entity(wikibase_id):
     try:
@@ -235,7 +235,7 @@ def fetch_wikidata_entity(wikibase_id):
         return None
 
 # -----------------------
-# summaryからキーワードベースで特徴を抽出 (拡張版)
+# summaryからキーワードベースで特徴を抽出 
 # -----------------------
 FEATURE_KEYWORDS = {
     "taiga": ["大河ドラマ", "大河"], "tokusatsu": ["仮面ライダー", "スーパー戦隊", "ウルトラマン", "特撮"],
@@ -266,7 +266,7 @@ def extract_features_from_summary(summary):
     return features
 
 # -----------------------
-# Step2: people list -> build dataset (アイデア反映 修正版)
+# Step2: people list -> build dataset 
 # -----------------------
 def load_people_list(people_list_path=PEOPLE_LIST_FILE):
     if not os.path.exists(people_list_path): return None
@@ -409,7 +409,7 @@ def load_dataset(dataset_path=DATASET_FILE):
     return data
 
 # -----------------------
-# 質問マップの自動生成（アイデア反映・カテゴリ連動）
+# 質問マップの自動生成
 # -----------------------
 def generate_question_map(dataset, selected_categories=None):
     qm = {"occupation": [], "activity": [], "feature": [], "common": []}
@@ -446,7 +446,7 @@ def generate_question_map(dataset, selected_categories=None):
             })
             added_keys.add(key)
 
-    # --- 2. FEATURE_KEYWORDS に基づく質問 (NLP由来) ---
+    # --- 2. FEATURE_KEYWORDS に基づく質問  ---
     feature_questions_def = {
         "comedian": ("お笑い芸人ですか？", "occupation"),
         "seiyuu": ("声優として活動していますか？", "occupation"),
@@ -512,7 +512,7 @@ def generate_question_map(dataset, selected_categories=None):
     return qm
 
 # -----------------------
-# ★ 理想のアルゴリズム: 最適な質問を見つける (新設)
+# 最適な質問を見つけるアルゴリズム 
 # -----------------------
 def find_best_question(candidates, qm_dict, asked_keys):
     """
@@ -573,7 +573,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=30, check_eve
 
     while len(candidates) > 1 and asked_count < max_questions:
         
-        # ★ 理想のアルゴリズム:
+        # アルゴリズム
         # 現在の候補者リストに基づき、次に聞くべき最適な質問を「毎回」計算する
         question = find_best_question(candidates, qm_dict, asked_keys)
 
@@ -662,8 +662,8 @@ if __name__ == "__main__":
     SLEEP = 0.5     # APIアクセス間隔 (秒)
     CMLIMIT = 50
     DEPTH = 1
-    # ★ データベースを充実させるため、1000件以上を推奨します
-    BUILD_LIMIT = 1000  
+    # 現在は200件としている
+    BUILD_LIMIT = 200  
     MAX_QUESTIONS = 25
 
     # --- 実行フロー ---
