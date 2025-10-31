@@ -849,3 +849,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n処理が中断されました。")
     except Exception as e:
+        print(f"\nエラーが発生しました: {e}")
+        
