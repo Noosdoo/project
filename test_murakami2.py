@@ -5,9 +5,9 @@ import os
 import re
 import random
 import wikipediaapi
-import unicodedata # (今回は直接使用していませんが、文字正規化に利用可能です)
-from datetime import datetime # 日付処理のため
-from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
+import unicodedata
+from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Wikipediaにアクセスする際のユーザーエージェント
 USER_AGENT = "CelebrityAkinatorBot/1.0 (https://github.com/yourproject; contact@example.com)"
@@ -163,7 +163,7 @@ def get_wikibase_item_from_wikipedia(title):
     except Exception: return None
 
 # -----------------------
-# Wikidataから構造化属性を取得 (拡張版)
+# ★ Wikidataから構造化属性を取得 (拡張版)
 # -----------------------
 def fetch_wikidata_entity(wikibase_id):
     try:
@@ -233,14 +233,32 @@ def fetch_wikidata_entity(wikibase_id):
                  except Exception: pass
             if award_qids: result["award_qids"] = award_qids 
         
+        # ★ 追加: P2031 (活動開始日時)
+        if "P2031" in claims:
+            try:
+                t = claims["P2031"][0]["mainsnak"]["datavalue"]["value"]["time"]
+                result["activity_start_time"] = t
+            except Exception: pass
+
+        # ★ 追加: P1303 (楽器)
+        if "P1303" in claims:
+            inst_qids = []
+            for c in claims["P1303"]:
+                try:
+                    v = c["mainsnak"]["datavalue"]["value"]
+                    if isinstance(v, dict) and "id" in v: inst_qids.append(v["id"])
+                except Exception: pass
+            if inst_qids: result["instrument_qids"] = inst_qids
+        
         return result
     except Exception:
         return None
 
 # -----------------------
-# summaryからキーワードベースで特徴を抽出 (拡張版)
+# ★ summaryからキーワードベースで特徴を抽出 (拡張版)
 # -----------------------
 FEATURE_KEYWORDS = {
+    # 既存
     "taiga": ["大河ドラマ", "大河"], "tokusatsu": ["仮面ライダー", "スーパー戦隊", "ウルトラマン", "特撮"],
     "romance_drama": ["恋愛", "ラブストーリー", "恋人"], "movie": ["映画", "劇場版"],
     "action": ["アクション", "殺陣", "アクション俳優"], "seiyuu": ["声優", "アニメで声"],
@@ -253,6 +271,30 @@ FEATURE_KEYWORDS = {
     "politician": ["政治家", "衆議院", "参議院", "首相"], "mc": ["司会", "MC", "司会者"],
     "radio": ["ラジオ", "パーソナリティ"], "cm": ["CM", "コマーシャル"],
     "married": ["結婚", "妻", "夫"], "author": ["執筆", "出版", "著書", "エッセイ"],
+    
+    # ★ 追加
+    "debut_1990s": ["1990年代デビュー"],
+    "debut_2000s": ["2000年代デビュー"],
+    "child_actor": ["子役", "幼少期から"],
+    "career_change": ["転身", "転向"],
+    "second_gen": ["父親は", "母親は", "（俳優）の長男", "二世タレント"],
+    "spouse_famous": ["配偶者は", "夫は", "妻は", "（俳優）と結婚", "（女優）と結婚"],
+    "vocalist": ["ボーカル", "ボーカリスト"],
+    "songwriter": ["作詞", "作曲", "ソングライター"],
+    "play_guitar_nlp": ["ギター", "ギタリスト"], # (Wikidataと重複するがNLPでも取る)
+    "play_piano_nlp": ["ピアノ", "ピアニスト"],
+    "host_kohaku": ["紅白歌合戦 司会", "紅白 司会"],
+    "m1_champion": ["M-1グランプリ 優勝", "M-1 優勝"],
+    "kimetsu": ["鬼滅の刃"],
+    "one_piece": ["ONE PIECE", "ワンピース"],
+    "conan": ["名探偵コナン"],
+    "aibou": ["相棒"],
+    "yoshimoto": ["吉本興業"],
+    "nogizaka46": ["乃木坂46"],
+    "akb48": ["AKB48"],
+    "role_detective": ["刑事役", "警察官役"],
+    "role_doctor": ["医者役", "医師役", "医療ドラマ"],
+    "role_villain": ["悪役", "犯人役", "敵役"],
 }
 
 def extract_features_from_summary(summary):
@@ -281,20 +323,15 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
     except Exception: return None
 
 # -----------------------
-# Step2: build dataset 並行処理版 (ランダム選定 修正版)
+# ★ Step2: build dataset 並行処理版 (ランダム選定 ＋ 特徴追加 修正版)
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                            limit=None, max_workers=10, sleep=0.5):
-    """
-    build_dataset の並行処理版。
-    データベースの偏りを防ぐため、未処理リストからランダムに選んで処理する。
-    """
+                            limit=None, max_workers=100, sleep=0.5):
     people = load_people_list(people_list_path)
     if people is None:
         print("人物リストが存在しません。まず collect_people を実行してください。")
         return None
 
-    # 既存データの読み込み
     existing = {}
     if os.path.exists(dataset_path):
         try:
@@ -313,7 +350,6 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
         targets = unprocessed_people[:limit]
     else:
         targets = unprocessed_people
-
     print(f"処理対象: {len(targets)} 件 (未処理リスト {len(unprocessed_people)} 件からランダム選定)")
     # --- 修正ここまで ---
 
@@ -377,6 +413,21 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     # 受賞歴
                     award_qids = wd.get("award_qids", [])
                     if "Q1138032" in award_qids: features["award_shiju"] = 1 
+
+                    # ★ 追加: 楽器 (Q66050 Guitar, Q52951 Piano)
+                    inst_qids = wd.get("instrument_qids", [])
+                    if "Q66050" in inst_qids: features["play_guitar_wd"] = 1
+                    if "Q52951" in inst_qids: features["play_piano_wd"] = 1
+
+                    # ★ 追加: 活動開始日 (P2031)
+                    activity_start_time = wd.get("activity_start_time")
+                    if activity_start_time and activity_start_time.startswith("+"):
+                        try:
+                            start_year = int(activity_start_time[1:5])
+                            if 1990 <= start_year <= 1999: features["debut_1990s_wd"] = 1
+                            elif 2000 <= start_year <= 2009: features["debut_2000s_wd"] = 1
+                            elif 2010 <= start_year <= 2019: features["debut_2010s_wd"] = 1
+                        except Exception: pass
 
                     # 日付
                     birth_time = wd.get("birth_time")
@@ -457,7 +508,7 @@ def load_dataset(dataset_path=DATASET_FILE):
         return None
 
 # -----------------------
-# 質問マップの自動生成（アイデア反映・カテゴリ連動）
+# ★ 質問マップの自動生成（アイデア反映・カテゴリ連動）
 # -----------------------
 def generate_question_map(dataset, selected_categories=None):
     qm = {"occupation": [], "activity": [], "feature": [], "common": []}
@@ -465,6 +516,7 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
+        # (既存)
         ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
         ("actor_wikidata", "本業は俳優ですか？", "occupation"),
@@ -483,6 +535,13 @@ def generate_question_map(dataset, selected_categories=None):
         ("grad_waseda", "早稲田大学を卒業していますか？", "feature"),
         ("grad_keio", "慶應義塾大学を卒業していますか？", "feature"),
         ("award_shiju", "紫綬褒章を受章していますか？", "feature"),
+        
+        # ★ 追加
+        ("play_guitar_wd", "ギターを演奏しますか？", "feature"),
+        ("play_piano_wd", "ピアノを演奏しますか？", "feature"),
+        ("debut_1990s_wd", "デビューしたのは1990年代ですか？", "feature"),
+        ("debut_2000s_wd", "デビューしたのは2000年代ですか？", "feature"),
+        ("debut_2010s_wd", "デビューしたのは2010年代ですか？", "feature"),
     ]
 
     for key, text, category in common_questions_def:
@@ -496,6 +555,7 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 2. FEATURE_KEYWORDS に基づく質問 (NLP由来) ---
     feature_questions_def = {
+        # (既存)
         "comedian": ("お笑い芸人ですか？", "occupation"),
         "seiyuu": ("声優として活動していますか？", "occupation"),
         "athlete": ("スポーツ選手ですか？", "occupation"),
@@ -518,26 +578,47 @@ def generate_question_map(dataset, selected_categories=None):
         "cm": ("CMに多く出演していますか？", "activity"),
         "married": ("結婚していることを公表していますか？", "feature"),
         "author": ("本（エッセイなど）を出版したことがありますか？", "feature"),
+        
+        # ★ 追加
+        "child_actor": ("子役としてキャリアをスタートしましたか？", "feature"),
+        "career_change": ("キャリアの途中で大きな方向転換をしましたか？", "feature"),
+        "second_gen": ("二世タレント（親が有名人）ですか？", "feature"),
+        "spouse_famous": ("配偶者（夫または妻）も有名人ですか？", "feature"),
+        "vocalist": ("バンドやグループのボーカルですか？", "occupation"),
+        "songwriter": ("自分で作詞や作曲をしますか？", "feature"),
+        "host_kohaku": ("『紅白歌合戦』の司会をしたことがありますか？", "activity"),
+        "m1_champion": ("『M-1グランプリ』で優勝しましたか？", "feature"),
+        "kimetsu": ("『鬼滅の刃』に関わっていますか？", "activity"),
+        "one_piece": ("『ONE PIECE』に関わっていますか？", "activity"),
+        "conan": ("『名探偵コナン』に関わっていますか？", "activity"),
+        "aibou": ("ドラマ『相棒』に出演しましたか？", "activity"),
+        "yoshimoto": ("『吉本興業』所属ですか？", "feature"),
+        "nogizaka46": ("『乃木坂46』のメンバーですか？", "occupation"),
+        "akb48": ("『AKB48』のメンバーですか？", "occupation"),
+        "role_detective": ("刑事役（警察官役）を演じたことが多いですか？", "feature"),
+        "role_doctor": ("医者役を演じたことが多いですか？", "feature"),
+        "role_villain": ("悪役を演じたことが多いですか？", "feature"),
     }
 
     # カテゴリと、それに関連する質問キーの「対応表」
     CATEGORY_TO_FEATURE_MAP = {
-        "日本の俳優": ["taiga", "tokusatsu", "romance_drama", "movie", "action", "stage", "nhk", "award", "hollywood", "mc", "radio", "cm", "married", "author"],
-        "日本の女優": ["taiga", "romance_drama", "movie", "stage", "nhk", "award", "model", "mc", "radio", "cm", "married", "author"],
-        "お笑い芸人": ["comedian", "youtuber", "movie", "stage", "mc", "radio", "married", "author"],
-        "日本の声優": ["seiyuu", "anime", "singer", "stage", "radio"],
-        "日本のアイドル": ["idol", "singer", "model", "movie", "stage", "radio", "cm"],
-        "日本のモデル": ["model", "romance_drama", "cm"],
-        "日本の歌手": ["singer", "award", "nhk", "movie", "radio", "author"],
+        "日本の俳優": ["taiga", "tokusatsu", "romance_drama", "movie", "action", "stage", "nhk", "award", "hollywood", "mc", "radio", "cm", "married", "author", "child_actor", "second_gen", "spouse_famous", "aibou", "role_detective", "role_doctor", "role_villain"],
+        "日本の女優": ["taiga", "romance_drama", "movie", "stage", "nhk", "award", "model", "mc", "radio", "cm", "married", "author", "child_actor", "second_gen", "spouse_famous", "role_detective", "role_doctor", "role_villain"],
+        "お笑い芸人": ["comedian", "youtuber", "movie", "stage", "mc", "radio", "married", "author", "second_gen", "spouse_famous", "m1_champion", "yoshimoto"],
+        "日本の声優": ["seiyuu", "anime", "singer", "stage", "radio", "vocalist", "songwriter", "kimetsu", "one_piece", "conan"],
+        "日本のアイドル": ["idol", "singer", "model", "movie", "stage", "radio", "cm", "vocalist", "nogizaka46", "akb48", "spouse_famous"],
+        "日本のモデル": ["model", "romance_drama", "cm", "married", "spouse_famous"],
+        "日本の歌手": ["singer", "award", "nhk", "movie", "radio", "author", "vocalist", "songwriter", "play_guitar_wd", "play_piano_wd", "host_kohaku", "kimetsu", "one_piece"],
         "日本のYouTuber": ["youtuber", "comedian", "mc"],
         "日本のスポーツ選手": ["athlete"], "日本のサッカー選手": ["athlete"], "日本の野球選手": ["athlete"],
         "日本の柔道家": ["athlete"], "日本のレスリング選手": ["athlete"], "日本のオリンピック選手": ["athlete"],
         "日本の水泳選手": ["athlete"], "日本の陸上競技選手": ["athlete"], "日本のテニス選手": ["athlete"],
         "日本のバレーボール選手": ["athlete"], "日本のバスケットボール選手": ["athlete"],
-        "日本の政治家": ["politician", "grad_todai", "grad_waseda", "grad_keio", "author"],
+        "日本の政治家": ["politician", "grad_todai", "grad_waseda", "grad_keio", "author", "second_gen"],
         "日本の外交官": ["politician", "grad_todai"], "日本の官僚": ["politician", "grad_todai"],
-        "日本の作家": ["author", "award", "movie", "anime", "grad_todai", "grad_waseda", "grad_keio"],
-        "日本の漫画家": ["author", "award", "movie", "anime"], "日本の小説家": ["author", "award", "movie", "anime"],
+        "日本の作家": ["author", "award", "movie", "anime", "grad_todai", "grad_waseda", "grad_keio", "songwriter"],
+        "日本の漫画家": ["author", "award", "movie", "anime", "one_piece", "conan"], 
+        "日本の小説家": ["author", "award", "movie", "anime"],
     }
     
     allowed_feature_keys = set()
@@ -565,11 +646,6 @@ def generate_question_map(dataset, selected_categories=None):
 # ★ 理想のアルゴリズム: 最適な質問を見つける
 # -----------------------
 def find_best_question(candidates, qm_dict, asked_keys):
-    """
-    決定木の「情報利得」の考え方に基づき、
-    現在の候補者リスト(candidates)を最も効率よく
-    半分(50/50)に分割できる質問を見つけ出します。
-    """
     best_question = None
     best_score = -1 
 
@@ -600,20 +676,12 @@ def find_best_question(candidates, qm_dict, asked_keys):
     return best_question
 
 # -----------------------
-# ★ スコアリング用ヘルパー関数 (新設)
+# ★ スコアリング用ヘルパー関数
 # -----------------------
 def get_score_change(person_record, question_test_func, user_answer):
-    """
-    ユーザーの回答に基づき、スコアの変化量を計算します。
-    """
     if "features" not in person_record:
         return 0
-        
-    # その人物は、質問の特徴と一致するか？ (True/False)
     person_matches = question_test_func(person_record)
-    
-    # 回答と人物の特徴に基づき、スコアを決定
-    # (重み: はい/いいえ = ±2, たぶん = ±1, わからない = 0)
     
     if user_answer == "はい":
         return 2 if person_matches else -2
@@ -626,19 +694,17 @@ def get_score_change(person_record, question_test_func, user_answer):
     elif user_answer == "わからない":
         return 0
     else:
-        return 0 # スキップ
+        return 0 
         
 #-----------------------
 # ★ アキネーター対話部分（スコアリング・アルゴリズム版）
 #-----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=30, check_every=10):
     
-    # 1. データベースの全候補に「score: 0」を追加
     candidates_with_scores = [c.copy() for c in dataset]
     for c in candidates_with_scores:
-        c['score'] = 0 # スコアを初期化
+        c['score'] = 0 
 
-    # 質問リストを生成 (これは一度だけ行う)
     qm_dict = generate_question_map(dataset, selected_categories) 
     
     print("=== アキネーター開始 (スコアリングモード) ===")
@@ -650,16 +716,13 @@ def akinator_play(dataset, selected_categories=None, max_questions=30, check_eve
 
     while asked_count < max_questions:
         
-        # 2. 最適な質問の選定
         candidates_with_scores.sort(key=lambda x: x['score'], reverse=True)
         
-        # 質問選びの対象とする「現在のトップ候補」を定義
-        # (スコアがマイナスすぎない、上位100人程度)
         top_candidates = [c for c in candidates_with_scores if c['score'] >= -5][:100]
         if not top_candidates:
             top_candidates = candidates_with_scores[:20] 
         
-        if not top_candidates: # そもそも候補がいない
+        if not top_candidates: 
              print("\nエラー: 候補者リストが空です。")
              break
 
@@ -671,41 +734,29 @@ def akinator_play(dataset, selected_categories=None, max_questions=30, check_eve
             
         key, q_text, test_func = question.get("key"), question.get("text"), question.get("check")
 
-        # --- 3. 質問の実行 ---
         ans = input(q_text + " (はい/いいえ/わ/たぶん/ちがう) > ").strip()
         asked_keys.add(key) 
 
-        # ユーザーの入力を正規化
-        if ans in ["はい", "h", "y", "yes"]:
-            user_answer = "はい"
-        elif ans in ["いいえ", "i", "n", "no"]:
-            user_answer = "いいえ"
-        elif ans in ["わからない", "わ", "w", "d", "dunno"]:
-            user_answer = "わからない"
-        elif ans in ["たぶんそう", "たぶん", "t", "p", "prob yes"]:
-            user_answer = "たぶんそう"
-        elif ans in ["たぶんちがう", "ちがう", "c", "pn", "prob no"]:
-            user_answer = "たぶんちがう"
+        if ans in ["はい", "h", "y", "yes"]: user_answer = "はい"
+        elif ans in ["いいえ", "i", "n", "no"]: user_answer = "いいえ"
+        elif ans in ["わからない", "わ", "w", "d", "dunno"]: user_answer = "わからない"
+        elif ans in ["たぶんそう", "たぶん", "t", "p", "prob yes"]: user_answer = "たぶんそう"
+        elif ans in ["たぶんちがう", "ちがう", "c", "pn", "prob no"]: user_answer = "たぶんちがう"
         else:
-            print("スキップ")
-            user_answer = "スキップ"
-            continue # スコア計算を飛ばす
+            print("スキップ"); user_answer = "スキップ"; continue 
 
-        # --- 4. 全候補のスコアを更新 ---
         for c in candidates_with_scores:
             score_change = get_score_change(c, test_func, user_answer)
             c['score'] += score_change
         
         asked_count += 1
         
-        # --- 5. 途中経過の表示 ---
         candidates_with_scores.sort(key=lambda x: x['score'], reverse=True)
         
         print(f"(質問 {asked_count}/{max_questions})")
         if candidates_with_scores: 
             print(f"  現在のTOP: 1. {candidates_with_scores[0]['name']} (Score: {candidates_with_scores[0]['score']})")
 
-        # 途中確認
         if (asked_count % check_every == 0) and len(candidates_with_scores) > 0:
             print(f"\n--- 途中経過 (上位3件) ---")
             for j, c in enumerate(candidates_with_scores[:3], 1):
@@ -720,7 +771,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=30, check_eve
             elif choice.lower() in ["なし", "n", "no"]:
                 print("わかりました。質問を続けます。")
 
-    # --- 6. 最終結果の発表 ---
+    # --- 最終結果の発表 ---
     candidates_with_scores.sort(key=lambda x: x['score'], reverse=True)
 
     if not candidates_with_scores:
@@ -751,7 +802,6 @@ def run_step(step="collect", **kwargs):
                               depth=kwargs.get("depth", 1),
                               sleep=kwargs.get("sleep", 0.8))
     elif step == "build":
-        # ★ 並列処理版のビルド関数を呼び出す
         return build_dataset_parallel(limit=kwargs.get("limit", None),
                              max_workers=kwargs.get("max_workers", 10),
                              sleep=kwargs.get("sleep", 0.5))
@@ -770,11 +820,11 @@ def run_step(step="collect", **kwargs):
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.1     # ★ 並列処理の「各ワーカー処理後」のスリープ (秒)
+    SLEEP = 0.1     # 並列処理の「各ワーカー処理後」のスリープ (秒)
     CMLIMIT = 50    # カテゴリ収集時のリクエスト数
     DEPTH = 1       # カテゴリを掘る深さ
-    MAX_WORKERS = 10 # 並列処理の最大スレッド数
-    BUILD_LIMIT = 1000  # ★ データベースに「追加」する人数 (ランダム)
+    MAX_WORKERS = 100 # 並列処理の最大スレッド数
+    BUILD_LIMIT = 5000  # データベースに「追加」する人数 (ランダム)
     MAX_QUESTIONS = 25 # ゲームの最大質問数
 
     # --- 実行フロー ---
