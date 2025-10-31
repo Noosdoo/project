@@ -8486,5 +8486,805 @@
         "Q11478456"
       ]
     }
+  },
+  {
+    "name": "上原エドウィン",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上原慎也",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上原拓郎",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上原力也",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上久雄",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上尾野辺めぐみ",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上原洋史",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上夷克典",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上園和明",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上原牧人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上島康夫",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上山熊之助",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上島拓巳",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上形洋介",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上川徹",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上月壮一郎",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上本銀太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上杉哲平",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上本大海",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上月翔聖",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上村祐司",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上村周平",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上村岬",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上村崇士",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上村健一",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上村音生",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上條宏晃",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田佳奈",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上永吉英文",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上松瑛",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田実",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田常幸",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田智輝",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田忠彦",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田康太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田栄治",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田樹",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田祐輔",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田綺世",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田滋夢",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田航平",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上畑佑平士",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上福元直人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田陵弥",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上田莉帆",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上笹貫剣",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上米良柊人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上西一雄",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上谷暢宏",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上辻佑実",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上里一将",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野優作",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野中也",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野友紀子",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上里琢文",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野展裕",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野拓也",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野山信行",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野真実",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野秀章",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野紗稀",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野良治",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野瑶介",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上野輝人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下上昇大",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "上門知樹",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下口稚葉",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下司隆士",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下吉優衣",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下坂晃城",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下地奨",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下堂竜聖",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下小鶴綾",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下山莉子",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下川太陽",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下川健一",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下川誠吾",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下川陽太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下川雅人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下平匠",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下村幸男",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下平隆宏",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下村司",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下村悠太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下條佳明",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下澤悠太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下村東美",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下田光平",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下田北斗",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下田栄祐",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下野淳",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下田崇",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "下畠翔吾",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "不破将生",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "不破整",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "不老伸行",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "世川楓悟",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "与那城ジョージ",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "世瀬啓人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "世良務",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中井卓大",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中三川哲治",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "世良田顕一",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中井崇仁",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中出ひかり",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中別府柊太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中井昇吾",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中井義樹",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中原優生",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中原幸司",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中原秀人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中原彰吾",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中原貴之",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中原輝",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中吉裕司",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中地舞",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中坂勇哉",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中口雅史",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中垣内優太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中埜信吾",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中垣内勝久",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中尾剛",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中塩大貴",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中尾幸太郎",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中尾真那",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中尾康二",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山仁斗",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中尾萌々",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中居時夫",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山夢歩",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山克広",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山友規",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山博貴",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山元気",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山開帆",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山昂大",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山昇 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山悟志",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山未咲",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山雄希",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山雄太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山陸",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山雅史",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山雄登",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中岡麻衣子",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島佳太郎",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島ファランパリス",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中山雅斗",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島ファラン一生",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島健太",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島元彦",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島依美",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島健蔵",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島俊一 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島大嘉",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島宏海 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島大貴",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島崇典",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島康平",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島拓真",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島洋太朗",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島未来 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島浩司 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島礼司",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島舜",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島豪",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島裕希",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島翔哉",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島賢星",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中嶋晋一郎",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中嶋淑乃",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島龍基",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中島麻衣",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中嶋譲",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川勇人",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中嶋雄大",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川創",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川寛斗",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川千尋 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川義貴",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川裕仁",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川理恵",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川敦瑛",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川洋介",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川諒真",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川雄貴",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川裕平",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川風希",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中川雄二",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中村ひかる",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中本真彰",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中本邦治",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中払大介",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中後雅喜",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中村みづき",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中村一義 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中村ゆしか",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中村亮 (1996年生のサッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中村亮 (1981年生のサッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
+  },
+  {
+    "name": "中村亮太 (サッカー選手)",
+    "error": "'WikipediaPage' object has no attribute 'wikibase'"
   }
 ]
