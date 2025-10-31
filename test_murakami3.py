@@ -5,10 +5,13 @@ import os
 import re
 import random
 import wikipediaapi
+import unicodedata # (今回は直接使用していませんが、文字正規化に利用可能です)
 from datetime import datetime # 日付処理のため
+from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
 
 # Wikipediaにアクセスする際のユーザーエージェント
 USER_AGENT = "CelebrityAkinatorBot/1.0 (https://github.com/yourproject; contact@example.com)"
+# WikipediaおよびWikidataのAPIエンドポイント
 WIKI_API = "https://ja.wikipedia.org/w/api.php"
 WIKIDATA_ENTITY_URL = "https://www.wikidata.org/wiki/Special:EntityData/{}.json"
 
@@ -62,13 +65,13 @@ def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=0.
         try:
             res = requests.get(WIKI_API, params=params, headers=HEADERS, timeout=15)
         except Exception as e:
-            print("HTTPエラー:", e); return collected
+            print(f"HTTPエラー: {e}"); return collected
         if res.status_code == 403:
             print("403 Forbidden: Wikipediaがアクセスを拒否しました。"); return collected
         try:
             data = res.json()
         except Exception as e:
-            print("JSONデコード失敗:", e); return collected
+            print(f"JSONデコード失敗: {e}"); return collected
         for m in data.get("query", {}).get("categorymembers", []):
             title = m.get("title")
             if not title: continue
@@ -109,7 +112,7 @@ def choose_categories():
     print(f"選択されたカテゴリ: {', '.join(selected)}"); return selected
 
 # -----------------------
-# Step1: 全カテゴリから人物を収集して保存 
+# Step1: 全カテゴリから人物を収集して保存 (メタデータ対応版)
 # -----------------------
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_path=PEOPLE_LIST_FILE):
     target_categories = sorted(list(set(categories)))
@@ -160,8 +163,7 @@ def get_wikibase_item_from_wikipedia(title):
     except Exception: return None
 
 # -----------------------
-# Wikidataから構造化属性を取得 
-# Wikidata の「プロパティ (Property)」 を表すID番号から各種属性を抽出
+# Wikidataから構造化属性を取得 (拡張版)
 # -----------------------
 def fetch_wikidata_entity(wikibase_id):
     try:
@@ -172,7 +174,7 @@ def fetch_wikidata_entity(wikibase_id):
         claims = entity.get("claims", {})
         result = {}
         
-        # P106 (occupation)　# 職業を取得
+        # P106 (occupation)
         if "P106" in claims:
             occ = []
             for c in claims["P106"]:
@@ -182,28 +184,28 @@ def fetch_wikidata_entity(wikibase_id):
                 except Exception: pass
             if occ: result["occupation_qids"] = occ
             
-        # P21 (gender) # 性別を取得
+        # P21 (gender)
         if "P21" in claims:
             try:
                 v = claims["P21"][0]["mainsnak"]["datavalue"]["value"]
                 if isinstance(v, dict) and "id" in v: result["gender_qid"] = v["id"]
             except Exception: pass
             
-        # P569 (birth time) # 生年月日
+        # P569 (birth time)
         if "P569" in claims:
             try:
                 t = claims["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
                 result["birth_time"] = t
             except Exception: pass
             
-        # P570 (death time) # 没年月日    
+        # P570 (death time)
         if "P570" in claims:
             try:
                 t = claims["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
                 result["death_time"] = t
             except Exception: pass
             
-        # P19 (birth place) # 出生地
+        # P19 (birth place)
         if "P19" in claims:
             try:
                 v = claims["P19"][0]["mainsnak"]["datavalue"]["value"]
@@ -211,7 +213,7 @@ def fetch_wikidata_entity(wikibase_id):
                     result["birth_place_qid"] = v["id"] 
             except Exception: pass
             
-        # P69 (education) # 学歴
+        # P69 (education)
         if "P69" in claims:
             edu_qids = []
             for c in claims["P69"]:
@@ -221,7 +223,7 @@ def fetch_wikidata_entity(wikibase_id):
                 except Exception: pass
             if edu_qids: result["education_qids"] = edu_qids 
 
-        # P166 (awards) # 受賞歴
+        # P166 (awards)
         if "P166" in claims:
             award_qids = []
             for c in claims["P166"]:
@@ -236,7 +238,7 @@ def fetch_wikidata_entity(wikibase_id):
         return None
 
 # -----------------------
-# summaryからキーワードベースで特徴を抽出 
+# summaryからキーワードベースで特徴を抽出 (拡張版)
 # -----------------------
 FEATURE_KEYWORDS = {
     "taiga": ["大河ドラマ", "大河"], "tokusatsu": ["仮面ライダー", "スーパー戦隊", "ウルトラマン", "特撮"],
@@ -267,7 +269,7 @@ def extract_features_from_summary(summary):
     return features
 
 # -----------------------
-# Step2: people list -> build dataset 
+# Step2用: people_list.json の読み込みヘルパー
 # -----------------------
 def load_people_list(people_list_path=PEOPLE_LIST_FILE):
     if not os.path.exists(people_list_path): return None
@@ -278,414 +280,56 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
         return None
     except Exception: return None
 
-def build_dataset(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, limit=None, sleep=0.8):
-    people = load_people_list(people_list_path) 
+# -----------------------
+# Step2: build dataset 並行処理版 (★ ランダム選定 修正版)
+# -----------------------
+def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
+                            limit=None, max_workers=10, sleep=0.5):
+    """
+    build_dataset の並行処理版。
+    データベースの偏りを防ぐため、未処理リストからランダムに選んで処理する。
+    """
+    people = load_people_list(people_list_path)
     if people is None:
         print("人物リストが存在しません。まず collect_people を実行してください。")
         return None
 
+    # 既存データの読み込み
     existing = {}
     if os.path.exists(dataset_path):
-        with open(dataset_path, "r", encoding="utf-8") as f:
-            try:
-                existing = {p["name"]: p for p in json.load(f)}
-                print(f"{len(existing)} 件の既存データを読み込みました。未処理の人物のみ処理します。")
-            except: existing = {}
-
-    wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
-    new_records = []
-    processed = 0
-    
-    try:
-        current_year = datetime.now().year
-    except:
-        current_year = 2025 # フォールバック
-
-    for name in people:
-        if limit and processed >= limit: break
-        if name in existing: continue 
-
-        print(f"処理中: {name}  ...", end=" ")
-        rec = {"name": name, "summary": None, "features": None, "wikidata": None}
         try:
-            page = wiki.page(name)
-            if not page.exists():
-                print("ページなし"); processed += 1; continue
-            
-            summary = page.summary
-            rec["summary"] = summary
-            features = extract_features_from_summary(summary)
-            
-            # 名前分析
-            if re.search(r'[ァ-ヶ]', name):
-                features["has_katakana"] = 1
-            if re.fullmatch(r'[ぁ-ん]+', name):
-                features["is_hiragana_only"] = 1
-            rec["features"] = features
-            
-            wikibase_id = get_wikibase_item_from_wikipedia(name)
-            if wikibase_id:
-                wd = fetch_wikidata_entity(wikibase_id)
-                rec["wikidata"] = wd
-                if wd:
-                    # gender
-                    g = wd.get("gender_qid")
-                    if g == "Q6581097": features["gender"] = "male"
-                    elif g == "Q6581072": features["gender"] = "female"
-                    
-                    # occupation
-                    occ_qs = wd.get("occupation_qids", [])
-                    if "Q33999" in occ_qs: features["actor_wikidata"] = 1
-                    if "Q177220" in occ_qs or "Q639669" in occ_qs: features["singer_wikidata"] = 1
-                    if "Q82955" in occ_qs: features["politician_wikidata"] = 1
-                    
-                    # location
-                    place_qid = wd.get("birth_place_qid")
-                    if place_qid == "Q1490": features["from_tokyo"] = 1
-                    elif place_qid in ["Q172582", "Q16997", "Q486245"]: features["from_kansai"] = 1 # 大阪, 京都, 兵庫
-                        
-                    # education
-                    edu_qids = wd.get("education_qids", [])
-                    if "Q7981" in edu_qids: features["grad_todai"] = 1
-                    elif "Q174019" in edu_qids: features["grad_waseda"] = 1
-                    elif "Q302302" in edu_qids: features["grad_keio"] = 1
-                        
-                    # awards
-                    award_qids = wd.get("award_qids", [])
-                    if "Q1138032" in award_qids: features["award_shiju"] = 1 # 紫綬褒章
-
-                    # Date logic
-                    birth_time = wd.get("birth_time")
-                    death_time = wd.get("death_time")
-                    
-                    if birth_time and birth_time.startswith("+"):
-                        try:
-                            birth_year = int(birth_time[1:5])
-                            features["birth_year_wd"] = birth_year
-                            if 1970 <= birth_year <= 1979: features["born_1970s"] = 1
-                            elif 1980 <= birth_year <= 1989: features["born_1980s"] = 1
-                            elif 1990 <= birth_year <= 1999: features["born_1990s"] = 1
-                            elif 2000 <= birth_year <= 2009: features["born_2000s"] = 1
-                            
-                            if not death_time: # ご存命の場合
-                                age = current_year - birth_year
-                                if 20 <= age <= 29: features["age_20s"] = 1
-                                elif 30 <= age <= 39: features["age_30s"] = 1
-                                elif 40 <= age <= 49: features["age_40s"] = 1
-                                elif 50 <= age <= 59: features["age_50s"] = 1
-                        except Exception: pass
-                        
-                    if death_time:
-                        features["alive_text"] = 0 
-                        try:
-                            death_year = int(death_time[1:5])
-                            if 1901 <= death_year <= 2000:
-                                features["died_20c"] = 1 
-                        except Exception: pass
-            
-            print("OK")
+            with open(dataset_path, "r", encoding="utf-8") as f:
+                # nameキーが無い壊れたデータ(処理失敗時)を除外
+                existing = {p["name"]: p for p in json.load(f) if p and "name" in p}
+                print(f"{len(existing)} 件の既存データを読み込みました。未処理のみ並列処理します。")
         except Exception as e:
-            print("失敗:", e)
-        
-        new_records.append(rec)
-        processed += 1
-        time.sleep(sleep) 
+            print(f"既存データ読み込み失敗: {e}")
+            existing = {}
 
-    merged = list(existing.values()) + new_records
-    with open(dataset_path, "w", encoding="utf-8") as f:
-        json.dump(merged, f, ensure_ascii=False, indent=2)
-
-    print(f"データセットを保存しました: {dataset_path}（合計 {len(merged)} 件）")
-    return merged
-
-# -----------------------
-# Step3: アキネーター本体
-# -----------------------
-def load_dataset(dataset_path=DATASET_FILE):
-    if not os.path.exists(dataset_path):
-        print("データセットが見つかりません。まず build_dataset を実行してください。")
-        return None
-    with open(dataset_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
-
-# -----------------------
-# 質問マップの自動生成
-# -----------------------
-def generate_question_map(dataset, selected_categories=None):
-    qm = {"occupation": [], "activity": [], "feature": [], "common": []}
-    added_keys = set() 
-
-    # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
-    common_questions_def = [
-        ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
-        ("alive_text", "現在もご存命ですか？", "common"),
-        ("actor_wikidata", "本業は俳優ですか？", "occupation"),
-        ("singer_wikidata", "本業は歌手ですか？", "occupation"),
-        ("politician_wikidata", "本業は政治家ですか？", "occupation"),
-        ("age_20s", "現在、20代ですか？", "common"), ("age_30s", "現在、30代ですか？", "common"),
-        ("age_40s", "現在、40代ですか？", "common"), ("age_50s", "現在、50代ですか？", "common"),
-        ("born_1980s", "1980年代生まれですか？", "common"), ("born_1990s", "1990年代生まれですか？", "common"),
-        ("born_2000s", "2000年代生まれですか？", "common"),
-        ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common"),
-        ("has_katakana", "名前にカタカナが含まれていますか？", "common"),
-        ("is_hiragana_only", "名前はひらがなだけですか？", "common"),
-        ("from_tokyo", "出身は東京ですか？", "feature"),
-        ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature"),
-        ("grad_todai", "東京大学を卒業していますか？", "feature"),
-        ("grad_waseda", "早稲田大学を卒業していますか？", "feature"),
-        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature"),
-        ("award_shiju", "紫綬褒章を受章していますか？", "feature"),
-    ]
-
-    for key, text, category in common_questions_def:
-        key_exists = any(key in rec.get("features", {}) for rec in dataset)
-        if key_exists and key not in added_keys:
-            qm[category].append({
-                "key": key, "text": text,
-                "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
-            })
-            added_keys.add(key)
-
-    # --- 2. FEATURE_KEYWORDS に基づく質問  ---
-    feature_questions_def = {
-        "comedian": ("お笑い芸人ですか？", "occupation"),
-        "seiyuu": ("声優として活動していますか？", "occupation"),
-        "athlete": ("スポーツ選手ですか？", "occupation"),
-        "model": ("モデルとして活動していますか？", "occupation"),
-        "idol": ("アイドル活動をしていましたか（していますか）？", "occupation"),
-        "youtuber": ("YouTuberとして活動していますか？", "occupation"),
-        "director": ("監督（映画やアニメなど）ですか？", "occupation"),
-        "taiga": ("大河ドラマに出演しましたか？", "activity"),
-        "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity"),
-        "romance_drama": ("恋愛ドラマに出演しましたか？", "activity"),
-        "movie": ("映画に出演していますか？", "activity"),
-        "action": ("アクション作品に出演していますか？", "activity"),
-        "stage": ("舞台（演劇・ミュージカル）に出演していますか？", "activity"),
-        "anime": ("アニメ作品に関わっていますか？", "activity"),
-        "hollywood": ("海外（ハリウッド等）の作品に出演していますか？", "activity"),
-        "nhk": ("NHK（朝ドラなど）に出演したことがありますか？", "activity"),
-        "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature"),
-        "mc": ("司会者（MC）として有名ですか？", "activity"),
-        "radio": ("ラジオ番組を持っていますか？", "activity"),
-        "cm": ("CMに多く出演していますか？", "activity"),
-        "married": ("結婚していることを公表していますか？", "feature"),
-        "author": ("本（エッセイなど）を出版したことがありますか？", "feature"),
-    }
-
-    # カテゴリと、それに関連する質問キーの「対応表」
-    CATEGORY_TO_FEATURE_MAP = {
-        "日本の俳優": ["taiga", "tokusatsu", "romance_drama", "movie", "action", "stage", "nhk", "award", "hollywood", "mc", "radio", "cm", "married", "author"],
-        "日本の女優": ["taiga", "romance_drama", "movie", "stage", "nhk", "award", "model", "mc", "radio", "cm", "married", "author"],
-        "お笑い芸人": ["comedian", "youtuber", "movie", "stage", "mc", "radio", "married", "author"],
-        "日本の声優": ["seiyuu", "anime", "singer", "stage", "radio"],
-        "日本のアイドル": ["idol", "singer", "model", "movie", "stage", "radio", "cm"],
-        "日本のモデル": ["model", "romance_drama", "cm"],
-        "日本の歌手": ["singer", "award", "nhk", "movie", "radio", "author"],
-        "日本のYouTuber": ["youtuber", "comedian", "mc"],
-        "日本のスポーツ選手": ["athlete"], "日本のサッカー選手": ["athlete"], "日本の野球選手": ["athlete"],
-        "日本の柔道家": ["athlete"], "日本のレスリング選手": ["athlete"], "日本のオリンピック選手": ["athlete"],
-        "日本の水泳選手": ["athlete"], "日本の陸上競技選手": ["athlete"], "日本のテニス選手": ["athlete"],
-        "日本のバレーボール選手": ["athlete"], "日本のバスケットボール選手": ["athlete"],
-        "日本の政治家": ["politician", "grad_todai", "grad_waseda", "grad_keio", "author"],
-        "日本の外交官": ["politician", "grad_todai"], "日本の官僚": ["politician", "grad_todai"],
-        "日本の作家": ["author", "award", "movie", "anime", "grad_todai", "grad_waseda", "grad_keio"],
-        "日本の漫画家": ["author", "award", "movie", "anime"], "日本の小説家": ["author", "award", "movie", "anime"],
-    }
+    # --- ★ データベースの偏りをなくすためのランダム化ロジック ★ ---
     
-    allowed_feature_keys = set()
-    if not selected_categories or len(selected_categories) == len(CATEGORIES):
-        allowed_feature_keys = set(feature_questions_def.keys())
+    # 1. 未処理の人物リストを作成
+    unprocessed_people = [n for n in people if n not in existing]
+    
+    # 2. 未処理リストをシャッフル
+    random.shuffle(unprocessed_people)
+    
+    # 3. 処理対象（targets）を決定
+    if limit:
+        # limitは「今回新しく処理する件数」
+        targets = unprocessed_people[:limit]
     else:
-        for cat in selected_categories:
-            allowed_feature_keys.update(CATEGORY_TO_FEATURE_MAP.get(cat, []))
+        # limitがNoneの場合は、未処理リスト全員
+        targets = unprocessed_people
 
-    for key in allowed_feature_keys:
-        if key in feature_questions_def and key not in added_keys:
-            text, category = feature_questions_def[key]
-            qm[category].append({
-                "key": key, "text": text,
-                "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
-            })
-            added_keys.add(key)
-        
-    print(f"質問を生成しました (職業: {len(qm['occupation'])}, 活動: {len(qm['activity'])}, 特徴: {len(qm['feature'])}, 共通: {len(qm['common'])})")
-    return qm
+    print(f"処理対象: {len(targets)} 件 (未処理リスト {len(unprocessed_people)} 件からランダム選定)")
+    # --- ★ 修正ここまで ★ ---
 
-# -----------------------
-# 最適な質問を見つけるアルゴリズム 
-# -----------------------
-def find_best_question(candidates, qm_dict, asked_keys):
-    """
-    決定木の「情報利得」の考え方に基づき、
-    現在の候補者リスト(candidates)を最も効率よく
-    半分(50/50)に分割できる質問を見つけ出します。
-    """
-    best_question = None
-    
-    # 50/50分割が理想。
-    # (yes_count * no_count) が最大になる質問を探す
-    best_score = -1 
+    if not targets:
+        print("未処理の人物がいません。処理をスキップします。")
+        return list(existing.values())
 
-    # 全カテゴリの質問をループ
-    for q_category in qm_dict.values():
-        for question in q_category:
-            key, test = question.get("key"), question.get("check")
-
-            if key in asked_keys:
-                continue
-
-            # --- シミュレーション ---
-            yes_count = 0
-            no_count = 0
-            for c in candidates:
-                if test(c):
-                    yes_count += 1
-                else:
-                    no_count += 1
-            
-            # 1. 全員がYesまたは全員がNoの質問は、情報利得ゼロ (スキップ)
-            if yes_count == 0 or no_count == 0:
-                continue
-                
-            # 2. 分割の良さをスコア化 (50/50に近いほど高得点)
-            score = yes_count * no_count
-            
-            if score > best_score:
-                best_score = score
-                best_question = question
-                
-    return best_question
-
-#-----------------------
-# ★ アキネーター対話部分（決定木アルゴリズム版）
-#-----------------------
-def akinator_play(dataset, selected_categories=None, max_questions=30, check_every=10):
-    candidates = dataset.copy()
-    
-    # 全質問リストを生成 (これは一度だけ行う)
-    qm_dict = generate_question_map(dataset, selected_categories) 
-    
-    print("=== アキネーター開始 ===")
-    print(f"候補人数: {len(candidates)} 件")
-
-    asked_keys = set() # 質問の重複を防ぐ
-    asked_count = 0
-
-    while len(candidates) > 1 and asked_count < max_questions:
-        
-        # アルゴリズム
-        # 現在の候補者リストに基づき、次に聞くべき最適な質問を「毎回」計算する
-        question = find_best_question(candidates, qm_dict, asked_keys)
-
-        if question is None:
-            print("\n質問が尽きました。残りの候補から推測します...")
-            break
-            
-        key, q_text, test = question.get("key"), question.get("text"), question.get("check")
-
-        # --- 質問実行 ---
-        ans = input(q_text + " （はい/いいえ/わからない） > ").strip()
-        asked_keys.add(key) # 質問したキーとして記録
-
-        if ans not in ["はい", "いいえ"]:
-            print("スキップ")
-            continue
-
-        # 絞り込み
-        if ans == "はい":
-            candidates = [c for c in candidates if test(c)]
-        else:
-            candidates = [c for c in candidates if not test(c)]
-        
-        asked_count += 1
-        print(f"(現在の候補数: {len(candidates)}人)")
-
-        # --- 途中確認ロジック ---
-        if (asked_count % check_every == 0 or len(candidates) <= 3) and len(candidates) > 0:
-            print(f"\nここまでの質問で絞り込んだ候補（上位3件）:")
-            for j, c in enumerate(candidates[:3], 1):
-                print(f"{j}. {c['name']}")
-            choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
-            if choice.isdigit():
-                idx = int(choice)-1
-                if 0 <= idx < len(candidates[:3]):
-                    print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
-                    return candidates[idx]
-            elif choice.lower() in ["なし", "n", "no"]:
-                print("わかりました。質問を続けます。")
-
-    # --- 最終結果の発表 ---
-    if not candidates:
-        print("候補が見つかりませんでした。"); return None
-
-    print("\n最終候補（上位3件）:")
-    for i, c in enumerate(candidates[:3], 1):
-        print(f"{i}. {c['name']}")
-    choice = input("上の中にあなたの思い浮かべた人物はいますか？ (番号 または なし) > ").strip()
-    if choice.isdigit():
-        idx = int(choice)-1
-        if 0 <= idx < len(candidates[:3]):
-            print(f"それでは、あなたが思い浮かべた人物は『{candidates[idx]['name']}』ですね！")
-            return candidates[idx]
-
-    print(f"私の推測：『{candidates[0]['name']}』かもしれません。")
-    return candidates[0]
-
-# -----------------------
-# エントリポイント用関数
-# -----------------------
-def run_step(step="collect", **kwargs):
-    step = step.lower()
-    if step == "collect":
-        return collect_people(categories=kwargs.get("categories", CATEGORIES),
-                              cmlimit=kwargs.get("cmlimit", 50),
-                              depth=kwargs.get("depth", 1),
-                              sleep=kwargs.get("sleep", 0.8))
-    elif step == "build":
-        return build_dataset(limit=kwargs.get("limit", None),
-                             sleep=kwargs.get("sleep", 0.8))
-    elif step == "play":
-        ds = load_dataset()
-        if not ds: return None
-        selected_categories = kwargs.get("selected_categories")
-        return akinator_play(ds, 
-                             selected_categories=selected_categories, 
-                             max_questions=kwargs.get("max_questions", 30))
-    else:
-        raise ValueError("step must be one of: collect, build, play")
-
-# -----------------------
-# 実行部分
-# -----------------------
-if __name__ == "__main__":
-    # --- 実行パラメータ ---
-    SLEEP = 0.5     # APIアクセス間隔 (秒)
-    CMLIMIT = 50
-    DEPTH = 1
-    # 現在は200件としている
-    BUILD_LIMIT = 10  
-    MAX_QUESTIONS = 25
-
-    # --- 実行フロー ---
-    try:
-        selected_categories = choose_categories()
-        
-        run_step("collect", 
-                 categories=selected_categories, 
-                 cmlimit=CMLIMIT, 
-                 depth=DEPTH, 
-                 sleep=SLEEP)
-        
-        run_step("build", 
-                 limit=BUILD_LIMIT, 
-                 sleep=SLEEP)
-        
-        run_step("play", 
-                 selected_categories=selected_categories, 
-                 max_questions=MAX_QUESTIONS)
-                 
-    except KeyboardInterrupt:
-        print("\n処理が中断されました。")
-    except Exception as e:
-        print(f"\nエラーが発生しました: {e}")
+    # スレッドで個別処理
+    def process_person(name):
+        try:
+            wiki = wikipedia
