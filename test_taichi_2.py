@@ -745,20 +745,37 @@ def generate_question_map(dataset, selected_categories=None):
 # -----------------------
 def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     """
-    解析用候補者リスト(candidates_for_analysis)を最も効率よく
+    【重要】解析用候補者リスト(candidates_for_analysis)を最も効率よく
     半分(50/50)に分割できる質問を厳選します。
+    [修正] スコアが0の質問も保持し、他にない場合の保険とします。
+    [★改善★] 職業や性別など、本質的な質問のスコアに「優先度ブースト」をかけます。
     """
     best_question = None
-    best_score = -1 
+    best_score = -1 # スコアの初期値
+
+    # [追加] 分割できない質問 (スコア0) を保持するリスト
     zero_score_questions = []
 
-    for q_category in qm_dict.values():
-        for question in q_category:
+    # [変更] .values() -> .items() に変更し、カテゴリ名(key)を取得
+    for category_name, q_category_list in qm_dict.items():
+        
+        # [★追加★] 質問カテゴリに応じて優先度を設定
+        # --------------------------------------------------
+        if category_name in ("common", "occupation"):
+            # 「男性ですか」「俳優ですか」などの本質的な質問
+            priority_weight = 10.0  
+        else:
+            # 「月光に関連しますか」「大河ドラマに出ましたか」などの詳細な質問
+            priority_weight = 1.0   
+        # --------------------------------------------------
+
+        for question in q_category_list:
             key, test = question.get("key"), question.get("check")
 
             if key in asked_keys:
                 continue
 
+            # --- シミュレーション (解析用候補者リストで行う) ---
             yes_count = 0
             no_count = 0
             for c in candidates_for_analysis:
@@ -768,19 +785,28 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
                 else:
                     no_count += 1
             
-            score = yes_count * no_count
+            # [★変更★] スコア計算に優先度ブーストを追加
+            if yes_count == 0 or no_count == 0:
+                score = 0
+            else:
+                # (情報利得スコア) * (優先度ブースト)
+                score = (yes_count * no_count) * priority_weight 
             
             if score > best_score:
                 best_score = score
                 best_question = question
+            
             elif score == 0:
                 zero_score_questions.append(question)
                 
+    # [変更]
+    # もし最適な質問 (score > 0) が見つからなかった場合、
+    # スコア0の質問が残っていれば、それをランダムに返す
     if best_question is None and zero_score_questions:
+        # print("[デバッグ] 最適な質問がなかったため、スコア0の質問から選びます。")
         return random.choice(zero_score_questions)
         
     return best_question
-
 
 # -----------------------
 # アキネーター本体ループ (カスタムロジック)
