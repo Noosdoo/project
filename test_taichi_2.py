@@ -391,7 +391,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 # (★デバッグ版★：summaryの取得状況をログに出す)
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=20, sleep=0.1):
+                           limit=None, max_workers=150, sleep=0.1):
     
     # (中略 ... 関数の上部は変更なし) ...
     people = load_people_list(people_list_path)
@@ -550,7 +550,7 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
 # -----------------------
 # Step3: アキネーター本体
 # -----------------------
-def load_dataset(dataset_path=DATASET_FILE, min_feature_threshold=5):
+def load_dataset(dataset_path=DATASET_FILE, min_feature_threshold=10):
     """
     データセットを読み込む。
     [改変] features の数が min_feature_threshold 未満の人物を除外する。
