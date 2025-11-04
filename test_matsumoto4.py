@@ -6,6 +6,8 @@ import re # 正規表現用
 import unicodedata # 文字列正規化用
 import random # ランダム選択用
 import wikipediaapi # Wikipedia API用
+import traceback # デバッグ用にインポート
+import hashlib # ★ ハッシュ化のため追加
 from datetime import datetime # 日付処理のため
 from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
 import sys # 標準入出力のエンコーディング設定用
@@ -66,6 +68,25 @@ CATEGORIES = [
 # Wikipedia APIに送る際のヘッダー
 HEADERS = {"User-Agent": USER_AGENT}
 
+# -----------------------
+# カテゴリに基づいたキャッシュファイル名
+# -----------------------
+def get_dynamic_cache_path(categories_list, prefix="people_list"):
+    """
+    選択されたカテゴリリストから一意のハッシュを生成し、
+    キャッシュファイル名（.json）を返す。
+    """
+    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュになるようにする
+    sorted_cats = sorted(list(set(categories_list)))
+    
+    # JSON文字列に変換
+    cat_string = json.dumps(sorted_cats)
+    
+    # MD5ハッシュを生成
+    hash_hex = hashlib.md5(cat_string.encode('utf-8')).hexdigest()
+    
+    # 例: people_list_abcdef123456.json
+    return f"{prefix}_{hash_hex}.json"
 
 # -----------------------
 # 除外ルール: 人物ページかどうか判定
@@ -77,7 +98,7 @@ def is_person_page(title):
 # -----------------------
 # ユーティリティ: Wikipediaカテゴリからタイトル取得
 # -----------------------
-def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=0.8):
+def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=1.5):
     # 再帰的にカテゴリメンバーを収集
     if collected is None:
         collected = set() # 初期化
@@ -161,7 +182,7 @@ def choose_categories():
 # -----------------------
 # Step1: 全カテゴリから人物を収集して保存 
 # -----------------------
-def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_path=PEOPLE_LIST_FILE):
+def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_path=PEOPLE_LIST_FILE, corresponding_dataset_path=DATASET_FILE):
 
     # 除外語リスト（非人物をはじく）
     EXCLUDE_KEYWORDS = [
@@ -193,13 +214,13 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_p
                 return people_list # 既存の人物リストを返す
             else:
                 print("カテゴリが変更されたため、人物リストを再収集します。") # 再収集
-                if os.path.exists(DATASET_FILE):
-                    print(f"古いデータセット {DATASET_FILE} をリセットします。") # 再収集時はデータセットもリセット
-                    os.remove(DATASET_FILE) # データセット削除
+                if os.path.exists(corresponding_dataset_path):
+                    print(f"古いデータセット {corresponding_dataset_path} をリセットします。") # 再収集時はデータセットもリセット
+                    os.remove(corresponding_dataset_path) # データセット削除
         # デコードエラーなど
         except Exception as e:
             print(f"既存ファイルの形式が古いか壊れています: {e}。再収集します。") # 再収集
-            if os.path.exists(DATASET_FILE): os.remove(DATASET_FILE) # データセット削除
+            if os.path.exists(corresponding_dataset_path): os.remove(corresponding_dataset_path) # データセット削除
 
     # 収集開始
     print("=== カテゴリから人物リストを収集します ===")
@@ -1029,24 +1050,30 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
 # -----------------------
 # エントリポイント用関数
 # -----------------------
-def run_step(step="collect", **kwargs):
+def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE, **kwargs):
     step = step.lower() # 小文字化
+    # どのステップでも使う可能性のあるカテゴリリストを取得
+    selected_categories = kwargs.get("categories", CATEGORIES) # ※ "categories" が kwargs にないと CATEGORIES になる
     if step == "collect": # データ収集ステップ
         # 収集実行
-        return collect_people(categories=kwargs.get("categories", CATEGORIES),
+        return collect_people(categories=selected_categories,
                               cmlimit=kwargs.get("cmlimit", 50),
                               depth=kwargs.get("depth", 1),
-                              sleep=kwargs.get("sleep", 0.8))
+                              sleep=kwargs.get("sleep", 1.5),
+                              save_path=people_list_path, # 渡されたパス
+                              corresponding_dataset_path=dataset_path) # ★ 渡されたパス
     elif step == "build": # データセット構築ステップ
         # 構築実行
-        return build_dataset_parallel(limit=kwargs.get("limit", None),
-                                      sleep=kwargs.get("sleep", 0.8))
+        return build_dataset_parallel(people_list_path=people_list_path, # 渡されたパス
+            dataset_path=dataset_path, # 渡されたパス
+            limit=kwargs.get("limit", None),
+            sleep=kwargs.get("sleep", 1.5))
     elif step == "play": # ゲームプレイステップ
         min_features = kwargs.get("min_feature_threshold", 5) # デフォルト閾値5
-        ds = load_dataset(min_feature_threshold=min_features) # データセット読み込み
+        ds = load_dataset(dataset_path=dataset_path, min_feature_threshold=min_features) # データセット読み込み
         
         if not ds: return None # データセット読み込み失敗時は終了
-        selected_categories = kwargs.get("selected_categories") # 選択カテゴリ取得
+        selected_categories = kwargs.get("categories") # 選択カテゴリ取得
         # ゲーム実行
         return akinator_play(ds, 
                              selected_categories=selected_categories, 
@@ -1081,28 +1108,46 @@ if __name__ == "__main__":
         
         # カテゴリ選択
         selected_categories = choose_categories()
+
+        # 選択カテゴリに基づいて動的なキャッシュパスをここで生成
+        dynamic_list_path = get_dynamic_cache_path(selected_categories, prefix="people_list")
+        dynamic_dataset_path = get_dynamic_cache_path(selected_categories, prefix="people_dataset")
+
+        print(f"[INFO] ターゲットリスト: {dynamic_list_path}")
+        print(f"[INFO] ターゲットデータセット: {dynamic_dataset_path}")
         
         # ステップ実行
-        run_step("collect",                       # データ収集ステップ
-                 categories=selected_categories,  # 選択カテゴリ
-                 cmlimit=CMLIMIT,                 # カテゴリメンバー取得上限
-                 depth=DEPTH,                     # カテゴリ深度
-                 sleep=SLEEP)                     # API呼び出し間隔
+        run_step("collect",                          # データ収集ステップ
+                 categories=selected_categories,     # 選択カテゴリ
+                 cmlimit=CMLIMIT,                    # カテゴリメンバー取得上限
+                 depth=DEPTH,                        # カテゴリ深度
+                 sleep=SLEEP,                        # API呼び出し間隔
+                 people_list_path=dynamic_list_path, # 動的パスを指定
+                 dataset_path=dynamic_dataset_path   # 動的パスを指定
+                )
         
         print("\n=== データセット構築中 ===")
         print("注意: 初回実行時、人物リストが膨大な場合、この処理には時間がかかります。")
-        run_step("build",                         # データセット構築ステップ
-                 limit=BUILD_LIMIT,               # 上限
-                 sleep=SLEEP)                     # API呼び出し間隔
+        run_step("build",                            # データセット構築ステップ
+                 categories=selected_categories,     # playステップでも使うため渡しておく
+                 limit=BUILD_LIMIT,                  # 上限
+                 sleep=SLEEP,                        # API呼び出し間隔
+                 people_list_path=dynamic_list_path, # 動的パスを指定
+                 dataset_path=dynamic_dataset_path   # 動的パスを指定
+                )
         
         print("\n=== ゲームスタート ===")
         run_step("play",                                       # ゲームプレイステップ
-                 selected_categories=selected_categories,      # 選択カテゴリ
+                 categories=selected_categories,               # 選択カテゴリを渡す
                  max_questions=MAX_QUESTIONS,                  # 最大質問数
                  analysis_size=ANALYSIS_SIZE,                  # 分析候補者数
-                 min_feature_threshold=MIN_FEATURE_THRESHOLD)  # 最小特徴閾値
+                 min_feature_threshold=MIN_FEATURE_THRESHOLD,  # 最小特徴閾値
+                 people_list_path=dynamic_list_path,           # 動的パスを指定
+                 dataset_path=dynamic_dataset_path             # 動的パスを指定
+                )
                  
     except KeyboardInterrupt: # キーボード割り込み処理
         print("\n処理が中断されました。") # 中断メッセージ表示
     except Exception as e: # その他の例外処理
         print(f"\nエラーが発生しました: {e}") # エラーメッセージ表示
+        traceback.print_exc() # デバッグ用にトレースバックも表示
