@@ -3,8 +3,9 @@ import time # スリープ用
 import json # JSON操作用
 import os # ファイル操作用
 import re # 正規表現用
-import random
-import wikipediaapi
+import unicodedata # 文字列正規化用
+import random # ランダム選択用
+import wikipediaapi # Wikipedia API用
 from datetime import datetime # 日付処理のため
 from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
 import sys # 標準入出力のエンコーディング設定用
@@ -26,7 +27,7 @@ except ImportError:
     print("---------------------------------------------------------------")
     print("エラー: Janomeがインストールされていません。")
     print("動的な質問生成（名詞分析）を利用するには、Janomeが必要です。")
-    print("ターミナルで `pip install janome` を実行してください。")
+    print("ターミナルで `pip install -U janome` を実行してください。")
     print("---------------------------------------------------------------")
     JANOME_TOKENIZER = None
 except Exception as e:
@@ -161,6 +162,22 @@ def choose_categories():
 # Step1: 全カテゴリから人物を収集して保存 
 # -----------------------
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_path=PEOPLE_LIST_FILE):
+
+    # 除外語リスト（非人物をはじく）
+    EXCLUDE_KEYWORDS = [
+        "テレビ", "番組", "映画", "ドラマ", "アニメ", "漫画", "作品",
+        "イベント", "シリーズ", "コンビ", "グループ", "キャラクター",
+        "音楽", "アルバム", "曲", "小説", "ゲーム", "企画", "特集",
+        "大会", "舞台", "公演", "放送"
+    ]
+
+    # 人物らしい語（本文などから抽出に使える）
+    INCLUDE_HINTS = [
+        "俳優", "女優", "声優", "歌手", "ミュージシャン", "政治家", "作家",
+        "小説家", "実業家", "科学者", "学者", "芸人", "タレント", "モデル",
+        "アスリート", "スポーツ選手", "監督"
+    ]
+
     # 既存ファイルのチェック
     target_categories = sorted(list(set(categories)))
     # 既存ファイルがあり、カテゴリが一致すればスキップ
@@ -187,21 +204,49 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=0.8, save_p
     # 収集開始
     print("=== カテゴリから人物リストを収集します ===")
     all_people = set() # 全人物セット
+
     for cat in target_categories: # 各カテゴリ処理
         print(f"取得中: {cat}") # カテゴリ名表示
         people = get_category_members(cat, cmlimit=cmlimit, depth=depth, sleep=sleep) # 取得
-        print(f"   → {len(people)} 人取得") # 取得数表示
+        print(f"   → {len(people)} 件取得（フィルタ前）") # 取得数表示
+        filtered = []
+        for name in people:
+            # ① 除外語フィルタ
+            if any(word in name for word in EXCLUDE_KEYWORDS):
+                continue
+
+            # ② 名前があまりにも短い・数字だけの場合などを除外
+            if len(name) < 2 or re.fullmatch(r"[0-9０-９A-Za-z]+", name):
+                continue
+
+            # （オプション）人物らしいワードが含まれるかチェック
+            # ※ここは厳密にしすぎると漏れも出るので任意
+            # if not any(hint in name for hint in INCLUDE_HINTS):
+            #     continue
+
+            filtered.append(name)
+
+        print(f"   → {len(filtered)} 件（フィルタ後）") # フィルタ後の取得数表示
+        all_people.update(filtered) # セットに追加
+        time.sleep(sleep) # セットに追加、API負荷軽減
+    
         all_people.update(people); time.sleep(sleep) # セットに追加、API負荷軽減
+
     people_list = sorted(list(all_people)) # リスト化・ソート
+
     # 保存
     save_data = {
         "meta": {"categories": target_categories, "last_updated": time.strftime("%Y-%m-%dT%H:%M:%S")},
         "people": people_list
     }
+
     # JSON保存
     with open(save_path, "w", encoding="utf-8") as f:
         json.dump(save_data, f, ensure_ascii=False, indent=2) # 保存
     print(f"保存しました: {save_path} （合計 {len(people_list)} 人）"); return people_list # 人物リスト返す
+
+    return people_list
+
 
 # -----------------------
 # Wikidata取得補助
@@ -292,6 +337,41 @@ def fetch_wikidata_entity(wikibase_id):
     except Exception:
         return None
 
+# Janomeトークナイザーインスタンス
+tokenizer = Tokenizer()
+
+# -----------------------
+# テキストクリーンアップ
+# -----------------------
+def clean_text(text):
+    # Unicode正規化
+    text = unicodedata.normalize("NFKC", text)
+    # 制御文字を除去
+    text = re.sub(r"[\x00-\x1F\x7F]", "", text)
+    # 不可視文字を除去
+    text = re.sub(r"[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]", "", text)
+    # 改行や連続空白を整理
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+# -----------------------
+# summaryから【Janomeベース（動的）】で特徴を抽出
+# -----------------------
+def extract_dynamic_features_from_summary(summary):
+    summary = clean_text(summary) # テキストクリーンアップ
+    try:
+        tokens = tokenizer.tokenize(summary) # トークン化
+    except Exception as e:
+        print(f"[Janome解析エラー] {e}")
+        return []  # エラー時はスキップ
+    features = []  # 抽出特徴リスト
+    for token in tokens: # トークンごとに処理
+        # ここに通常の形態素解析処理
+        features.append(token.surface) # 例: 表層形を特徴として追加
+    return features # 抽出特徴リスト返す
+
+
+
 # -----------------------
 # summaryから【Janomeベース（動的）】で特徴を抽出
 # -----------------------
@@ -319,7 +399,7 @@ def extract_dynamic_features_from_summary(summary):
     except Exception as e:
         # Janomeのパース失敗をログに出す
         print(f"[DEBUG-DYNAMIC] Janome.tokenize(summary) でエラー: {e}")
-        return {} # パースに失敗した
+        return {} # 失敗時は空辞書を返す
 
     # 抽出する品詞と、特徴キーのプレフィックス
     TARGET_POS_TYPES = {
@@ -470,6 +550,8 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             # 1. キーワードベース（静的）の特徴抽出
             features = extract_features_from_summary(page.summary)
 
+            summary = clean_text(page.summary) # テキストクリーンアップ
+
             # 2. Janome（動的）の特徴を抽出し、featuresにマージする
             dynamic_features = extract_dynamic_features_from_summary(page.summary)
             
@@ -538,10 +620,17 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             return rec # 正常終了返す
 
         except Exception as e: # 致命的なエラー処理
-            print(f"!!!!!!!!!!!!! 致命的なエラー {name} !!!!!!!!!!!!!")
-            traceback.print_exc()
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            return {"name": name, "error": str(e)} # エラー返す
+            print(f"[警告] {name} の解析中にエラーが発生しました: {e}")
+            # tracebackを出したい場合（任意）
+            # traceback.print_exc()
+            # エラーの時でも処理を止めずに、空データを返す
+            return {"name": name, "error": str(e), "features": []} # エラー情報を返す
+        
+        return {
+            "name": name,                  # 名前
+            "summary": page.summary,       # 概要
+            "features": dynamic_features   # 抽出特徴
+        }
 
     # 並列処理開始
     new_records = [] # 新規取得レコードリスト
