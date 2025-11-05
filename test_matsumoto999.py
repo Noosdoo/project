@@ -7,7 +7,7 @@ import unicodedata # 文字列正規化用
 import random # ランダム選択用
 import wikipediaapi # Wikipedia API用
 import traceback # デバッグ用にインポート
-import hashlib # ★ ハッシュ化のため追加
+import hashlib # ハッシュ化のため追加
 from datetime import datetime # 日付処理のため
 from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
 import sys # 標準入出力のエンコーディング設定用
