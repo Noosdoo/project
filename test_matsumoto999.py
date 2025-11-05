@@ -752,8 +752,7 @@ def generate_question_map(dataset, selected_categories=None):
         ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature"),
         ("grad_todai", "東京大学を卒業していますか？", "feature"),
         ("grad_waseda", "早稲田大学を卒業していますか？", "feature"),
-        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature"),
-        ("award_shiju", "紫綬褒章を受章していますか？", "feature"),
+        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature")
     ]
 
     # 共通質問を追加
