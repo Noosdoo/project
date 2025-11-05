@@ -7,7 +7,7 @@ import unicodedata # 文字列正規化用
 import random # ランダム選択用
 import wikipediaapi # Wikipedia API用
 import traceback # デバッグ用にインポート
-import hashlib # ハッシュ化のため追加
+import hashlib # ★ ハッシュ化のため追加
 from datetime import datetime # 日付処理のため
 from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
 import sys # 標準入出力のエンコーディング設定用
@@ -738,9 +738,9 @@ def generate_question_map(dataset, selected_categories=None):
     common_questions_def = [
         ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
-        ("actor_wikidata", "本業は俳優ですか？", "occupation"),
-        ("singer_wikidata", "本業は歌手ですか？", "occupation"),
-        ("politician_wikidata", "本業は政治家ですか？", "occupation"),
+        ("actor_wikidata", "俳優でもありますか？", "occupation"),
+        ("singer_wikidata", "歌手でもありますか？", "occupation"),
+        ("politician_wikidata", "政治家でもありますか？", "occupation"),
         ("age_20s", "現在、20代ですか？", "common"), ("age_30s", "現在、30代ですか？", "common"),
         ("age_40s", "現在、40代ですか？", "common"), ("age_50s", "現在、50代ですか？", "common"),
         ("born_1980s", "1980年代生まれですか？", "common"), ("born_1990s", "1990年代生まれですか？", "common"),
