@@ -762,8 +762,10 @@ def generate_question_map(dataset, selected_categories=None):
         if key_exists and key not in added_keys: # 未追加なら追加
             # 質問マップに追加
             qm[category].append({
-                "key": key, "text": text,
-                "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
+                "key": key,                                    # キー
+                "text": text,                                  # 質問テキスト
+                "check": lambda rec,                           # チェック関数
+                k=key: rec.get("features",{}).get(k) == 1      # 特徴が1かどうか
             })
             added_keys.add(key) # 追加済みセットに登録
 
@@ -1056,12 +1058,12 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
     selected_categories = kwargs.get("categories", CATEGORIES) # ※ "categories" が kwargs にないと CATEGORIES になる
     if step == "collect": # データ収集ステップ
         # 収集実行
-        return collect_people(categories=selected_categories,
-                              cmlimit=kwargs.get("cmlimit", 50),
-                              depth=kwargs.get("depth", 1),
-                              sleep=kwargs.get("sleep", 1.5),
-                              save_path=people_list_path, # 渡されたパス
-                              corresponding_dataset_path=dataset_path) # ★ 渡されたパス
+        return collect_people(categories=selected_categories,               # 選択カテゴリ
+                              cmlimit=kwargs.get("cmlimit", 50),            # カテゴリメンバー取得上限
+                              depth=kwargs.get("depth", 1),                 # カテゴリ深度
+                              sleep=kwargs.get("sleep", 1.5),               # API呼び出し間隔
+                              save_path=people_list_path,                   # 渡されたパス
+                              corresponding_dataset_path=dataset_path)      # 渡されたパス
     elif step == "build": # データセット構築ステップ
         # 構築実行
         return build_dataset_parallel(people_list_path=people_list_path, # 渡されたパス
@@ -1075,10 +1077,10 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
         if not ds: return None # データセット読み込み失敗時は終了
         selected_categories = kwargs.get("categories") # 選択カテゴリ取得
         # ゲーム実行
-        return akinator_play(ds, 
-                             selected_categories=selected_categories, 
-                             max_questions=kwargs.get("max_questions", 1000),
-                             analysis_size=kwargs.get("analysis_size", 100))
+        return akinator_play(ds,                                               # データセット
+                             selected_categories=selected_categories,          # 選択カテゴリ
+                             max_questions=kwargs.get("max_questions", 1000),  # 最大質問数
+                             analysis_size=kwargs.get("analysis_size", 100))   # 分析候補者数
     else: # 不明なステップ
         raise ValueError("不明なステップです。collect, build, play のいずれかを指定してください。")
 
