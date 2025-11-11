@@ -1020,6 +1020,16 @@ def generate_question_map(dataset, selected_categories=None):
 
     print(f"   → フィルタリング後、有用な質問を {len(useful_dynamic_keys)} 件、質問マスターリストに追加します。")
 
+    PREFECTURES = {
+        "北海道", "青森", "岩手", "宮城", "秋田", "山形", "福島",
+        "茨城", "栃木", "群馬", "埼玉", "千葉", "東京", "神奈川",
+        "新潟", "富山", "石川", "福井", "山梨", "長野", "岐阜",
+        "静岡", "愛知", "三重", "滋賀", "京都", "大阪", "兵庫",
+        "奈良", "和歌山", "鳥取", "島根", "岡山", "広島", "山口",
+        "徳島", "香川", "愛媛", "高知", "福岡", "佐賀", "長崎",
+        "熊本", "大分", "宮崎", "鹿児島", "沖縄"
+    }
+
     for key in useful_dynamic_keys: # 有用な動的特徴キーごとに
         if key in added_keys: continue # 既に追加済みならスキップ
         
@@ -1366,15 +1376,15 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                     print(f"  [INFO] {group_name} グループの他の質問 ({', '.join(skipped_keys)}) をスキップします。")
             # 相互排他ロジック終了
             
-        elif ans in ("いいえ", "n"):
-            next_candidates = [c for c in next_candidates if not test(c)]
-        elif ans in ("わからない", "u"):
+        elif ans in ("いいえ", "n"): # 「いいえ」の場合
+            next_candidates = [c for c in next_candidates if not test(c)] # 否定フィルタリング
+        elif ans in ("わからない", "u"): # 「わからない」の場合
             pass # 候補者は変わらない
         else:
             print("無効な回答です。 y/n/u/b のいずれかを入力してください。")
             continue # ★ 履歴を追加せず、単にループの最初に戻る (質問は再実行される)
 
-        # ★ 修正: y/n/u で処理された「次の状態」を履歴に追加
+        # y/n/u で処理された「次の状態」を履歴に追加
         history.append((next_candidates, next_asked_keys, next_asked_count))
         
         # 候補者数の表示
