@@ -1136,138 +1136,175 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
 # アキネーター本体ループ
 # -----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
-
-    candidates = dataset.copy() # 候補者リスト初期化
-    qm_dict = generate_question_map(dataset, selected_categories) # 質問マップ生成
+    """
+    候補者が1人になるまで質問を続ける。
+    ★ 1人になったら「最終確認」を行い、
+    ★ 間違っていたら (n) 候補から除外して続行する。
+    """
+    
+    # dataset はこのゲームインスタンス中でのマスターリストとして扱う
+    # (「n」と答えた人物を永久除外するため)
+    current_game_dataset = dataset.copy() # ゲーム中のマスターリスト初期化
+    
+    candidates = current_game_dataset.copy() # 候補者リスト初期化
+    qm_dict = generate_question_map(current_game_dataset, selected_categories) # 質問マップ生成
     
     print(f"=== 🕵️ 人物検索開始 (1人特定/候補者全員・全力分析モード) ===")
     print(f"※ 毎回、残りの候補者全員 ({len(candidates)}人) を分析して最適な質問を厳選します。")
-    # 選択肢変更
     print("回答は「はい(y) / いいえ(n) / わからない(u) / 戻る(b)」のいずれかを入力してください。") 
     print("---")
     
-    asked_keys = set() # 尋ねた質問キーセット
-    asked_count = 0 # 尋ねた質問回数カウンタ
+    asked_keys = set() # 質問済みキーセット
+    asked_count = 0 # 質問回数カウンタ
     
-    # 状態の履歴を保存するリスト (candidates, asked_keys, asked_count)
-    # (初期状態として、ゲーム開始時の状態を保存しておく)
-    history = [(dataset.copy(), set(), 0)]
+    # 履歴の初期状態 (マスターデータセット)
+    history = [(current_game_dataset.copy(), set(), 0)]
 
-    # ループ条件を簡潔に
-    while asked_count < max_questions:
+    while asked_count < max_questions: # 最大質問数までループ
         
         # --- 1. 状態のチェックと復帰処理 ---
         if len(candidates) == 0:
             print("\n[!] 候補者がいなくなりました。")
             print("回答が間違っていた可能性があります。")
             
-            # 履歴が初期状態しかない場合は戻れない
-            if len(history) <= 1:
+            if len(history) <= 1: # 履歴がない場合
                 print("履歴がなく、戻れません。ゲームを終了します。")
-                break # ループ終了
+                break 
 
             ans = input("1つ前の質問に戻りますか？ (y/n または b) > ").strip().lower()
             
-            if ans in ("y", "b"):
-                # 履歴から1つ前の状態を復元 (pop()で 0人になった状態 を捨てる)
-                history.pop()
-                # 1つ前の状態（前の質問の直前）を復元する
-                candidates, asked_keys, asked_count = history[-1] 
+            if ans in ("y", "b"): # ユーザーが「はい」または「戻る」と答えた
+                history.pop() # 現在の状態を捨てる
+                candidates, asked_keys, asked_count = history[-1] # 1つ前の状態を復元 
                 print(f"--- 1つ前の状態に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
-                continue # 次のループへ
-            else:
+                continue # ループの先頭に戻る
+            else: # ユーザーが「いいえ」と答えた
                 print("ゲームを終了します。")
-                break # ループ終了
+                break
         
-        # --- 2. 勝利条件のチェック ---
-        if len(candidates) == 1:
-            # 候補者が1人になったらループを抜ける (最終結果表示へ)
-            break
+        # --- 2. 最終確認ロジック (候補者が1人になった場合) ---
+        if len(candidates) == 1: # 候補者が1人に絞り込まれた場合
+            c = candidates[0] # 唯一の候補者
+            print(f"\n===============================")
+            print(f"🎉 答えが絞り込めました！ ({asked_count}回の質問)")
+            
+            ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n/b) > ").strip().lower()
+
+            if ans in ("y", "yes"):
+                # ユーザーが「はい」と認めた
+                print("-------------------------------")
+                print("🎉 やりました！正解です！")
+                print("===============================")
+                return candidates # ゲーム終了 (ループを抜けて終了)
+            
+            elif ans in ("b", "back"): # ユーザーが「戻る」と答えた
+                # 最終確認の画面でも「戻る」を許可
+                print("--- 1つ前の質問に戻ります ---")
+                if len(history) <= 1:
+                    print("--- 最初の質問です（これ以上戻れません） ---")
+                    # (この 1-candidate 状態を維持したままループの先頭に戻る)
+                    continue
+                
+                # 1. 現在の状態（1人に絞り込まれた状態）を捨てる
+                history.pop() 
+                # 2. 1つ前の状態（複数候補がいた状態）を復元
+                candidates, asked_keys, asked_count = history[-1] # 1つ前の状態を復元
+                print(f"--- 1つ前の状態に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
+                continue # ループの先頭に戻る
+
+            else:
+                # ユーザーが「いいえ (n)」と答えた
+                print(f"🤔 違いましたか...。『{c['name']}』を今回の候補から完全に除外します。")
+                
+                wrong_guess_name = c["name"] # 間違っていた人物の名前
+                
+                # 1. マスターリスト(dataset)から永久除外
+                current_game_dataset = [p for p in current_game_dataset if p["name"] != wrong_guess_name]
+                
+                # 2. 1つ前の状態（複数候補がいた状態）に戻る
+                # (history[-1] には、この1人に絞り込む直前の状態が入っている)
+                history.pop() # 現在の[1人]状態を履歴から削除
+                candidates_prev, asked_keys_prev, asked_count_prev = history[-1] # 1つ前を参照
+                
+                # 3. 戻った状態の候補リストからも、間違っていた人物を除外する
+                candidates = [p for p in candidates_prev if p["name"] != wrong_guess_name]
+                asked_keys = asked_keys_prev # 質問済みキーはそのまま
+                asked_count = asked_count_prev # 質問回数もそのまま
+
+                # 4. 除外した結果を、新しい履歴として「現在地」に設定する
+                # (こうしないと、次回の 'b' で永久除外した人が復活してしまう)
+                history[-1] = (candidates.copy(), asked_keys.copy(), asked_count)
+
+                print(f"--- 1つ前の状態 (候補 {len(candidates)}人) に戻り、質問を続けます ---")
+                continue # ループの先頭に戻る
         
-        # --- 3. 状態の保存 (0人でも1人でもない場合) ---
-        # (※ 戻る機能のために、現在の状態を履歴に保存する)
-        # (※ ループの先頭で、この状態(質問Nの直前)を保存する)
-        
-        # history[-1]が今の状態と異なる場合のみ追加（同じ状態での無限ループ防止）
+        # --- 3. 状態の保存 (候補者が2人以上の場合) ---
         if not history or history[-1][0] != candidates:
-             history.append((candidates.copy(), asked_keys.copy(), asked_count))
+             history.append((candidates.copy(), asked_keys.copy(), asked_count)) # 現在の状態を履歴に保存
         
         # --- 4. 質問の選択 ---
         candidates_for_analysis = candidates
-        if len(candidates_for_analysis) > 500:
+        if len(candidates_for_analysis) > 500: # 分析用候補者が多すぎる場合
             print(f"\n[... {len(candidates_for_analysis)}人から最適な質問を計算中 ...]")
         
-        question = find_best_question(candidates_for_analysis, qm_dict, asked_keys) # 最適な質問取得
+        question = find_best_question(candidates_for_analysis, qm_dict, asked_keys) # 最適な質問を取得
         
-        if question is None:
+        if question is None: # 質問が見つからなかった場合
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
-            break
+            break # 質問が尽きたらループ終了
 
         key, q_text, test = question["key"], question["text"], question["check"] # 質問情報取得
         
-        yes_count_analysis = sum(1 for c in candidates_for_analysis if test(c)) # はいカウント
-        no_count_analysis = len(candidates_for_analysis) - yes_count_analysis # いいえカウント
+        yes_count_analysis = sum(1 for c in candidates_for_analysis if test(c)) # はいカウント分析
+        no_count_analysis = len(candidates_for_analysis) - yes_count_analysis # いいえカウント分析
         
         print(f"\n[質問 {asked_count+1}] (候補: {len(candidates)}人 | 全員分析の分割予測: {yes_count_analysis} / {no_count_analysis})")
         
-        # 回答に 'b' を追加
-        ans = input(q_text + " （y/n/u/b） > ").strip().lower()
+        ans = input(q_text + " （y/n/u/b） > ").strip().lower() # ユーザー入力取得
         
         # --- 5. ユーザーの回答処理 ---
         
-        # 「戻る」処理
-        if ans in ("b", "back"):
-            # 履歴が初期状態しかない場合は戻れない
-            if len(history) <= 1:
+        if ans in ("b", "back"): # ユーザーが「戻る」と答えた
+            if len(history) <= 1: # 履歴がない場合
                 print("--- 最初の質問です（これ以上戻れません） ---")
-                continue
+                continue # (この状態を維持したままループの先頭に戻る)
             
-            # 1. 現在の状態（質問する直前の状態）を捨てる
-            history.pop() 
-            
-            # 2. 1つ前の状態（前の質問をする直前の状態）を復元する
-            candidates, asked_keys, asked_count = history[-1]    # (末尾を参照)
+            history.pop() # 現在の状態を捨てる
+            candidates, asked_keys, asked_count = history[-1] # 1つ前の状態を復元
             
             print(f"--- 1つ前の質問に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
-            continue # ループの最初に戻る
+            continue # ループの先頭に戻る
 
         # --- 通常の回答処理 (y/n/u) ---
         
-        asked_keys.add(key) # 尋ねた質問キーを登録
+        asked_keys.add(key) # 質問済みキーに追加
         
-        if ans in ("はい", "y"):
-            candidates = [c for c in candidates if test(c)]
-        elif ans in ("いいえ", "n"):
-            candidates = [c for c in candidates if not test(c)]
-        elif ans in ("わからない", "u"):
-            pass 
+        if ans in ("はい", "y"): # ユーザーが「はい」と答えた
+            candidates = [c for c in candidates if test(c)] # テストに合格する候補者のみ残す
+        elif ans in ("いいえ", "n"): # ユーザーが「いいえ」と答えた
+            candidates = [c for c in candidates if not test(c)] # テストに不合格の候補者のみ残す
+        elif ans in ("わからない", "u"): # ユーザーが「わからない」と答えた
+            pass # 候補者リストは変更しない
         else:
             print("無効な回答です。スキップします。")
-            # 質問回数は増やさずに continue
-            asked_keys.remove(key) # 質問キーも戻す
-            continue
+            asked_keys.remove(key) # 質問済みキーから削除
+            continue # 無効な回答の場合はスキップして再度質問
 
         asked_count += 1 # 質問回数カウンタ増加
         
-        if 0 < len(candidates) < 10: # 10人未満なら名前も表示
+        if 0 < len(candidates) < 10: # 10人未満の場合、候補者名を表示
              print(f"(現在の候補数: {len(candidates)}人 - {', '.join([c['name'] for c in candidates])})")
-        else:                        # 10人以上なら名前は表示しない
+        else: # 10人以上の場合、数だけ表示
              print(f"(現在の候補数: {len(candidates)}人)")
 
     # -----------------------------
-    # 最終的な提案ロジック (ループ終了後)
+    # 最終的な提案ロジック (ループが尽きた / 0人になった場合)
     # -----------------------------
     print("\n===============================")
     
-    # 最終結果の表示
-    if len(candidates) == 1:
-        # 目的の「1人」になった場合
-        c = candidates[0] # 唯一の候補者取得
-        print(f"🎉 答えが特定できました！ ({asked_count}回の質問)")
-        print("-------------------------------")
-        print(f"**あなたが思い浮かべたのは... 『{c['name']}』**")
-        
-    elif len(candidates) > 1:
+    # 1人の場合のロジックはループ内に移動したため、ここはループが尽きた場合のみ
+    
+    if len(candidates) > 1:
         # 質問が尽きたが、2人以上残った場合 (特徴が完全一致)
         print(f"🤔 {asked_count}回の質問では1人に絞り込めませんでした。")
         print(f"特徴が完全に一致する候補が {len(candidates)}人 残りました。")
