@@ -671,6 +671,31 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             if dynamic_features:
                 features.update(dynamic_features) # featuresにマージ
             
+            # --- カテゴリ特徴 ---
+            try:
+                page_categories = page.categories # カテゴリ取得
+                # 無視するカテゴリ (広すぎる、ノイズになる)
+                IGNORE_CATS = {
+                    "存命人物", "死去した人物", "日本の人物", "曖昧さ回避", 
+                    "リダイレクト", "人物", "生年", "没年", "年没", "年生",
+                    "世紀没", "世紀生", "各年の音楽", "各年のスポーツ"
+                }
+                
+                for cat_title in page_categories.keys(): # 各カテゴリ処理
+                    # 'Category:日本の俳優' -> '日本の俳優'
+                    cat_name = cat_title.replace("Category:", "").strip() # カテゴリ名抽出
+                    
+                    # 無視リストにあるか、"〇〇年生" "〇〇年没" 形式は無視
+                    if cat_name in IGNORE_CATS or cat_name.endswith("年生") or cat_name.endswith("年没"):
+                         continue
+                         
+                    # 特徴として追加 (例: cat_日本の俳優)
+                    features[f"cat_{cat_name}"] = 1 # カテゴリ特徴として追加
+                    
+            except Exception as e: # カテゴリ取得失敗時のログ
+                print(f"  [DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
+
+
             # --- 名前構造 ---
             if re.search(r'[ァ-ヶ]', name): # カタカナ文字が含まれるか
                 features["has_katakana"] = 1 # カタカナありフラグ
@@ -965,11 +990,11 @@ def generate_question_map(dataset, selected_categories=None):
                 # 追加済みセットに登録
                 added_keys.add(key)
         
-    # --- 3. データセットから "noun_", "adj_", "verb_" キーを動的に読み込み質問を生成する ---
+    # --- 3. データセットから動的キーを読み込み、質問を生成する ---
 
-    print("データセットをスキャンして、動的な質問（名詞・形容詞・動詞）を生成します...")
+    print("データセットをスキャンして、動的な質問（名詞・形容詞・動詞・カテゴリ）を生成します...")
     all_dynamic_keys = set() # すべての動的特徴キーセット
-    DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_") # 動的特徴のプレフィックス
+    DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_", "cat_") # 動的特徴のプレフィックス
     
     # データセットスキャン
     for rec in dataset:
@@ -1002,6 +1027,30 @@ def generate_question_map(dataset, selected_categories=None):
         category_type = "activity" # デフォルトカテゴリ
         
         try:
+            # カテゴリ (cat_) の質問生成
+            if key.startswith("cat_"): # カテゴリ質問
+                cat_name = key[len("cat_"):] # カテゴリ名部分抽出
+                
+                if cat_name.endswith("出身の人物"): # 出身地カテゴリ
+                    place = cat_name.replace("出身の人物", "") # 地名部分抽出
+                    if place in PREFECTURES: continue # 都道府県名はスキップ（名詞質問で対応）
+                    question_text = f"『{place}』の出身ですか？" # 出身地質問
+                    category_type = "feature" # 特徴カテゴリに変更
+                elif cat_name.endswith("所属者"): # 所属カテゴリ
+                    group = cat_name.replace("所属者", "") # グループ名部分抽出
+                    question_text = f"『{group}』に所属していますか（しましたか）？" # 所属質問
+                    category_type = "feature" # 特徴カテゴリに変更
+                elif cat_name.endswith("関連の人物"): # 関連人物カテゴリ
+                    topic = cat_name.replace("関連の人物", "") # トピック部分抽出
+                    question_text = f"『{topic}』に関連する人物ですか？" # 関連質問
+                elif cat_name.endswith("の受賞者"): # 受賞者カテゴリ
+                    award = cat_name.replace("の受賞者", "") # 賞名部分抽出
+                    question_text = f"『{award}』を受賞していますか？" # 受賞質問
+                    category_type = "feature" # 特徴カテゴリに変更
+                else: # その他のカテゴリ
+                    question_text = f"「{cat_name}」というカテゴリに分類されますか？"
+
+            # 名詞 (noun_) の質問生成
             if key.startswith("noun_"): # 名詞質問 
                 word = key[len("noun_"):] # 名詞部分抽出
                 
@@ -1032,16 +1081,18 @@ def generate_question_map(dataset, selected_categories=None):
                     # デフォルトの名詞質問
                     question_text = f"『{word}』というキーワードに（強く）関連しますか？"
 
+            # 形容詞 (adj_) の質問生成
             elif key.startswith("adj_"):
                 adj = key[len("adj_"):]
                 question_text = f"『{adj}』というイメージ/特徴がありますか？"
                 category_type = "feature"
 
+            # 動詞 (verb_) の質問生成
             elif key.startswith("verb_"):
                 verb = key[len("verb_"):]
                 question_text = f"『{verb}（こと）』を（よく）しますか？"
 
-            if question_text: 
+            if question_text: # 質問テキストが生成された場合
                 qm[category_type].append({ # カテゴリタイプも反映
                     "key": key, 
                     "text": question_text,
@@ -1152,192 +1203,207 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     return None # 諦める
 
 # -----------------------
-# アキネーター本体ループ
+# アキネーター本体ループ (★「戻る」機能のバグを完全修正)
 # -----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
     """
     候補者が1人になるまで質問を続ける。
-    ★ 1人になったら「最終確認」を行い、
-    ★ 間違っていたら (n) 候補から除外して続行する。
     """
     
-    # dataset はこのゲームインスタンス中でのマスターリストとして扱う
-    # (「n」と答えた人物を永久除外するため)
-    current_game_dataset = dataset.copy() # ゲーム中のマスターリスト初期化
+    current_game_dataset = dataset.copy() # ゲーム用データセットのコピー
     
-    candidates = current_game_dataset.copy() # 候補者リスト初期化
+    # 履歴の初期状態 (質問1 の直前の状態)
+    history = [(current_game_dataset.copy(), set(), 0)] 
+    # history リストは、常に「次に実行されるべき状態」のタプルを保持する
+    # [ (candidates, asked_keys, asked_count), ... ]
+
     qm_dict = generate_question_map(current_game_dataset, selected_categories) # 質問マップ生成
+
+    # 相互排他グループ定義
+    MUTEX_GROUPS = {
+        # 年代 (年齢)
+        "age": {"age_20s", "age_30s", "age_40s", "age_50s"},
+        "born": {"born_1980s", "born_1990s", "born_2000s"},
+        # 血液型
+        "blood": {"blood_A", "blood_B", "blood_O", "blood_AB"},
+        # 性別
+        "gender": {"gender_male", "gender_female"},
+    }
+    # グループキーを高速に逆引きするためのマップ
+    KEY_TO_GROUP = {} # key -> group_name
+    for group_name, keys in MUTEX_GROUPS.items(): # グループごとに
+        for key in keys: # key ごとに
+            KEY_TO_GROUP[key] = group_name # 逆引き登録
     
     print(f"=== 🕵️ 人物検索開始 (1人特定/候補者全員・全力分析モード) ===")
-    print(f"※ 毎回、残りの候補者全員 ({len(candidates)}人) を分析して最適な質問を厳選します。")
+    print(f"※ 毎回、残りの候補者全員 ({len(current_game_dataset)}人) を分析して最適な質問を厳選します。")
     print("回答は「はい(y) / いいえ(n) / わからない(u) / 戻る(b)」のいずれかを入力してください。") 
     print("---")
     
-    asked_keys = set() # 質問済みキーセット
-    asked_count = 0 # 質問回数カウンタ
-    
-    # 履歴の初期状態 (マスターデータセット)
-    history = [(current_game_dataset.copy(), set(), 0)]
-
-    while asked_count < max_questions: # 最大質問数までループ
+    # ループ条件を history の中身で管理する (max_questions は保険)
+    loop_count = 0 # ループカウンタ
+    while len(history) > 0 and loop_count < max_questions: # 最大質問数制限
         
-        # --- 1. 状態のチェックと復帰処理 ---
-        if len(candidates) == 0:
+        loop_count += 1 # 無限ループ防止
+        
+        # --- 1. 現在の状態を履歴の末尾から取得 ---
+        # (これが「今から尋ねる」または「今から判断する」状態)
+        current_candidates, current_asked_keys, current_asked_count = history[-1] # 履歴の末尾取得
+
+        # --- 2. 状態のチェック (0人の場合) ---
+        if len(current_candidates) == 0: # 0人の場合
             print("\n[!] 候補者がいなくなりました。")
             print("回答が間違っていた可能性があります。")
             
-            if len(history) <= 1: # 履歴がない場合
-                print("履歴がなく、戻れません。ゲームを終了します。")
+            if len(history) <= 1: # 履歴が1つ以下の場合
+                print("履歴がなく、戻れません。終了します。")
                 break 
 
             ans = input("1つ前の質問に戻りますか？ (y/n または b) > ").strip().lower()
             
-            if ans in ("y", "b"): # ユーザーが「はい」または「戻る」と答えた
-                history.pop() # 現在の状態を捨てる
-                candidates, asked_keys, asked_count = history[-1] # 1つ前の状態を復元 
-                print(f"--- 1つ前の状態に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
-                continue # ループの先頭に戻る
-            else: # ユーザーが「いいえ」と答えた
-                print("ゲームを終了します。")
-                break
+            if ans in ("y", "b"): # 戻る場合
+                history.pop() # [0人] の状態を捨てる
+                # ループの最初に戻ると、history[-1] は 0人になる前の状態になる
+                continue 
+            else: # 終了の場合
+                print("終了します。")
+                break 
         
-        # --- 2. 最終確認ロジック (候補者が1人になった場合) ---
-        if len(candidates) == 1: # 候補者が1人に絞り込まれた場合
-            c = candidates[0] # 唯一の候補者
+        # --- 3. 状態のチェック (1人の場合) ---
+        if len(current_candidates) == 1: # 1人の場合
+            c = current_candidates[0] # 唯一の候補者
             print(f"\n===============================")
-            print(f"🎉 答えが絞り込めました！ ({asked_count}回の質問)")
+            print(f"🎉 答えが絞り込めました！ ({current_asked_count}回の質問)")
             
             ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n/b) > ").strip().lower()
 
             if ans in ("y", "yes"):
-                # ユーザーが「はい」と認めた
                 print("-------------------------------")
-                print("🎉 やりました！正解です！")
+                print("🎉 やはりその方でしたね！お見事です！")
                 print("===============================")
-                return candidates # ゲーム終了 (ループを抜けて終了)
+                return current_candidates # 勝利
             
-            elif ans in ("b", "back"): # ユーザーが「戻る」と答えた
-                # 最終確認の画面でも「戻る」を許可
+            elif ans in ("b", "back"):
                 print("--- 1つ前の質問に戻ります ---")
                 if len(history) <= 1:
                     print("--- 最初の質問です（これ以上戻れません） ---")
-                    # (この 1-candidate 状態を維持したままループの先頭に戻る)
                     continue
                 
-                # 1. 現在の状態（1人に絞り込まれた状態）を捨てる
-                history.pop() 
-                # 2. 1つ前の状態（複数候補がいた状態）を復元
-                candidates, asked_keys, asked_count = history[-1] # 1つ前の状態を復元
-                print(f"--- 1つ前の状態に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
-                continue # ループの先頭に戻る
+                history.pop() # [1人] の状態を捨てる
+                continue # ループの最初に戻る
 
-            else:
-                # ユーザーが「いいえ (n)」と答えた
+            else: # 「いいえ (n)」の場合
                 print(f"🤔 違いましたか...。『{c['name']}』を今回の候補から完全に除外します。")
                 
-                wrong_guess_name = c["name"] # 間違っていた人物の名前
+                wrong_guess_name = c["name"]
                 
-                # 1. マスターリスト(dataset)から永久除外
+                # マスターデータセットから永久除外
                 current_game_dataset = [p for p in current_game_dataset if p["name"] != wrong_guess_name]
                 
-                # 2. 1つ前の状態（複数候補がいた状態）に戻る
-                # (history[-1] には、この1人に絞り込む直前の状態が入っている)
-                history.pop() # 現在の[1人]状態を履歴から削除
-                candidates_prev, asked_keys_prev, asked_count_prev = history[-1] # 1つ前を参照
+                history.pop() # [1人] の状態を捨てる
                 
-                # 3. 戻った状態の候補リストからも、間違っていた人物を除外する
-                candidates = [p for p in candidates_prev if p["name"] != wrong_guess_name]
-                asked_keys = asked_keys_prev # 質問済みキーはそのまま
-                asked_count = asked_count_prev # 質問回数もそのまま
+                if not history: break # 履歴が空になったら終了
+                
+                # 1つ前の状態（複数候補）を取得し、そこからも除外
+                candidates_prev, asked_keys_prev, asked_count_prev = history[-1]
+                
+                candidates_updated = [p for p in candidates_prev if p["name"] != wrong_guess_name]
+                
+                # 履歴の末尾（1つ前の状態）を、除外後の状態で「更新」する
+                history[-1] = (candidates_updated, asked_keys_prev, asked_count_prev)
 
-                # 4. 除外した結果を、新しい履歴として「現在地」に設定する
-                # (こうしないと、次回の 'b' で永久除外した人が復活してしまう)
-                history[-1] = (candidates.copy(), asked_keys.copy(), asked_count)
-
-                print(f"--- 1つ前の状態 (候補 {len(candidates)}人) に戻り、質問を続けます ---")
-                continue # ループの先頭に戻る
+                print(f"--- 1つ前の状態 (候補 {len(candidates_updated)}人) に戻り、質問を続けます ---")
+                continue 
         
-        # --- 3. 状態の保存 (候補者が2人以上の場合) ---
-        # （「u」で答えた場合も履歴が保存される）
-        history.append((candidates.copy(), asked_keys.copy(), asked_count)) # 現在の状態を履歴に保存
+        # --- 4. 質問の選択 (2人以上の場合) ---
+        question = find_best_question(current_candidates, qm_dict, current_asked_keys)
         
-        # --- 4. 質問の選択 ---
-        candidates_for_analysis = candidates
-        if len(candidates_for_analysis) > 500: # 分析用候補者が多すぎる場合
-            print(f"\n[... {len(candidates_for_analysis)}人から最適な質問を計算中 ...]")
-        
-        question = find_best_question(candidates_for_analysis, qm_dict, asked_keys) # 最適な質問を取得
-        
-        if question is None: # 質問が見つからなかった場合
+        if question is None:
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
-            break # 質問が尽きたらループ終了
+            break # 質問が尽きた
 
-        key, q_text, test = question["key"], question["text"], question["check"] # 質問情報取得
+        key, q_text, test = question["key"], question["text"], question["check"]
         
-        yes_count_analysis = sum(1 for c in candidates_for_analysis if test(c)) # はいカウント分析
-        no_count_analysis = len(candidates_for_analysis) - yes_count_analysis # いいえカウント分析
+        yes_count_analysis = sum(1 for c in current_candidates if test(c))
+        no_count_analysis = len(current_candidates) - yes_count_analysis
         
-        print(f"\n[質問 {asked_count+1}] (候補: {len(candidates)}人 | 全員分析の分割予測: {yes_count_analysis} / {no_count_analysis})")
+        print(f"\n[質問 {current_asked_count+1}] (候補: {len(current_candidates)}人 | 全員分析の分割予測: {yes_count_analysis} / {no_count_analysis})")
         
-        ans = input(q_text + " （y/n/u/b） > ").strip().lower() # ユーザー入力取得
+        ans = input(q_text + " （y/n/u/b） > ").strip().lower() 
         
-        # --- 5. ユーザーの回答処理 ---
+        # --- 5. 回答処理 ---
         
-        if ans in ("b", "back"): # ユーザーが「戻る」と答えた
-            if len(history) <= 1: # 履歴がない場合
+        if ans in ("b", "back"):
+            if len(history) <= 1:
                 print("--- 最初の質問です（これ以上戻れません） ---")
-                continue # (この状態を維持したままループの先頭に戻る)
+                continue
             
             history.pop() # 現在の状態を捨てる
-            candidates, asked_keys, asked_count = history[-1] # 1つ前の状態を復元
+            # ループの最初に戻ると、history[-1] は1つ前の状態になる
+            continue 
+
+        # --- (y/n/u) の場合、次の状態を計算して history に追加 ---
+        
+        next_candidates = current_candidates.copy()
+        next_asked_keys = current_asked_keys.copy()
+        next_asked_keys.add(key)
+        next_asked_count = current_asked_count + 1
+
+        if ans in ("はい", "y"):
+            next_candidates = [c for c in next_candidates if test(c)]
+
+            # 相互排他ロジックの実行)
+            if key in KEY_TO_GROUP: # キーが相互排他グループに属している場合
+                group_name = KEY_TO_GROUP[key] # グループ名取得
+                group_keys = MUTEX_GROUPS[group_name] # グループ内のキーセット取得
+                # 自分が「はい」だったので、グループの他のキーは質問済み(ask)扱いにする
+                skipped_keys = [] # スキップされたキーリスト
+                for other_key in group_keys: # グループ内の各キーごとに
+                    if other_key != key and other_key not in next_asked_keys: # 自分以外かつ未質問の場合
+                        next_asked_keys.add(other_key) # 質問済み扱いに追加
+                        skipped_keys.append(other_key) # スキップリストに追加
+                if skipped_keys:
+                    print(f"  [INFO] {group_name} グループの他の質問 ({', '.join(skipped_keys)}) をスキップします。")
+            # 相互排他ロジック終了
             
-            print(f"--- 1つ前の質問に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
-            continue # ループの先頭に戻る
-
-        # --- 通常の回答処理 (y/n/u) ---
-        
-        asked_keys.add(key) # 質問済みキーに追加
-        
-        if ans in ("はい", "y"): # ユーザーが「はい」と答えた
-            candidates = [c for c in candidates if test(c)] # テストに合格する候補者のみ残す
-        elif ans in ("いいえ", "n"): # ユーザーが「いいえ」と答えた
-            candidates = [c for c in candidates if not test(c)] # テストに不合格の候補者のみ残す
-        elif ans in ("わからない", "u"): # ユーザーが「わからない」と答えた
-            pass # 候補者リストは変更しない
+        elif ans in ("いいえ", "n"):
+            next_candidates = [c for c in next_candidates if not test(c)]
+        elif ans in ("わからない", "u"):
+            pass # 候補者は変わらない
         else:
-            print("無効な回答です。スキップします。")
-            asked_keys.remove(key) # 質問済みキーから削除
-            continue # 無効な回答の場合はスキップして再度質問
+            print("無効な回答です。 y/n/u/b のいずれかを入力してください。")
+            continue # ★ 履歴を追加せず、単にループの最初に戻る (質問は再実行される)
 
-        asked_count += 1 # 質問回数カウンタ増加
+        # ★ 修正: y/n/u で処理された「次の状態」を履歴に追加
+        history.append((next_candidates, next_asked_keys, next_asked_count))
         
-        if 0 < len(candidates) < 10: # 10人未満の場合、候補者名を表示
-             print(f"(現在の候補数: {len(candidates)}人 - {', '.join([c['name'] for c in candidates])})")
-        else: # 10人以上の場合、数だけ表示
-             print(f"(現在の候補数: {len(candidates)}人)")
+        # 候補者数の表示
+        if 0 < len(next_candidates) < 10:
+             print(f"(現在の候補数: {len(next_candidates)}人 - {', '.join([c['name'] for c in next_candidates])})")
+        elif len(next_candidates) > 0:
+             print(f"(現在の候補数: {len(next_candidates)}人)")
+
 
     # -----------------------------
     # 最終的な提案ロジック (ループが尽きた / 0人になった場合)
     # -----------------------------
+    # ★ ループが正常に終了した場合（= breakした）、最終状態を history から取得
+    final_candidates, final_asked_count = history[-1][0], history[-1][2]
+    
     print("\n===============================")
     
-    # 1人の場合のロジックはループ内に移動したため、ここはループが尽きた場合のみ
-    
-    if len(candidates) > 1:
-        # 質問が尽きたが、2人以上残った場合 (特徴が完全一致)
-        print(f"🤔 {asked_count}回の質問では1人に絞り込めませんでした。")
-        print(f"特徴が完全に一致する候補が {len(candidates)}人 残りました。")
+    if len(final_candidates) > 1:
+        print(f"🤔 {final_asked_count}回の質問では1人に絞り込めませんでした。")
+        print(f"特徴が完全に一致する候補が {len(final_candidates)}人 残りました。")
         print(f"=== 最終候補 ===")
-        for i, c in enumerate(candidates, 1):
+        for i, c in enumerate(final_candidates, 1):
             print(f"{i}. **{c['name']}**")
             
-    elif len(candidates) == 0:
-        # 候補者が0人になった場合
+    elif len(final_candidates) == 0:
         print("😢 最終的な候補者が0人になってしまいました。")
         
     print("===============================")
-    return candidates
-
+    return final_candidates
 
 # -----------------------
 # エントリポイント用関数
@@ -1366,7 +1432,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
         
         if not ds: return None # データセット読み込み失敗時は終了
         selected_categories = kwargs.get("categories") # 選択カテゴリ取得
-        # ゲーム実行
+        # 実行
         return akinator_play(ds,                                               # データセット
                              selected_categories=selected_categories,          # 選択カテゴリ
                              max_questions=kwargs.get("max_questions", 1000),  # 最大質問数
@@ -1383,11 +1449,11 @@ if __name__ == "__main__":
     CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
     DEPTH = 1              # カテゴリ深度
     BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
-    MAX_QUESTIONS = 1000   # ゲーム中の最大質問数
+    MAX_QUESTIONS = 1000   # 検索中の最大質問数
     ANALYSIS_SIZE = 100    # 毎回の質問最適化で分析する候補者数
 
     # データの閾値を緩和
-    # 特徴量がこの数未満の人物はゲーム開始前に除外されます。
+    # 特徴量がこの数未満の人物は検索開始前に除外されます。
     MIN_FEATURE_THRESHOLD = 2 # 変更後の閾値
 
     # --- 実行フロー ---
@@ -1428,7 +1494,7 @@ if __name__ == "__main__":
                  dataset_path=dynamic_dataset_path   # 動的パスを指定
                 )
         
-        print("\n=== ゲームスタート ===")
+        print("\n=== 検索スタート ===")
         run_step("play",                                       # ゲームプレイステップ
                  categories=selected_categories,               # 選択カテゴリを渡す
                  max_questions=MAX_QUESTIONS,                  # 最大質問数
