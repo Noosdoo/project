@@ -1168,7 +1168,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     candidates = current_game_dataset.copy() # 候補者リスト初期化
     qm_dict = generate_question_map(current_game_dataset, selected_categories) # 質問マップ生成
     
-    print(f"=== 🕵️ 人物検索開始 (1人特定/候補者全員・全力分析モード) ===")
+    print(f"=== 🕵️ 著名人検索開始 ===")
     print(f"※ 毎回、残りの候補者全員 ({len(candidates)}人) を分析して最適な質問を厳選します。")
     print("回答は「はい(y) / いいえ(n) / わからない(u) / 戻る(b)」のいずれかを入力してください。") 
     print("---")
@@ -1305,7 +1305,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         elif ans in ("わからない", "u"): # ユーザーが「わからない」と答えた
             pass # 候補者リストは変更しない
         else:
-            print("無効な回答です。スキップします。")
+            print("無効な回答です。 'y', 'n', 'u', 'b' のいずれかを入力してください。")
             asked_keys.remove(key) # 質問済みキーから削除
             continue # 無効な回答の場合はスキップして再度質問
 
