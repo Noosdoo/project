@@ -1082,6 +1082,9 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     # 分割できない質問 (スコア0) を保持するリスト
     zero_score_questions = []
 
+    # 現在の候補者数を把握
+    total_candidates = len(candidates_for_analysis)
+
     # すべての質問カテゴリをループ
     for category_name, q_category_list in qm_dict.items(): # 質問カテゴリごとに
         
@@ -1125,12 +1128,28 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
             elif score == 0: # スコア0の質問を保持
                 zero_score_questions.append(question) # スコア0質問リストに追加
 
-    # もし最適な質問 (score > 0) が見つからなかった場合、スコア0の質問が残っていれば、それをランダムに返す
-    if best_question is None and zero_score_questions: # 最適な質問がない場合
-        # print("[デバッグ] 最適な質問がなかったため、スコア0の質問から選びます。")
+    # ★★★ ここからロジック修正 ★★★
+    
+    # 1. 候補者を分割できる「良い質問」 (score > 0) が見つかった場合
+    if best_question is not None:
+        return best_question # 迷わずその質問を返す
+
+    # 2. 「良い質問」が見つからなかった (best_question is None) 場合
+    
+    # 2a. 候補者がすでに少ない (5人以下) 場合
+    #     スコア0の「悪い質問」をするより、諦めて候補者を提示する方が良い
+    if total_candidates <= 5:
+        print("[DEBUG] 候補者が5人以下のため、スコア0の質問は行わず、推測を終了します。")
+        return None # ★ 諦める
+
+    # 2b. 候補者がまだ多い (6人以上) 場合
+    #     最後の手段として、スコア0の質問でもランダムに尋ねる
+    if zero_score_questions:
+        print("[DEBUG] スコア>0の質問がありませんでした。スコア0の質問からランダムに選びます。")
         return random.choice(zero_score_questions) # スコア0の質問からランダムに選択
         
-    return best_question # 最適な質問を返す
+    # 3. 本当に尋ねる質問が何も残っていない場合
+    return None # 諦める
 
 # -----------------------
 # アキネーター本体ループ
