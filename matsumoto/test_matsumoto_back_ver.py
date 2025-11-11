@@ -1473,11 +1473,11 @@ if __name__ == "__main__":
 
     # データの閾値を緩和
     # 特徴量がこの数未満の人物は検索開始前に除外されます。
-    MIN_FEATURE_THRESHOLD = 2 # 変更後の閾値
+    MIN_FEATURE_THRESHOLD = 30 # 閾値
 
     # --- 実行フロー ---
     try:
-        print("--- 🤖 人物特定プログラム（動的質問生成＋全力分析モード） ---")
+        print("--- 🤖 著名人特定プログラム（動的質問生成＋全力分析モード） ---")
         
         if JANOME_TOKENIZER is None: # Janomeが読み込まれていない場合
             print("Janomeが読み込まれていないため、実行を停止します。") # エラーメッセージ表示
