@@ -201,26 +201,57 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
 
     # 既存ファイルのチェック
     target_categories = sorted(list(set(categories)))
-    # 既存ファイルがあり、カテゴリが一致すればスキップ
+    
+    # 既存ファイルがあるかチェック
     if os.path.exists(save_path):
         # 既存ファイルを読み込み
         try:
             with open(save_path, "r", encoding="utf-8") as f: data = json.load(f) # JSON読み込み
             saved_categories = data.get("meta", {}).get("categories") # 保存時のカテゴリ
             people_list = data.get("people") # 保存時の人物リスト
-            # カテゴリ比較
-            if saved_categories == target_categories and people_list is not None: # カテゴリ一致
-                print(f"{save_path} が存在し、カテゴリが一致するため、collect はスキップします。") # スキップ
-                return people_list # 既存の人物リストを返す
-            else:
-                print("カテゴリが変更されたため、人物リストを再収集します。") # 再収集
+            
+            # カテゴリ比較 (カテゴリが一致しているか？)
+            if saved_categories == target_categories and people_list is not None: 
+                
+                print(f"\n--- 💾 キャッシュが見つかりました ---")
+                print(f"リスト: {save_path}")
+                print(f"データセット: {corresponding_dataset_path}")
+                print("このキャッシュを使用しますか？")
+                print("  1: キャッシュを使用 (収集/構築をスキップ)")
+                print("  2: 再収集 (キャッシュを削除して最初から)")
+                
+                choice = input(" (1/2) > ").strip() # ユーザー入力
+                
+                if choice == "1": # キャッシュ使用
+                    print(f"キャッシュ {save_path} を使用します。collect はスキップします。")
+                    return people_list # 既存の人物リストを返す (スキップ)
+                
+                elif choice == "2": # 再収集
+                    print("キャッシュを削除し、人物リストを再収集します。") # 再収集
+                    if os.path.exists(save_path): # 存在チェック
+                        os.remove(save_path) # リストキャッシュを削除
+                    if os.path.exists(corresponding_dataset_path): # 存在チェック
+                        print(f"古いデータセット {corresponding_dataset_path} もリセットします。")
+                        os.remove(corresponding_dataset_path) # データセットキャッシュも削除
+                    # return せずに処理を続行 (再収集へ)
+                
+                else:
+                    print("無効な選択です。デフォルトの「1: キャッシュを使用」を選びます。")
+                    print(f"キャッシュ {save_path} を使用します。collect はスキップします。")
+                    return people_list # 既存の人物リストを返す (スキップ)
+
+            else: # カテゴリが不一致の場合
+                print("カテゴリが変更されたため、人物リストを再収集します。")
                 if os.path.exists(corresponding_dataset_path):
-                    print(f"古いデータセット {corresponding_dataset_path} をリセットします。") # 再収集時はデータセットもリセット
-                    os.remove(corresponding_dataset_path) # データセット削除
-        # デコードエラーなど
-        except Exception as e:
-            print(f"既存ファイルの形式が古いか壊れています: {e}。再収集します。") # 再収集
-            if os.path.exists(corresponding_dataset_path): os.remove(corresponding_dataset_path) # データセット削除
+                    print(f"古いデータセット {corresponding_dataset_path} をリセットします。")
+                    os.remove(corresponding_dataset_path)
+        
+        except Exception as e: # デコードエラーなど
+            print(f"既存ファイルの形式が古いか壊れています: {e}。再収集します。")
+            if os.path.exists(save_path):
+                os.remove(save_path) # 壊れたリストキャッシュを削除
+            if os.path.exists(corresponding_dataset_path): 
+                os.remove(corresponding_dataset_path) # 関連データセットも削除
 
     # 収集開始
     print("=== カテゴリから人物リストを収集します ===")
@@ -379,18 +410,73 @@ def clean_text(text):
 # summaryから【Janomeベース（動的）】で特徴を抽出
 # -----------------------
 def extract_dynamic_features_from_summary(summary):
-    summary = clean_text(summary) # テキストクリーンアップ
+    """
+    Janomeを使い、文章から特徴（名詞・形容詞・動詞）を抽出する。
+    """
+    if not JANOME_TOKENIZER:
+        # Janomeが読み込まれていない場合のログ出力
+        print("[DEBUG-DYNAMIC] Janome_TokenizerがNoneです。") 
+        return {}
+    
+    if not summary:
+        return {}
+    
+    features = {} 
+    
     try:
-        tokens = tokenizer.tokenize(summary) # トークン化
+        tokens = JANOME_TOKENIZER.tokenize(summary) 
     except Exception as e:
-        print(f"[Janome解析エラー] {e}")
-        return []  # エラー時はスキップ
-    features = []  # 抽出特徴リスト
-    for token in tokens: # トークンごとに処理
-        # ここに通常の形態素解析処理
-        features.append(token.surface) # 例: 表層形を特徴として追加
-    return features # 抽出特徴リスト返す
+        print(f"[DEBUG-DYNAMIC] Janome.tokenize(summary) でエラー: {e}")
+        return {} 
 
+    TARGET_POS_TYPES = {
+        ('名詞', '一般'): 'noun_',
+        ('名詞', '固有名詞'): 'noun_',
+        ('形容詞', '自立'): 'adj_', 
+        ('動詞', '自立'): 'verb_' 
+    }
+
+    # 除外単語リスト
+    STOP_WORDS = {
+        'こと', 'もの', 'ため', '人物', '概要', '日本', '活動', '出身',
+        '現在', '自身', 'ほか', '以降', '選手', '俳優', '女優', '芸人',
+        '声優', 'モデル', 'アイドル', 'メンバー', 'グループ', '監督', '主演',
+        '日本', '日本人', '番組', 'テレビ', 'ドラマ', '映画', '作品', '名前',
+        'さん', '男性', '女性', '一つ', '一つ', '氏名', '関係', '存在', '世界',
+        '全国', '歴史', '時代', '今日', '連続', '以上', '以下', '約', '程度',
+        '数', '人', '名', '回', '月', '日', '年',
+        'する', 'いる', 'ある', 'なる', 'ない', 'よい', 'できる', 'ない', 'いう',
+        '行う', '行う', '行う', 'おこなう', '持つ', '行く',
+        '男女', 'それぞれ', '一部', '全体', '場合', '多く', '多数', '中心',
+        '当時', '一方', '他', '影響', '人気', 'ファン', '評価', 'デビュー',
+        '出演', '活動', '結成', '所属', '参加', '発表', '発売', '公開',
+        '優勝', '受賞', '選出', '就任', '引退', '死去', '結婚', '誕生',
+        '出身', '卒業', '在住', '在学', '地方', '問題', '理由', '意味',
+        '最初', '最後', '方法', '結果', '種類', '名前', '愛称', '本人',
+        '彼', '彼女', '私', '的', 'ため', '人', '名', '回', '月', '日', '年', '万', '円',
+        '平成', '昭和', '大正', '明治', '東京', '大阪', '京都', 'アメリカ', 'イギリス',
+        'フリー', '公式', '公式サイト'
+    }
+
+    for token in tokens: # トークンごとに処理
+        pos_parts = token.part_of_speech.split(',') # 品詞分割
+        pos_tuple = (pos_parts[0], pos_parts[1]) # 品詞タプル化
+        
+        if pos_tuple in TARGET_POS_TYPES: # 対象品詞チェック
+            if pos_parts[0] in ('形容詞', '動詞'): # 形容詞・動詞は基本形を使用
+                word = token.base_form # 基本形
+            else: # 名詞は表層形
+                word = token.surface # 表層形
+            
+            # word が STOP_WORDS に含まれていないかチェック
+            if len(word) > 1 and word not in STOP_WORDS: # 除外単語チェック
+                prefix = TARGET_POS_TYPES[pos_tuple] # プレフィックス取得
+                features[f"{prefix}{word}"] = 1 # 特徴として追加
+    
+    if not features and summary: # summaryがある場合のみログ出力
+        print(f"[DEBUG-DYNAMIC] Summaryは存在しましたが、抽出された動的特徴は0個でした。(Summary: {summary[:50]}...)")
+            
+    return features
 
 
 # -----------------------
@@ -598,10 +684,13 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                 wd = fetch_wikidata_entity(wikibase_id) # Wikidata取得
                 rec["wikidata"] = wd # Wikidata保存
                 if wd: # Wikidataが取得できたら追加特徴抽出
+
                     # (性別・年齢・職業・出身地などの処理)
                     g = wd.get("gender_qid") # 性別QID
+
                     if g == "Q6581097": features["gender"] = "male" # 男性
                     elif g == "Q6581072": features["gender"] = "female" # 女性
+
                     birth_time = wd.get("birth_time") # 生年月日
                     current_year = datetime.now().year # 現在の西暦年
                     if birth_time: # 生年月日があれば年齢関連特徴を追加
@@ -618,26 +707,73 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                         except Exception as e:
                             print(f"  [DEBUG] {name}: birth_time パース失敗. data='{birth_time}', error='{e}'") # ログ出力
                             pass # 整数変換失敗は無視
+
                     if wd.get("death_time"): # 死亡年月日があれば20世紀死亡フラグを追加
                         try:
                             death_year = int(wd["death_time"].strip("+-").split("-")[0]) # 西暦年抽出
                             if 1900 <= death_year <= 1999: features["died_20c"] = 1 # 20世紀死亡
                         except: pass
+
+                    # P1853 (血液型)
+                    if "P1853" in wd: # ※ wd は claims ではなく entity["claims"] を参照する wd です
+                        try:
+                            # ( fetch_wikidata_entity で wd["claims"] を取得しているので wd を使う)
+                            v_id = wd.get("claims", {}).get("P1853", [{}])[0].get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
+                            if v_id == "Q170138": features["blood_A"] = 1 # A型
+                            if v_id == "Q170162": features["blood_B"] = 1 # B型
+                            if v_id == "Q170196": features["blood_O"] = 1 # O型
+                            if v_id == "Q170094": features["blood_AB"] = 1 # AB型
+                        except: pass
+
+                    # P27 (国籍) (日本(Q17)以外があるか)
+                    if "P27" in wd:
+                        try:
+                            claims_P27 = wd.get("claims", {}).get("P27", [])
+                            if any(c.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id") != "Q17" for c in claims_P27):
+                                features["not_japanese_only"] = 1 # 日本国籍以外も持つ
+                        except: pass
+                        
+                    # P22, P25, P26, P40 (家族に有名人)
+                    family_keys = ["P22", "P25", "P26", "P40"]
+                    if any(k in wd.get("claims", {}) for k in family_keys):
+                        features["has_family_info"] = 1 
+
+                    # P101 (活動分野)
+                    if "P101" in wd:
+                        field_qids = []
+                        claims_P101 = wd.get("claims", {}).get("P101", [])
+                        for c in claims_P101:
+                            try:
+                                v_id = c.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
+                                field_qids.append(v_id)
+                            except: pass
+                        if "Q11631" in field_qids: features["field_literature"] = 1 # 文学
+                        if "Q483" in field_qids: features["field_music"] = 1 # 音楽
+                        if "Q1104" in field_qids: features["field_science"] = 1 # 科学
+                        
                     occ_qs = wd.get("occupation_qids", []) # 職業QIDリスト
                     if any(q in occ_qs for q in ["Q33999", "Q10800557", "Q947873"]): features["actor_wikidata"] = 1 # 俳優
                     if any(q in occ_qs for q in ["Q177220", "Q639669", "Q10800557"]): features["singer_wikidata"] = 1 # 歌手
+
                     if "Q82955" in occ_qs: features["politician_wikidata"] = 1 # 政治家
+
                     place_qid = wd.get("birth_place_qid") # 出身地QID
                     TOKYO_QIDS = {"Q1490", "Q1228", "Q11103005", "Q200000", "Q200072"} # 東京関連QID
                     KANSAI_QIDS = {"Q172582", "Q16997", "Q486245", "Q132640", "Q132643"} # 関西関連QID
                     if place_qid in TOKYO_QIDS: features["from_tokyo"] = 1 # 東京出身
                     elif place_qid in KANSAI_QIDS: features["from_kansai"] = 1 # 関西出身
+
                     edu_qids = wd.get("education_qids", []) # 教育機関QIDリスト
                     if "Q7981" in edu_qids: features["grad_todai"] = 1 # 東大卒
                     elif "Q174019" in edu_qids: features["grad_waseda"] = 1 # 早大卒
                     elif "Q302302" in edu_qids: features["grad_keio"] = 1 # 慶応卒
-                    award_qids = wd.get("award_qids", []) # 受賞QIDリスト
-                    if "Q1138032" in award_qids: features["award_shiju"] = 1 # 紫綬褒章受賞
+
+                    # P166 (受賞) の拡充
+                    award_qids = wd.get("award_qids", []) 
+                    if "Q1138032" in award_qids: features["award_shiju"] = 1 # 紫綬褒章
+                    if "Q1085422" in award_qids: features["award_academy_jp"] = 1 # 日本アカデミー賞
+                    if "Q192200" in award_qids: features["award_blue_ribbon"] = 1 # ブルーリボン賞
+
             return rec # 正常終了返す
 
         except Exception as e: # 致命的なエラー処理
@@ -646,12 +782,6 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             # traceback.print_exc()
             # エラーの時でも処理を止めずに、空データを返す
             return {"name": name, "error": str(e), "features": []} # エラー情報を返す
-        
-        return {
-            "name": name,                  # 名前
-            "summary": page.summary,       # 概要
-            "features": dynamic_features   # 抽出特徴
-        }
 
     # 並列処理開始
     new_records = [] # 新規取得レコードリスト
@@ -752,7 +882,19 @@ def generate_question_map(dataset, selected_categories=None):
         ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature"),
         ("grad_todai", "東京大学を卒業していますか？", "feature"),
         ("grad_waseda", "早稲田大学を卒業していますか？", "feature"),
-        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature")
+        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature"),
+        ("blood_A", "血液型はA型ですか？", "feature"),
+        ("blood_B", "血液型はB型ですか？", "feature"),
+        ("blood_O", "血液型はO型ですか？", "feature"),
+        ("blood_AB", "血液型はAB型ですか？", "feature"),
+        ("not_japanese_only", "日本以外の国籍（ルーツ）を持っていますか？", "feature"),
+        ("has_family_info", "家族（親・配偶者・子供）にも有名人がいますか？", "feature"),
+        ("field_literature", "主な活動分野は「文学」ですか？", "occupation"),
+        ("field_music", "主な活動分野は「音楽」ですか？", "occupation"),
+        ("field_science", "主な活動分野は「科学」ですか？", "occupation"),
+        ("award_shiju", "紫綬褒章を受章していますか？", "feature"),
+        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature"),
+        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature"),
     ]
 
     # 共通質問を追加
@@ -824,7 +966,7 @@ def generate_question_map(dataset, selected_categories=None):
                 added_keys.add(key)
         
     # --- 3. データセットから "noun_", "adj_", "verb_" キーを動的に読み込み質問を生成する ---
-    
+
     print("データセットをスキャンして、動的な質問（名詞・形容詞・動詞）を生成します...")
     all_dynamic_keys = set() # すべての動的特徴キーセット
     DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_") # 動的特徴のプレフィックス
@@ -857,25 +999,59 @@ def generate_question_map(dataset, selected_categories=None):
         if key in added_keys: continue # 既に追加済みならスキップ
         
         question_text = "" # 質問テキスト初期化
+        category_type = "activity" # デフォルトカテゴリ
         
-        if key.startswith("noun_"): # 名詞特徴
-            noun = key[len("noun_"):] # 名詞部分抽出
-            question_text = f"『{noun}』に（深く）関連していますか？" # 名詞関連質問
-        elif key.startswith("adj_"): # 形容詞特徴
-            adj = key[len("adj_"):] # 形容詞部分抽出
-            question_text = f"『{adj}』というイメージ/特徴がありますか？" # 形容詞関連質問
-        elif key.startswith("verb_"): # 動詞特徴
-            verb = key[len("verb_"):] # 動詞部分抽出
-            question_text = f"『{verb}』という活動をしましたか（しますか）？" # 動詞関連質問
+        try:
+            if key.startswith("noun_"): # 名詞質問 
+                word = key[len("noun_"):] # 名詞部分抽出
+                
+                # 単語の性質を推測して質問文を生成
+                if word in ["北海道", "青森", "岩手", "宮城", "秋田", "山形", "福島",
+                            "茨城", "栃木", "群馬", "埼玉", "千葉", "東京", "神奈川",
+                            "新潟", "富山", "石川", "福井", "山梨", "長野", "岐阜",
+                            "静岡", "愛知", "三重", "滋賀", "京都", "大阪", "兵庫",
+                            "奈良", "和歌山", "鳥取", "島根", "岡山", "広島", "山口",
+                            "徳島", "香川", "愛媛", "高知", "福岡", "佐賀", "長崎",
+                            "熊本", "大分", "宮崎", "鹿児島", "沖縄"]: # 日本の都道府県
+                    question_text = f"『{word}』出身、または縁がありますか？"
+                    category_type = "feature"
+                elif word.endswith("大学"):
+                    question_text = f"『{word}』を卒業していますか？"
+                    category_type = "feature"
+                elif word.endswith("賞"):
+                    question_text = f"『{word}』を受賞していますか？"
+                    category_type = "feature"
+                elif word.endswith("（"): # "タモリ（森田一義）" のような表記を避ける
+                    continue
+                elif len(word) <= 4 and (re.fullmatch(r'[A-Z]+', word) or re.fullmatch(r'[A-Z][a-z]+', word)): # 英字略語
+                    question_text = f"『{word}』というグループ／作品に関連しますか？"
+                elif word.endswith("者") or word.endswith("家") or word.endswith("選手"):
+                    question_text = f"『{word}』としての側面も持っていますか？"
+                    category_type = "occupation" # 職業カテゴリに変更
+                else:
+                    # デフォルトの名詞質問
+                    question_text = f"『{word}』というキーワードに（強く）関連しますか？"
 
-        if question_text: # 質問テキストが生成されたら
-            # 質問マップに追加
-            qm["activity"].append({
-                "key": key, 
-                "text": question_text,
-                "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
-            })
-            added_keys.add(key) # 追加済みセットに登録
+            elif key.startswith("adj_"):
+                adj = key[len("adj_"):]
+                question_text = f"『{adj}』というイメージ/特徴がありますか？"
+                category_type = "feature"
+
+            elif key.startswith("verb_"):
+                verb = key[len("verb_"):]
+                question_text = f"『{verb}（こと）』を（よく）しますか？"
+
+            if question_text: 
+                qm[category_type].append({ # カテゴリタイプも反映
+                    "key": key, 
+                    "text": question_text,
+                    "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
+                })
+                added_keys.add(key)
+        
+        except Exception as e: # エラー処理
+            print(f"[DEBUG] 動的質問生成エラー: {key} - {e}")
+            pass # エラーは無視して続行
             
     # デバッグログ
     total_questions = len(added_keys) # 合計質問数
@@ -957,31 +1133,27 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     return best_question # 最適な質問を返す
 
 # -----------------------
-# アキネーター本体ループ (★「戻る」機能・候補者0人復帰対応)
+# アキネーター本体ループ
 # -----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
-    """
-    候補者が1人になるまで質問を続ける。
-    ★ 「戻る」機能 (ans = 'b') と、
-    ★ 候補者0人からの復帰に対応。
-    """
+
     candidates = dataset.copy() # 候補者リスト初期化
     qm_dict = generate_question_map(dataset, selected_categories) # 質問マップ生成
     
     print(f"=== 🕵️ 人物検索開始 (1人特定/候補者全員・全力分析モード) ===")
     print(f"※ 毎回、残りの候補者全員 ({len(candidates)}人) を分析して最適な質問を厳選します。")
-    # ★ 選択肢変更
+    # 選択肢変更
     print("回答は「はい(y) / いいえ(n) / わからない(u) / 戻る(b)」のいずれかを入力してください。") 
     print("---")
     
     asked_keys = set() # 尋ねた質問キーセット
     asked_count = 0 # 尋ねた質問回数カウンタ
     
-    # ★ 状態の履歴を保存するリスト (candidates, asked_keys, asked_count)
+    # 状態の履歴を保存するリスト (candidates, asked_keys, asked_count)
     # (初期状態として、ゲーム開始時の状態を保存しておく)
     history = [(dataset.copy(), set(), 0)]
 
-    # ★ ループ条件を簡潔に
+    # ループ条件を簡潔に
     while asked_count < max_questions:
         
         # --- 1. 状態のチェックと復帰処理 ---
@@ -997,9 +1169,9 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             ans = input("1つ前の質問に戻りますか？ (y/n または b) > ").strip().lower()
             
             if ans in ("y", "b"):
-                # ★ 履歴から1つ前の状態を復元 (pop()で 0人になった状態 を捨てる)
+                # 履歴から1つ前の状態を復元 (pop()で 0人になった状態 を捨てる)
                 history.pop()
-                # ★ 1つ前の状態（前の質問の直前）を復元する
+                # 1つ前の状態（前の質問の直前）を復元する
                 candidates, asked_keys, asked_count = history[-1] 
                 print(f"--- 1つ前の状態に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
                 continue # 次のループへ
@@ -1016,7 +1188,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         # (※ 戻る機能のために、現在の状態を履歴に保存する)
         # (※ ループの先頭で、この状態(質問Nの直前)を保存する)
         
-        # ★ history[-1]が今の状態と異なる場合のみ追加（同じ状態での無限ループ防止）
+        # history[-1]が今の状態と異なる場合のみ追加（同じ状態での無限ループ防止）
         if not history or history[-1][0] != candidates:
              history.append((candidates.copy(), asked_keys.copy(), asked_count))
         
@@ -1025,25 +1197,25 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         if len(candidates_for_analysis) > 500:
             print(f"\n[... {len(candidates_for_analysis)}人から最適な質問を計算中 ...]")
         
-        question = find_best_question(candidates_for_analysis, qm_dict, asked_keys)
+        question = find_best_question(candidates_for_analysis, qm_dict, asked_keys) # 最適な質問取得
         
         if question is None:
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
             break
 
-        key, q_text, test = question["key"], question["text"], question["check"]
+        key, q_text, test = question["key"], question["text"], question["check"] # 質問情報取得
         
-        yes_count_analysis = sum(1 for c in candidates_for_analysis if test(c))
-        no_count_analysis = len(candidates_for_analysis) - yes_count_analysis
+        yes_count_analysis = sum(1 for c in candidates_for_analysis if test(c)) # はいカウント
+        no_count_analysis = len(candidates_for_analysis) - yes_count_analysis # いいえカウント
         
         print(f"\n[質問 {asked_count+1}] (候補: {len(candidates)}人 | 全員分析の分割予測: {yes_count_analysis} / {no_count_analysis})")
         
-        # ★ 回答に 'b' を追加
-        ans = input(q_text + " （y/n/u/b） > ").strip().lower() 
+        # 回答に 'b' を追加
+        ans = input(q_text + " （y/n/u/b） > ").strip().lower()
         
         # --- 5. ユーザーの回答処理 ---
         
-        # ★ 「戻る」処理
+        # 「戻る」処理
         if ans in ("b", "back"):
             # 履歴が初期状態しかない場合は戻れない
             if len(history) <= 1:
@@ -1054,7 +1226,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             history.pop() 
             
             # 2. 1つ前の状態（前の質問をする直前の状態）を復元する
-            candidates, asked_keys, asked_count = history[-1] # (末尾を参照)
+            candidates, asked_keys, asked_count = history[-1]    # (末尾を参照)
             
             print(f"--- 1つ前の質問に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
             continue # ループの最初に戻る
@@ -1071,15 +1243,15 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             pass 
         else:
             print("無効な回答です。スキップします。")
-            # ★ 質問回数は増やさずに continue
+            # 質問回数は増やさずに continue
             asked_keys.remove(key) # 質問キーも戻す
             continue
 
         asked_count += 1 # 質問回数カウンタ増加
         
-        if 0 < len(candidates) < 10:
+        if 0 < len(candidates) < 10: # 10人未満なら名前も表示
              print(f"(現在の候補数: {len(candidates)}人 - {', '.join([c['name'] for c in candidates])})")
-        else:
+        else:                        # 10人以上なら名前は表示しない
              print(f"(現在の候補数: {len(candidates)}人)")
 
     # -----------------------------
