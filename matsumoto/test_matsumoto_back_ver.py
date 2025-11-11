@@ -1473,7 +1473,7 @@ if __name__ == "__main__":
 
     # データの閾値を緩和
     # 特徴量がこの数未満の人物は検索開始前に除外されます。
-    MIN_FEATURE_THRESHOLD = 2 # 変更後の閾値
+    MIN_FEATURE_THRESHOLD = 30 # 閾値
 
     # --- 実行フロー ---
     try:
