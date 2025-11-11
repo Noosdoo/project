@@ -1258,8 +1258,8 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 continue # ループの先頭に戻る
         
         # --- 3. 状態の保存 (候補者が2人以上の場合) ---
-        if not history or history[-1][0] != candidates:
-             history.append((candidates.copy(), asked_keys.copy(), asked_count)) # 現在の状態を履歴に保存
+        # （「u」で答えた場合も履歴が保存される）
+        history.append((candidates.copy(), asked_keys.copy(), asked_count)) # 現在の状態を履歴に保存
         
         # --- 4. 質問の選択 ---
         candidates_for_analysis = candidates
