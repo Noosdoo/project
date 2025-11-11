@@ -957,70 +957,133 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     return best_question # 最適な質問を返す
 
 # -----------------------
-# アキネーター本体ループ (カスタムロジック)
+# アキネーター本体ループ (★「戻る」機能・候補者0人復帰対応)
 # -----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
     """
     候補者が1人になるまで質問を続ける。
+    ★ 「戻る」機能 (ans = 'b') と、
+    ★ 候補者0人からの復帰に対応。
     """
     candidates = dataset.copy() # 候補者リスト初期化
     qm_dict = generate_question_map(dataset, selected_categories) # 質問マップ生成
     
     print(f"=== 🕵️ 人物検索開始 (1人特定/候補者全員・全力分析モード) ===")
     print(f"※ 毎回、残りの候補者全員 ({len(candidates)}人) を分析して最適な質問を厳選します。")
-    print("回答は「はい(y) / いいえ(n) / わからない(u)」のいずれかを入力してください。")
+    # ★ 選択肢変更
+    print("回答は「はい(y) / いいえ(n) / わからない(u) / 戻る(b)」のいずれかを入力してください。") 
     print("---")
     
     asked_keys = set() # 尋ねた質問キーセット
     asked_count = 0 # 尋ねた質問回数カウンタ
+    
+    # ★ 状態の履歴を保存するリスト (candidates, asked_keys, asked_count)
+    # (初期状態として、ゲーム開始時の状態を保存しておく)
+    history = [(dataset.copy(), set(), 0)]
 
-    # ループの継続条件を「候補者が1人より多い」に変更
-    while len(candidates) > 1 and asked_count < max_questions: # 候補者が1人より多く、質問回数が上限未満の場合
+    # ★ ループ条件を簡潔に
+    while asked_count < max_questions:
         
-        candidates_for_analysis = candidates # 解析用候補者リスト初期化
+        # --- 1. 状態のチェックと復帰処理 ---
+        if len(candidates) == 0:
+            print("\n[!] 候補者がいなくなりました。")
+            print("回答が間違っていた可能性があります。")
             
-        if len(candidates_for_analysis) > 500: # 候補者が多すぎる場合、ランダムサンプリング
+            # 履歴が初期状態しかない場合は戻れない
+            if len(history) <= 1:
+                print("履歴がなく、戻れません。ゲームを終了します。")
+                break # ループ終了
+
+            ans = input("1つ前の質問に戻りますか？ (y/n または b) > ").strip().lower()
+            
+            if ans in ("y", "b"):
+                # ★ 履歴から1つ前の状態を復元 (pop()で 0人になった状態 を捨てる)
+                history.pop()
+                # ★ 1つ前の状態（前の質問の直前）を復元する
+                candidates, asked_keys, asked_count = history[-1] 
+                print(f"--- 1つ前の状態に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
+                continue # 次のループへ
+            else:
+                print("ゲームを終了します。")
+                break # ループ終了
+        
+        # --- 2. 勝利条件のチェック ---
+        if len(candidates) == 1:
+            # 候補者が1人になったらループを抜ける (最終結果表示へ)
+            break
+        
+        # --- 3. 状態の保存 (0人でも1人でもない場合) ---
+        # (※ 戻る機能のために、現在の状態を履歴に保存する)
+        # (※ ループの先頭で、この状態(質問Nの直前)を保存する)
+        
+        # ★ history[-1]が今の状態と異なる場合のみ追加（同じ状態での無限ループ防止）
+        if not history or history[-1][0] != candidates:
+             history.append((candidates.copy(), asked_keys.copy(), asked_count))
+        
+        # --- 4. 質問の選択 ---
+        candidates_for_analysis = candidates
+        if len(candidates_for_analysis) > 500:
             print(f"\n[... {len(candidates_for_analysis)}人から最適な質問を計算中 ...]")
         
-        question = find_best_question(candidates_for_analysis, qm_dict, asked_keys) # 最適な質問を取得
+        question = find_best_question(candidates_for_analysis, qm_dict, asked_keys)
         
-        if question is None: # 質問が見つからなかった場合
+        if question is None:
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
             break
 
-        key, q_text, test = question["key"], question["text"], question["check"] # 質問情報取得
+        key, q_text, test = question["key"], question["text"], question["check"]
         
-        yes_count_analysis = sum(1 for c in candidates_for_analysis if test(c)) # はいカウント
-        no_count_analysis = len(candidates_for_analysis) - yes_count_analysis # いいえカウント
+        yes_count_analysis = sum(1 for c in candidates_for_analysis if test(c))
+        no_count_analysis = len(candidates_for_analysis) - yes_count_analysis
         
         print(f"\n[質問 {asked_count+1}] (候補: {len(candidates)}人 | 全員分析の分割予測: {yes_count_analysis} / {no_count_analysis})")
-        ans = input(q_text + " （y/n/u） > ").strip().lower() # ユーザー入力取得
+        
+        # ★ 回答に 'b' を追加
+        ans = input(q_text + " （y/n/u/b） > ").strip().lower() 
+        
+        # --- 5. ユーザーの回答処理 ---
+        
+        # ★ 「戻る」処理
+        if ans in ("b", "back"):
+            # 履歴が初期状態しかない場合は戻れない
+            if len(history) <= 1:
+                print("--- 最初の質問です（これ以上戻れません） ---")
+                continue
+            
+            # 1. 現在の状態（質問する直前の状態）を捨てる
+            history.pop() 
+            
+            # 2. 1つ前の状態（前の質問をする直前の状態）を復元する
+            candidates, asked_keys, asked_count = history[-1] # (末尾を参照)
+            
+            print(f"--- 1つ前の質問に戻りました (質問 {asked_count + 1} / 候補 {len(candidates)}人) ---")
+            continue # ループの最初に戻る
+
+        # --- 通常の回答処理 (y/n/u) ---
         
         asked_keys.add(key) # 尋ねた質問キーを登録
         
-        if ans in ("はい", "y"): # 「はい」の場合に絞り込み
+        if ans in ("はい", "y"):
             candidates = [c for c in candidates if test(c)]
-        elif ans in ("いいえ", "n"): # 「いいえ」の場合に絞り込み
+        elif ans in ("いいえ", "n"):
             candidates = [c for c in candidates if not test(c)]
-        elif ans in ("わからない", "u"): # 「わからない」の場合はスキップ
+        elif ans in ("わからない", "u"):
             pass 
-        else: # 無効な回答の場合
+        else:
             print("無効な回答です。スキップします。")
+            # ★ 質問回数は増やさずに continue
+            asked_keys.remove(key) # 質問キーも戻す
             continue
 
         asked_count += 1 # 質問回数カウンタ増加
         
-        if len(candidates) == 0: # 候補者が0人になった場合
-            print("\n候補者がいなくなってしまいました。質問の回答に矛盾があった可能性があります。")
-            break
-        elif len(candidates) < 10: # 候補者が10人未満の場合、名前を表示
+        if 0 < len(candidates) < 10:
              print(f"(現在の候補数: {len(candidates)}人 - {', '.join([c['name'] for c in candidates])})")
-        else: # 候補者が10人以上の場合、数だけ表示
+        else:
              print(f"(現在の候補数: {len(candidates)}人)")
 
-
     # -----------------------------
-    # 最終的な提案ロジック (1人になった場合に対応)
+    # 最終的な提案ロジック (ループ終了後)
     # -----------------------------
     print("\n===============================")
     
@@ -1039,7 +1102,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         print(f"=== 最終候補 ===")
         for i, c in enumerate(candidates, 1):
             print(f"{i}. **{c['name']}**")
-        
+            
     elif len(candidates) == 0:
         # 候補者が0人になった場合
         print("😢 最終的な候補者が0人になってしまいました。")
