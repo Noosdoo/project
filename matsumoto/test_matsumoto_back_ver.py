@@ -605,7 +605,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 # (summaryの取得状況をログに出す)
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=20, sleep=0.1):
+                           limit=None, max_workers=50, sleep=0.1):
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
