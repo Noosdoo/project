@@ -675,15 +675,24 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             try:
                 page_categories = page.categories # カテゴリ取得
                 # 無視するカテゴリ (広すぎる、ノイズになる)
-                IGNORE_CATS = {
+                IGNORE_CATS_KEYWORDS = {
                     "存命人物", "死去した人物", "日本の人物", "曖昧さ回避", 
                     "リダイレクト", "人物", "生年", "没年", "年没", "年生",
-                    "世紀没", "世紀生", "各年の音楽", "各年のスポーツ"
+                    "世紀没", "世紀生", "各年の音楽", "各年のスポーツ",
+                    "ウィキデータ", "ID", "記事", "テンプレート", "出典",
+                    "外部リンク", "カテゴリ", "リンク", "英語版ウィキ",
+                    "日本語版ウィキ", "ウィキペディア", "ウィキメディア・コモンズ",
+                    "スタブ", "項目", "一覧", "一覧記事", "記事一覧", "ポータル",
+                    "参考文献", "脚注", "注釈", "引用", "プロジェクト", "編集"
                 }
                 
                 for cat_title in page_categories.keys(): # 各カテゴリ処理
                     # 'Category:日本の俳優' -> '日本の俳優'
                     cat_name = cat_title.replace("Category:", "").strip() # カテゴリ名抽出
+                    
+                    # (キーワードのどれか一つでもカテゴリ名に含まれていたら無視)
+                    if any(keyword in cat_name for keyword in IGNORE_CAT_KEYWORDS):
+                         continue
                     
                     # 無視リストにあるか、"〇〇年生" "〇〇年没" 形式は無視
                     if cat_name in IGNORE_CATS or cat_name.endswith("年生") or cat_name.endswith("年没"):
