@@ -54,15 +54,14 @@ CATEGORIES = [
     "日本の作曲家", "日本の映画監督", "日本の舞台俳優", "日本のアナウンサー", "日本のYouTuber",
     # 文学・学問
     "日本の作家", "日本の漫画家", "日本の小説家", "日本の詩人", "日本の科学者", "日本の数学者", "日本の物理学者",
-    "日本の化学者", "日本の医師", "日本の哲学者", "日本の歴史学者", "日本の教育者", "日本の研究者", "日本の発明家",
+    "日本の化学者", "日本の医師", "日本の教育者", "日本の研究者", "日本の発明家",
     # 政治・社会
-    "日本の政治家", "日本の外交官", "日本の官僚", "日本の経営者", "日本の起業家", "日本の弁護士", "日本の裁判官",
+    "日本の政治家", "日本の官僚", "日本の経営者", "日本の起業家", "日本の弁護士",
     # スポーツ
     "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本のレスリング選手", "日本のオリンピック選手",
     "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手",
     # 芸術・文化
-    "日本の画家", "日本の彫刻家", "日本の写真家", "日本の建築家", "日本のデザイナー", "日本の陶芸家", "日本の演出家",
-    "日本の音楽家", "日本の指揮者", "日本の舞踏家",
+    "日本の画家", "日本の写真家", "日本の建築家", "日本のデザイナー",
 ]
 
 # Wikipedia APIに送る際のヘッダー
@@ -533,7 +532,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 # (summaryの取得状況をログに出す)
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=50, sleep=0.1):
+                           limit=None, max_workers=150, sleep=0.1):
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
@@ -650,8 +649,8 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     # (性別・年齢・職業・出身地などの処理)
                     g = wd.get("gender_qid") # 性別QID
 
-                    if g == "Q6581097": features["gender"] = "male" # 男性
-                    elif g == "Q6581072": features["gender"] = "female" # 女性
+                    if g == "Q6581097": features["gender_male"] = 1 # 男性
+                    elif g == "Q6581072": features["gender_female"] = 1 # 女性
 
                     birth_time = wd.get("birth_time") # 生年月日
                     current_year = datetime.now().year # 現在の西暦年
@@ -1411,7 +1410,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.1           # API呼び出し間隔（秒）
+    SLEEP = 0.05           # API呼び出し間隔（秒）
     CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
     DEPTH = 1              # カテゴリ深度
     BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
