@@ -1,0 +1,53 @@
+[
+  {
+    "name": "目黒大路",
+    "summary": "目黑 大路（めぐろ だいぢ、1975年〈昭和50年〉2月14日 - ）は、日本の舞踏家・振付家。\n「旅芸人一座 ゑびす大黑座」主宰、「Kyoto Butoh Experience」代表。",
+    "features": {
+      "taiga": 0,
+      "tokusatsu": 0,
+      "romance_drama": 0,
+      "movie": 0,
+      "action": 0,
+      "seiyuu": 0,
+      "singer": 0,
+      "stage": 0,
+      "model": 0,
+      "comedian": 1,
+      "anime": 0,
+      "hollywood": 0,
+      "idol": 0,
+      "award": 0,
+      "nhk": 0,
+      "youtuber": 0,
+      "director": 0,
+      "athlete": 0,
+      "politician": 0,
+      "mc": 0,
+      "radio": 0,
+      "cm": 0,
+      "married": 0,
+      "author": 0,
+      "birth_year": 1975,
+      "alive_text": 1,
+      "noun_大路": 1,
+      "verb_めぐる": 1,
+      "noun_だい": 1,
+      "noun_振付": 1,
+      "noun_旅芸人": 1,
+      "noun_ゑびす": 1,
+      "noun_黑座": 1,
+      "noun_Kyoto": 1,
+      "noun_Butoh": 1,
+      "noun_Experience": 1,
+      "cat_日本の振付家": 1,
+      "cat_日本の男優": 1,
+      "cat_日本の男性ダンサー": 1,
+      "cat_日本の舞踏家": 1,
+      "cat_舞踏家": 1,
+      "age_50s": 1
+    },
+    "wikidata": {
+      "birth_time": "+1975-02-14T00:00:00Z"
+    }
+  }
+]
