@@ -61,7 +61,7 @@ CATEGORIES = [
     "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本のレスリング選手", "日本のオリンピック選手",
     "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手",
     # 芸術・文化
-    "日本の画家", "日本の写真家", "日本の建築家", "日本のデザイナー",
+    "日本の画家", "日本の建築家", "日本のデザイナー", "日本の音楽家"
 ]
 
 # Wikipedia APIに送る際のヘッダー
@@ -74,18 +74,34 @@ def get_dynamic_cache_path(categories_list, prefix="people_list"):
     """
     選択されたカテゴリリストから一意のハッシュを生成し、
     キャッシュファイル名（.json）を返す。
+    
+    ★ 修正: 
+    - 全選択 (または0選択) の場合のみ "ALL" を使用。
+    - それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
     """
-    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュになるようにする
+    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュ/名前になるようにする
     sorted_cats = sorted(list(set(categories_list)))
     
-    # JSON文字列に変換
-    cat_string = json.dumps(sorted_cats)
+    num_cats = len(sorted_cats)
+    total_cats = len(CATEGORIES) # グローバルのカテゴリ総数を参照
     
-    # MD5ハッシュを生成
-    hash_hex = hashlib.md5(cat_string.encode('utf-8')).hexdigest()
-    
-    # 例: people_list_abcdef123456.json
-    return f"{prefix}_{hash_hex}.json"
+    filename_part = ""
+
+    # --- ファイル名のルールを決定 ---
+
+    # 1. カテゴリ未選択(Enter) または 全カテゴリを選択した場合
+    if num_cats == 0 or num_cats == total_cats:
+        filename_part = "ALL"
+        
+    # 2. それ以外 (1カテゴリでも、40カテゴリでも) の場合
+    else:
+        # カテゴリ名をアンダースコアで連結
+        # (ファイル名として使えない文字を置換)
+        safe_names = [re.sub(r'[\\/:*?"<>|]', '-', cat) for cat in sorted_cats]
+        filename_part = "_".join(safe_names)
+
+    # 最終的なファイル名を返す
+    return f"{prefix}_{filename_part}.json"
 
 # -----------------------
 # 除外ルール: 人物ページかどうか判定
@@ -479,6 +495,78 @@ def extract_dynamic_features_from_summary(summary):
 
 
 # -----------------------
+# summaryから【Janomeベース（動的）】で特徴を抽出
+# -----------------------
+def extract_dynamic_features_from_summary(summary):
+    """
+    Janomeを使い、文章から特徴（名詞・形容詞・動詞）を抽出する。
+    """
+    if not JANOME_TOKENIZER:
+        # Janomeが読み込まれていない場合のログ出力
+        print("[DEBUG-DYNAMIC] Janome_TokenizerがNoneです。") 
+        return {}
+    
+    # summaryが空かどうかを明示的にログに出す
+    if not summary:
+        # 概要文が空なら、ここで処理を終了する
+        # print("[DEBUG-DYNAMIC] summaryが空(None)のため、動的特徴の抽出をスキップします。")
+        # 大量に出すぎる可能性があるのでコメントアウト
+        return {}
+    
+    features = {} # 抽出特徴辞書
+    
+    # 形態素解析を実行
+    try:
+        tokens = JANOME_TOKENIZER.tokenize(summary) # トークン化
+    except Exception as e:
+        # Janomeのパース失敗をログに出す
+        print(f"[DEBUG-DYNAMIC] Janome.tokenize(summary) でエラー: {e}")
+        return {} # 失敗時は空辞書を返す
+
+    # 抽出する品詞と、特徴キーのプレフィックス
+    TARGET_POS_TYPES = {
+        ('名詞', '一般'): 'noun_',
+        ('名詞', '固有名詞'): 'noun_',
+        ('形容詞', '自立'): 'adj_', 
+        ('動詞', '自立'): 'verb_' 
+    }
+
+    # 除外単語リスト
+    STOP_WORDS = {
+        'こと', 'もの', 'ため', '人物', '概要', '日本', '活動', '出身',
+        '現在', '自身', 'ほか', '以降', '選手', '俳優', '女優', '芸人',
+        '声優', 'モデル', 'アイドル', 'メンバー', 'グループ', '監督', '主演',
+        '日本', '日本人', '番組', 'テレビ', 'ドラマ', '映画', '作品', '名前',
+        'さん', '男性', '女性', '一つ', '一つ', '氏名', '関係', '存在', '世界',
+        '全国', '歴史', '時代', '今日', '連続', '以上', '以下', '約', '程度',
+        '数', '人', '名', '回', '月', '日', '年',
+        'する', 'いる', 'ある', 'なる', 'ない', 'よい', 'できる', 'ない', 'いう',
+        '行う', '行う', '行う', 'おこなう', '持つ', '行く'
+    }
+
+    # トークンごとに処理
+    for token in tokens:
+        pos_parts = token.part_of_speech.split(',') # 品詞分割
+        pos_tuple = (pos_parts[0], pos_parts[1]) # 品詞タプル化
+        
+        if pos_tuple in TARGET_POS_TYPES: # 対象品詞チェック
+            if pos_parts[0] in ('形容詞', '動詞'): # 形容詞・動詞は基本形を使用
+                word = token.base_form # 基本形
+            else:
+                word = token.surface # 名詞は表層形
+            
+            if len(word) > 1 and word not in STOP_WORDS: # 除外単語チェック
+                prefix = TARGET_POS_TYPES[pos_tuple] # プレフィックス取得
+                features[f"{prefix}{word}"] = 1 # 特徴として追加
+    
+    # もしJanomeが動いたのに特徴が0ならログに出す
+    if not features:
+        print(f"[DEBUG-DYNAMIC] Summaryは存在しましたが、抽出された動的特徴は0個でした。(Summary: {summary[:50]}...)")
+            
+    return features
+
+
+# -----------------------
 # summaryから【キーワードベース（静的）】で特徴を抽出 
 # （こちらは元の関数名 extract_features_from_summary のまま)
 # -----------------------
@@ -532,7 +620,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 # (summaryの取得状況をログに出す)
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=150, sleep=0.1):
+                           limit=None, max_workers=50, sleep=0.1):
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
@@ -618,11 +706,11 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     cat_name = cat_title.replace("Category:", "").strip() # カテゴリ名抽出
                     
                     # (キーワードのどれか一つでもカテゴリ名に含まれていたら無視)
-                    if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
+                    if any(keyword in cat_name for keyword in IGNORE_CAT_KEYWORDS):
                          continue
                     
                     # 無視リストにあるか、"〇〇年生" "〇〇年没" 形式は無視
-                    if cat_name in IGNORE_CATS_KEYWORDS or cat_name.endswith("年生") or cat_name.endswith("年没"):
+                    if cat_name in IGNORE_CATS or cat_name.endswith("年生") or cat_name.endswith("年没"):
                          continue
                          
                     # 特徴として追加 (例: cat_日本の俳優)
@@ -649,8 +737,8 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     # (性別・年齢・職業・出身地などの処理)
                     g = wd.get("gender_qid") # 性別QID
 
-                    if g == "Q6581097": features["gender_male"] = 1 # 男性
-                    elif g == "Q6581072": features["gender_female"] = 1 # 女性
+                    if g == "Q6581097": features["gender"] = "male" # 男性
+                    elif g == "Q6581072": features["gender"] = "female" # 女性
 
                     birth_time = wd.get("birth_time") # 生年月日
                     current_year = datetime.now().year # 現在の西暦年
@@ -1261,28 +1349,9 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 print(f"--- 1つ前の状態 (候補 {len(candidates_updated)}人) に戻り、質問を続けます ---")
                 continue 
         
-        #--- 4. 質問の選択 (2人以上の場合) ---
+        # --- 4. 質問の選択 (2人以上の場合) ---
+        question = find_best_question(current_candidates, qm_dict, current_asked_keys)
         
-               
-        # 最初の質問(asked_count == 0)かどうかをチェック
-        if current_asked_count == 0:
-            
-            # 質問マップ(qm_dict)から "gender_male" の質問オブジェクトを手動で探す
-            question = None
-            for q in qm_dict.get("common", []):
-                if q.get("key") == "gender_male":
-                    question = q
-                    break
-            
-            # もし "gender_male" が何らかの理由で見つからなければ、通常のロジックにフォールバック
-            if question is None:
-                print("[WARN] 'gender_male' が質問マップに見つかりません。通常の最適化ロジックに戻します。")
-                question = find_best_question(current_candidates, qm_dict, current_asked_keys)
-        
-        else:
-            # 2問目以降は通常の最適化ロジック
-            question = find_best_question(current_candidates, qm_dict, current_asked_keys)
-
         if question is None:
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
             break # 質問が尽きた
@@ -1410,7 +1479,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.05           # API呼び出し間隔（秒）
+    SLEEP = 0.01           # API呼び出し間隔（秒）
     CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
     DEPTH = 1              # カテゴリ深度
     BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
