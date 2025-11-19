@@ -64,9 +64,6 @@ CATEGORIES = [
     "日本の画家", "日本の建築家", "日本のデザイナー", "日本の音楽家"
 ]
 
-# --- 間違いファイル ---
-MISTAKE_LOG_FILE = "mistake_log.json" # 間違いデータの保存先
-
 # Wikipedia APIに送る際のヘッダー
 HEADERS = {"User-Agent": USER_AGENT}
 
@@ -498,78 +495,6 @@ def extract_dynamic_features_from_summary(summary):
 
 
 # -----------------------
-# summaryから【Janomeベース（動的）】で特徴を抽出
-# -----------------------
-def extract_dynamic_features_from_summary(summary):
-    """
-    Janomeを使い、文章から特徴（名詞・形容詞・動詞）を抽出する。
-    """
-    if not JANOME_TOKENIZER:
-        # Janomeが読み込まれていない場合のログ出力
-        print("[DEBUG-DYNAMIC] Janome_TokenizerがNoneです。") 
-        return {}
-    
-    # summaryが空かどうかを明示的にログに出す
-    if not summary:
-        # 概要文が空なら、ここで処理を終了する
-        # print("[DEBUG-DYNAMIC] summaryが空(None)のため、動的特徴の抽出をスキップします。")
-        # 大量に出すぎる可能性があるのでコメントアウト
-        return {}
-    
-    features = {} # 抽出特徴辞書
-    
-    # 形態素解析を実行
-    try:
-        tokens = JANOME_TOKENIZER.tokenize(summary) # トークン化
-    except Exception as e:
-        # Janomeのパース失敗をログに出す
-        print(f"[DEBUG-DYNAMIC] Janome.tokenize(summary) でエラー: {e}")
-        return {} # 失敗時は空辞書を返す
-
-    # 抽出する品詞と、特徴キーのプレフィックス
-    TARGET_POS_TYPES = {
-        ('名詞', '一般'): 'noun_',
-        ('名詞', '固有名詞'): 'noun_',
-        ('形容詞', '自立'): 'adj_', 
-        ('動詞', '自立'): 'verb_' 
-    }
-
-    # 除外単語リスト
-    STOP_WORDS = {
-        'こと', 'もの', 'ため', '人物', '概要', '日本', '活動', '出身',
-        '現在', '自身', 'ほか', '以降', '選手', '俳優', '女優', '芸人',
-        '声優', 'モデル', 'アイドル', 'メンバー', 'グループ', '監督', '主演',
-        '日本', '日本人', '番組', 'テレビ', 'ドラマ', '映画', '作品', '名前',
-        'さん', '男性', '女性', '一つ', '一つ', '氏名', '関係', '存在', '世界',
-        '全国', '歴史', '時代', '今日', '連続', '以上', '以下', '約', '程度',
-        '数', '人', '名', '回', '月', '日', '年',
-        'する', 'いる', 'ある', 'なる', 'ない', 'よい', 'できる', 'ない', 'いう',
-        '行う', '行う', '行う', 'おこなう', '持つ', '行く'
-    }
-
-    # トークンごとに処理
-    for token in tokens:
-        pos_parts = token.part_of_speech.split(',') # 品詞分割
-        pos_tuple = (pos_parts[0], pos_parts[1]) # 品詞タプル化
-        
-        if pos_tuple in TARGET_POS_TYPES: # 対象品詞チェック
-            if pos_parts[0] in ('形容詞', '動詞'): # 形容詞・動詞は基本形を使用
-                word = token.base_form # 基本形
-            else:
-                word = token.surface # 名詞は表層形
-            
-            if len(word) > 1 and word not in STOP_WORDS: # 除外単語チェック
-                prefix = TARGET_POS_TYPES[pos_tuple] # プレフィックス取得
-                features[f"{prefix}{word}"] = 1 # 特徴として追加
-    
-    # もしJanomeが動いたのに特徴が0ならログに出す
-    if not features:
-        print(f"[DEBUG-DYNAMIC] Summaryは存在しましたが、抽出された動的特徴は0個でした。(Summary: {summary[:50]}...)")
-            
-    return features
-
-
-# -----------------------
 # summaryから【キーワードベース（静的）】で特徴を抽出 
 # （こちらは元の関数名 extract_features_from_summary のまま)
 # -----------------------
@@ -709,11 +634,11 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     cat_name = cat_title.replace("Category:", "").strip() # カテゴリ名抽出
                     
                     # (キーワードのどれか一つでもカテゴリ名に含まれていたら無視)
-                    if any(keyword in cat_name for keyword in IGNORE_CAT_KEYWORDS):
+                    if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
                          continue
                     
                     # 無視リストにあるか、"〇〇年生" "〇〇年没" 形式は無視
-                    if cat_name in IGNORE_CATS or cat_name.endswith("年生") or cat_name.endswith("年没"):
+                    if cat_name in IGNORE_CATS_KEYWORDS or cat_name.endswith("年生") or cat_name.endswith("年没"):
                          continue
                          
                     # 特徴として追加 (例: cat_日本の俳優)
@@ -918,7 +843,6 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
-        ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
         ("actor_wikidata", "俳優でもありますか？", "occupation"),
         ("singer_wikidata", "歌手でもありますか？", "occupation"),
@@ -1240,102 +1164,100 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     return None # 諦める
 
 # -----------------------
-# ★ 追加関数1: ミスマッチ（間違い）数を計算
+# 新規追加: 一致度スコア計算
 # -----------------------
-def calculate_mismatches(person, user_answers):
+def calculate_match_score(person, user_answers):
     """
-    人物の特徴とユーザーの回答履歴を比較し、矛盾（ミスマッチ）の数を数える。
+    人物の特徴とユーザーの回答を比較してスコアを算出する。
+    厳密なフィルタリングではなく、可能性の高い順に並べるために使用。
     """
-    mismatches = 0
+    score = 0
     person_features = person.get("features", {})
     
-    for key, ans in user_answers.items():
-        # 特徴を持っているか (1:持ってる, 0/None:持ってない)
+    for key, answer in user_answers.items():
+        # 人物がその特徴を持っているか (1:持っている, 0/None:持っていない)
         has_feature = person_features.get(key) == 1
         
-        if ans == "y": # ユーザー「はい」
-            if not has_feature: mismatches += 1 # 特徴がない -> ミス
-        elif ans == "n": # ユーザー「いいえ」
-            if has_feature: mismatches += 1 # 特徴がある -> ミス
-        # 'u' (わからない) はミスにカウントしない
-        
-    return mismatches
+        if answer == "y": # ユーザー「はい」
+            if has_feature: score += 1.0       # 一致
+            else:           score -= 2.0       # 不一致（ペナルティ大）
+            
+        elif answer == "n": # ユーザー「いいえ」
+            if not has_feature: score += 1.0   # 一致
+            else:               score -= 2.0   # 不一致（ペナルティ大）
+            
+        elif answer == "u": # ユーザー「わからない」
+            # 「わからない」と言われた項目は、どちらであってもペナルティを小さくする
+            # または、少しだけプラスして候補に残しやすくする
+            score += 0.1 
+            
+    return score
 
-# -----------------------
-# ★ 追加関数2: 失敗時のログ保存
-# -----------------------
-def save_mistake_log(user_answers, final_candidates):
-    """
-    失敗したセッション（質問と回答、残った候補）をJSONファイルに保存する。
-    """
-    log_entry = {
-        "timestamp": datetime.now().isoformat(),
-        "questions_count": len(user_answers),
-        "user_answers": user_answers,
-        "final_candidates_count": len(final_candidates),
-        "top_candidate": final_candidates[0]["name"] if final_candidates else None
-    }
-    
-    existing_logs = []
-    if os.path.exists(MISTAKE_LOG_FILE):
-        try:
-            with open(MISTAKE_LOG_FILE, "r", encoding="utf-8") as f:
-                existing_logs = json.load(f)
-        except: pass
-    
-    existing_logs.append(log_entry)
-    
-    try:
-        with open(MISTAKE_LOG_FILE, "w", encoding="utf-8") as f:
-            json.dump(existing_logs, f, ensure_ascii=False, indent=2)
-        print(f"[LOG] 検索失敗ログを {MISTAKE_LOG_FILE} に保存しました。後で分析に使用できます。")
-    except Exception as e:
-        print(f"[ERROR] ログ保存失敗: {e}")
-
-# -----------------------
-# アキネーター本体ループ (★「戻る」機能のバグを完全修正)
-# -----------------------
 # -----------------------
 # 改修版: アキネーター本体ループ
 # -----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
     """
     候補者が1人になるまで質問を続ける。
-    間違い許容機能（リカバリー）付き。
+    誤答時や0人になった時に、回答履歴からスコアを再計算して救済する機能を搭載。
     """
     
-
-    # ゲーム用データセット
+    # 初期データセット
+    # 特徴量が少なすぎるデータはノイズになるので除外しておく
     valid_dataset = [p for p in dataset if p.get("features")]
+    
+    # ゲーム状態の管理
     current_candidates = valid_dataset.copy()
     
     # 履歴管理
-    # user_answers: { "key": "y"|"n"|"u" } -> リカバリー計算用
-    user_answers = {} 
-    # history: 戻る機能用
+    # history: 戻る機能用 (candidates_list, asked_keys_set, asked_count)
     history = [(current_candidates.copy(), set(), 0)] 
     
+    # 回答記録: リカバリー（スコア再計算）用 { "key": "y"|"n"|"u" }
+    user_answers = {}
+    
+    # 除外リスト: 「その人ではありません」と言われた名前を永久除外
+    rejected_names = set()
+
     # 質問マップ生成
     qm_dict = generate_question_map(valid_dataset, selected_categories) 
 
-    print(f"=== 🕵️ 人物検索開始 (間違い許容モード) ===")
+    # 相互排他グループ (定義は変更なし)
+    MUTEX_GROUPS = {
+        "age": {"age_20s", "age_30s", "age_40s", "age_50s"},
+        "born": {"born_1980s", "born_1990s", "born_2000s"},
+        "blood": {"blood_A", "blood_B", "blood_O", "blood_AB"},
+        "gender": {"gender_male", "gender_female"},
+    }
+    KEY_TO_GROUP = {}
+    for g_name, keys in MUTEX_GROUPS.items():
+        for k in keys: KEY_TO_GROUP[k] = g_name
+    
+    print(f"=== 🕵️ 人物検索開始 (リカバリー機能付き) ===")
     print("回答: y(はい) / n(いいえ) / u(わからない) / b(戻る)")
     print("--------------------------------------------------")
     
     loop_count = 0
     while len(history) > 0 and loop_count < max_questions:
         loop_count += 1
-        current_candidates, asked_keys, current_asked_count = history[-1]
         
-        # --- 判定ロジック: リカバリー発動チェック ---
-        trigger_recovery = False
+        # 現在の状態を取得
+        current_candidates, current_asked_keys, current_asked_count = history[-1]
         
-        # ケースA: 候補が0人になった
+        # すでに除外された人が候補に混じっていたら消す
+        current_candidates = [c for c in current_candidates if c["name"] not in rejected_names]
+
+        # ------------------------------------------------
+        # 判定ロジック: 0人 または 1人になった場合
+        # ------------------------------------------------
+        needs_recovery = False
+        
+        # --- ケースA: 候補が0人になった ---
         if len(current_candidates) == 0:
             print("\n[!] 条件に完全に一致する候補がいなくなりました。")
-            trigger_recovery = True
+            needs_recovery = True
 
-        # ケースB: 候補が1人になった (推測タイム)
+        # --- ケースB: 候補が1人になった (推測タイム) ---
         elif len(current_candidates) == 1:
             c = current_candidates[0]
             print(f"\n===============================")
@@ -1345,111 +1267,167 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             if ans in ("y", "yes"):
                 print(f"🎉 正解！お疲れ様でした！ (名前: {c['name']})")
                 return [c]
+            
             else:
-                print(f"🤔 違いましたか...。")
-                trigger_recovery = True # 正解じゃなかったのでリカバリーへ
+                # 「違います」の場合
+                print(f"🤔 違いましたか... すみません。")
+                rejected_names.add(c["name"]) # 除外リストに追加
+                
+                # ここで「諦めますか？それともニアミスを探しますか？」の分岐
+                # 現在の厳密な候補リストからはこの人が消えるので、実質0人になる可能性がある
+                needs_recovery = True
 
         # ------------------------------------------------
-        # ★ リカバリー (救済) モード
+        # リカバリー (救済) モード
         # ------------------------------------------------
-        if trigger_recovery:
+        if needs_recovery:
             print("\n🔄 **リカバリーモード発動** 🔄")
-            print("回答ミスがあった可能性を考慮し、全データから再探索します...")
-            print("※ 「間違い数」が 3回以下 の人物を候補として復活させます。")
+            print("これまでの回答と「特徴が近い」人物を全データから再探索します...")
+            print("（回答間違いや、データの不備があっても見つかる可能性があります）")
             
-            # 全員に対して「間違い数」を計算
-            near_misses = []
-            for person in valid_dataset:
-                # ここで間違い数を計算
-                miss_count = calculate_mismatches(person, user_answers)
-                
-                # ★「間違え数が3を超えたら削除（対象外）」のロジック
-                if miss_count <= 3:
-                    near_misses.append({
-                        "person": person,
-                        "misses": miss_count
-                    })
+            # 全員に対してスコア計算
+            scored_candidates = []
+            for p in valid_dataset:
+                if p["name"] in rejected_names: continue # 除外済みはスキップ
+                score = calculate_match_score(p, user_answers)
+                scored_candidates.append((score, p))
             
-            # 間違いが少ない順にソート
-            near_misses.sort(key=lambda x: x["misses"])
+            # スコア高い順にソート
+            scored_candidates.sort(key=lambda x: x[0], reverse=True)
             
             # 上位5名を表示
-            if not near_misses:
-                print("❌ 救済できませんでした。条件に近い人物がいません。")
-                # ログ保存
-                save_mistake_log(user_answers, current_candidates)
+            top_n = scored_candidates[:5]
+            
+            if not top_n:
+                print("❌ 救済できませんでした。データセットに該当者がいないようです。")
                 return []
 
             print("\n【もしかして、この方々ですか？】")
-            top_n = near_misses[:5]
-            for i, item in enumerate(top_n, 1):
-                p = item["person"]
-                m = item["misses"]
-                print(f" {i}. {p['name']} (不一致数: {m})")
+            for i, (score, p) in enumerate(top_n, 1):
+                # スコアの内訳を少し表示（デバッグ的だがユーザーにも親切）
+                print(f" {i}. {p['name']} (一致度スコア: {score:.1f})")
             
-            print(f" {len(top_n)+1}. どちらでもない（終了する）")
+            print(f" {len(top_n)+1}. どちらでもない（質問を続ける）")
+            print(f" {len(top_n)+2}. 終了する")
 
             try:
-                sel = int(input(f"番号を選択してください (1-{len(top_n)+1}) > "))
-                if 1 <= sel <= len(top_n):
-                    chosen = top_n[sel-1]["person"]
-                    print(f"🎉 よかったです！正解は『{chosen['name']}』でした！")
-                    return [chosen]
-            except: pass
+                sel = int(input(f"番号を選択してください (1-{len(top_n)+2}) > "))
+            except:
+                sel = -1
 
-            print("お力になれず申し訳ありません。今回の履歴を保存して終了します。")
-            save_mistake_log(user_answers, current_candidates)
-            return []
+            if 1 <= sel <= len(top_n):
+                # 選択された人物が正解
+                chosen = top_n[sel-1][1]
+                print(f"🎉 よかったです！正解は『{chosen['name']}』でした！")
+                return [chosen]
+            
+            elif sel == len(top_n) + 1:
+                # 「質問を続ける」選択
+                # 上位候補を含むように候補リストを強制的に書き換えて続行する
+                print("\n😤 わかりました。上位の候補を残して、質問を続けます。")
+                
+                # 上位30人くらいを強制的に「現在の候補」として復活させる
+                # これにより、「間違ってNoと言って消えてしまった正解」が候補に戻る
+                recovered_candidates = [pair[1] for pair in scored_candidates[:30]]
+                
+                # 履歴を更新してループ継続
+                # ※質問キー(current_asked_keys)は維持するが、候補者はリセットする
+                history.append((recovered_candidates, current_asked_keys.copy(), current_asked_count))
+                continue
+
+            else:
+                print("降参です... 力不足ですみません。")
+                return []
 
         # ------------------------------------------------
         # 通常の質問選択フロー
         # ------------------------------------------------
-        question = find_best_question(current_candidates, qm_dict, asked_keys)
+        
+        # 2問目以降、あるいは gender_male が見つからない場合は最適化ロジック
+        question = None
+        if current_asked_count == 0:
+            # 初手は性別を聞く（UX向上のため固定）
+            for q in qm_dict.get("common", []):
+                if q["key"] == "gender_male":
+                    question = q; break
+        
+        if question is None:
+            question = find_best_question(current_candidates, qm_dict, current_asked_keys)
 
         if question is None:
-            # 質問切れの場合もリカバリーに飛ばすために強制的に0人にする
-            history.append(([], asked_keys, current_asked_count))
+            # 質問切れの場合もリカバリーに飛ばすために強制的に0人扱いにしてループを回す
+            # （次のループ冒頭で needs_recovery=True になる）
+            current_candidates = []
+            history.append(([], current_asked_keys, current_asked_count))
             continue
 
         key, q_text, test = question["key"], question["text"], question["check"]
         
+        # 予測情報を表示
+        yes_count_analysis = sum(1 for c in current_candidates if test(c))
+        no_count_analysis = len(current_candidates) - yes_count_analysis
         print(f"\n[質問 {current_asked_count+1}] (候補: {len(current_candidates)}人)")
+        
         ans = input(q_text + " （y/n/u/b） > ").strip().lower()
 
         # --- 戻る処理 ---
         if ans in ("b", "back"):
-            if len(history) > 1:
-                history.pop()
-                # user_answers から最新の回答を削除（簡易的な同期）
-                # ※厳密には前の質問キーを特定して消す必要があるが、
-                # この簡易実装ではリカバリー時のスコアにわずかなゴミが残る程度で動作はする
-                print("<<< 1つ前の質問に戻りました。")
-                continue
-            else:
+            if len(history) <= 1:
                 print("これ以上戻れません。")
                 continue
+            
+            # 履歴を1つ戻す
+            history.pop()
+            
+            # 【重要】回答履歴(user_answers)からも、今消した質問の記録を消す必要がある
+            # ただし、現在の history[-1] の asked_keys に含まれていないキーを探して消す
+            prev_keys = history[-1][1]
+            keys_to_remove = [k for k in user_answers if k not in prev_keys]
+            for k in keys_to_remove:
+                del user_answers[k]
+            
+            print("<<< 1つ前の質問に戻りました。")
+            continue
 
-        # --- 回答処理と記録 ---
-        if ans in ("y", "yes", "はい"):
-            user_val = "y"
-            next_candidates = [c for c in current_candidates if test(c)]
-        elif ans in ("n", "no", "いいえ"):
-            user_val = "n"
-            next_candidates = [c for c in current_candidates if not test(c)]
-        else:
-            user_val = "u"
-            next_candidates = current_candidates.copy() # 絞り込まない
+        # --- 回答処理 ---
+        next_candidates = current_candidates.copy()
+        next_asked_keys = current_asked_keys.copy()
+        next_asked_keys.add(key)
         
-        # ★ ここで回答を保存（リカバリー計算用）
-        user_answers[key] = user_val 
+        # ユーザー回答を記録 (リカバリー用)
+        if ans in ("y", "yes", "はい"):
+            user_ans_char = "y"
+        elif ans in ("n", "no", "いいえ"):
+            user_ans_char = "n"
+        else:
+            user_ans_char = "u"
+        
+        user_answers[key] = user_ans_char # 記録
+
+        # 候補者のフィルタリング (厳密)
+        if user_ans_char == "y":
+            next_candidates = [c for c in next_candidates if test(c)]
+            
+            # 相互排他ロジック（A型ならB,O,ABは自動的にNo）
+            if key in KEY_TO_GROUP:
+                group_name = KEY_TO_GROUP[key]
+                for other_key in MUTEX_GROUPS[group_name]:
+                    if other_key != key:
+                        next_asked_keys.add(other_key)
+                        # 自動的にNoと答えたことにする
+                        user_answers[other_key] = "n" 
+
+        elif user_ans_char == "n":
+            next_candidates = [c for c in next_candidates if not test(c)]
+        
+        elif user_ans_char == "u":
+            # 「わからない」の場合は候補を絞らない（全員残す）
+            pass
 
         # 新しい状態を履歴に追加
-        next_asked_keys = asked_keys.copy()
-        next_asked_keys.add(key)
         history.append((next_candidates, next_asked_keys, current_asked_count + 1))
 
-    return []
-
+    return history[-1][0]
 # -----------------------
 # エントリポイント用関数
 # -----------------------
@@ -1490,7 +1468,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.01           # API呼び出し間隔（秒）
+    SLEEP = 0.1           # API呼び出し間隔（秒）
     CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
     DEPTH = 1              # カテゴリ深度
     BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
@@ -1516,8 +1494,8 @@ if __name__ == "__main__":
         dynamic_list_path = get_dynamic_cache_path(selected_categories, prefix="people_list")
         dynamic_dataset_path = get_dynamic_cache_path(selected_categories, prefix="people_dataset")
 
-        print(f"[INFO] ターゲットリスト: {dynamic_list_path}")
-        print(f"[INFO] ターゲットデータセット: {dynamic_dataset_path}")
+        print(f"ターゲットリスト: {dynamic_list_path}")
+        print(f"ターゲットデータセット: {dynamic_dataset_path}")
         
         # ステップ実行
         run_step("collect",                          # データ収集ステップ
