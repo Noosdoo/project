@@ -53,14 +53,15 @@ CATEGORIES = [
     "日本の俳優", "日本の女優", "お笑い芸人", "日本の声優", "日本のアイドル", "日本のモデル", "日本の歌手",
     "日本の作曲家", "日本の映画監督", "日本の舞台俳優", "日本のアナウンサー", "日本のYouTuber",
     # 文学・学問
-    "日本の作家", "日本の漫画家", "日本の小説家", "日本の医師", "日本の教育者",
+    "日本の作家", "日本の漫画家", "日本の小説家", "日本の詩人", "日本の科学者", "日本の数学者", "日本の物理学者",
+    "日本の化学者", "日本の医師", "日本の教育者", "日本の研究者", "日本の発明家",
     # 政治・社会
-    "日本の政治家", "日本の官僚", "日本の実業家", "日本の起業家", "日本の弁護士",
+    "日本の政治家", "日本の官僚", "日本の経営者", "日本の起業家", "日本の弁護士",
     # スポーツ
-    "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本の格闘家", "日本のレスリング選手", "日本のオリンピック選手",
-    "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手", "日本のゴルフ選手",
+    "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本のレスリング選手", "日本のオリンピック選手",
+    "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手",
     # 芸術・文化
-    "日本の画家", "日本の建築家", "日本のデザイナー", "日本の作曲家"
+    "日本の画家", "日本の写真家", "日本の建築家", "日本のデザイナー",
 ]
 
 # Wikipedia APIに送る際のヘッダー
@@ -73,34 +74,18 @@ def get_dynamic_cache_path(categories_list, prefix="people_list"):
     """
     選択されたカテゴリリストから一意のハッシュを生成し、
     キャッシュファイル名（.json）を返す。
-    
-    ★ 修正: 
-    - 全選択 (または0選択) の場合のみ "ALL" を使用。
-    - それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
     """
-    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュ/名前になるようにする
+    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュになるようにする
     sorted_cats = sorted(list(set(categories_list)))
     
-    num_cats = len(sorted_cats)
-    total_cats = len(CATEGORIES) # グローバルのカテゴリ総数を参照
+    # JSON文字列に変換
+    cat_string = json.dumps(sorted_cats)
     
-    filename_part = ""
-
-    # --- ファイル名のルールを決定 ---
-
-    # 1. カテゴリ未選択(Enter) または 全カテゴリを選択した場合
-    if num_cats == 0 or num_cats == total_cats:
-        filename_part = "ALL"
-        
-    # 2. それ以外 (1カテゴリでも、40カテゴリでも) の場合
-    else:
-        # カテゴリ名をアンダースコアで連結
-        # (ファイル名として使えない文字を置換)
-        safe_names = [re.sub(r'[\\/:*?"<>|]', '-', cat) for cat in sorted_cats]
-        filename_part = "_".join(safe_names)
-
-    # 最終的なファイル名を返す
-    return f"{prefix}_{filename_part}.json"
+    # MD5ハッシュを生成
+    hash_hex = hashlib.md5(cat_string.encode('utf-8')).hexdigest()
+    
+    # 例: people_list_abcdef123456.json
+    return f"{prefix}_{hash_hex}.json"
 
 # -----------------------
 # 除外ルール: 人物ページかどうか判定
@@ -543,10 +528,11 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 
 
 # -----------------------
-# Step2: データセット構築（並列）
+# Step2: データセット構築（並列版）
+# (summaryの取得状況をログに出す)
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=30, sleep=0.1): #max_workers（並列数）を小さくすればエラーを防げる
+                           limit=None, max_workers=150, sleep=0.1):
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
@@ -663,8 +649,8 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     # (性別・年齢・職業・出身地などの処理)
                     g = wd.get("gender_qid") # 性別QID
 
-                    if g == "Q6581097": features["gender"] = "male" # 男性
-                    elif g == "Q6581072": features["gender"] = "female" # 女性
+                    if g == "Q6581097": features["gender_male"] = 1 # 男性
+                    elif g == "Q6581072": features["gender_female"] = 1 # 女性
 
                     birth_time = wd.get("birth_time") # 生年月日
                     current_year = datetime.now().year # 現在の西暦年
@@ -841,6 +827,7 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
+        ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
         ("actor_wikidata", "俳優でもありますか？", "occupation"),
         ("singer_wikidata", "歌手でもありますか？", "occupation"),
@@ -1234,14 +1221,6 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             print(f"\n===============================")
             print(f"🎉 答えが絞り込めました！ ({current_asked_count}回の質問)")
             
-            # ★ 画像URL取得機能 (以前追加したものがあればここに復活させます)
-            print(f"--- 候補者の画像を取得中: {c['name']} ---")
-            image_url = get_wikipedia_main_image(c['name'])
-            if image_url:
-                print(f"📷 画像URL: {image_url}")
-            else:
-                print("📷 (画像は見つかりませんでした)")
-        
             ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n/b) > ").strip().lower()
 
             if ans in ("y", "yes"):
@@ -1285,8 +1264,25 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         #--- 4. 質問の選択 (2人以上の場合) ---
         
                
-        question = find_best_question(current_candidates, qm_dict, current_asked_keys)
+        # 最初の質問(asked_count == 0)かどうかをチェック
+        if current_asked_count == 0:
             
+            # 質問マップ(qm_dict)から "gender_male" の質問オブジェクトを手動で探す
+            question = None
+            for q in qm_dict.get("common", []):
+                if q.get("key") == "gender_male":
+                    question = q
+                    break
+            
+            # もし "gender_male" が何らかの理由で見つからなければ、通常のロジックにフォールバック
+            if question is None:
+                print("[WARN] 'gender_male' が質問マップに見つかりません。通常の最適化ロジックに戻します。")
+                question = find_best_question(current_candidates, qm_dict, current_asked_keys)
+        
+        else:
+            # 2問目以降は通常の最適化ロジック
+            question = find_best_question(current_candidates, qm_dict, current_asked_keys)
+
         if question is None:
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
             break # 質問が尽きた
@@ -1414,7 +1410,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.1           # API呼び出し間隔（秒）
+    SLEEP = 0.05           # API呼び出し間隔（秒）
     CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
     DEPTH = 1              # カテゴリ深度
     BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
@@ -1440,8 +1436,8 @@ if __name__ == "__main__":
         dynamic_list_path = get_dynamic_cache_path(selected_categories, prefix="people_list")
         dynamic_dataset_path = get_dynamic_cache_path(selected_categories, prefix="people_dataset")
 
-        print(f"ターゲットリスト: {dynamic_list_path}")
-        print(f"ターゲットデータセット: {dynamic_dataset_path}")
+        print(f"[INFO] ターゲットリスト: {dynamic_list_path}")
+        print(f"[INFO] ターゲットデータセット: {dynamic_dataset_path}")
         
         # ステップ実行
         run_step("collect",                          # データ収集ステップ
