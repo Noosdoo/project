@@ -1,0 +1,18 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "www.dmgpt.site",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "dbms_class_7",
+            "database": "db_class",
+            "username": "student"
+        }
+    ]
+}
