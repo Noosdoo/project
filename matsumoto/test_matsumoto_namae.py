@@ -842,9 +842,6 @@ def generate_question_map(dataset, selected_categories=None):
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
         ("alive_text", "現在もご存命ですか？", "common"),
-        ("actor_wikidata", "俳優でもありますか？", "occupation"),
-        ("singer_wikidata", "歌手でもありますか？", "occupation"),
-        ("politician_wikidata", "政治家でもありますか？", "occupation"),
         ("age_20s", "現在、20代ですか？", "common"), ("age_30s", "現在、30代ですか？", "common"),
         ("age_40s", "現在、40代ですか？", "common"), ("age_50s", "現在、50代ですか？", "common"),
         ("born_1980s", "1980年代生まれですか？", "common"), ("born_1990s", "1990年代生まれですか？", "common"),
