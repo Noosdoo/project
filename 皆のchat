@@ -6,3 +6,6 @@
 
 これでファイル開ける
 .\people_list_日本の俳優.json
+
+requestsをインストールするには
+pip install requests wikipedia-api janome
