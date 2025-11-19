@@ -1072,10 +1072,12 @@ def generate_question_map(dataset, selected_categories=None):
                     if place in PREFECTURES: continue # 都道府県名はスキップ（名詞質問で対応）
                     question_text = f"『{place}』の出身ですか？" # 出身地質問
                     category_type = "feature" # 特徴カテゴリに変更
+                    weight = WEIGHT_MID # 重み中
                 elif cat_name.endswith("所属者"): # 所属カテゴリ
                     group = cat_name.replace("所属者", "") # グループ名部分抽出
                     question_text = f"『{group}』に所属していますか（しましたか）？" # 所属質問
                     category_type = "feature" # 特徴カテゴリに変更
+                    weight = WEIGHT_MID # 重み中
                 elif cat_name.endswith("関連の人物"): # 関連人物カテゴリ
                     topic = cat_name.replace("関連の人物", "") # トピック部分抽出
                     question_text = f"『{topic}』に関連する人物ですか？" # 関連質問
@@ -1083,6 +1085,7 @@ def generate_question_map(dataset, selected_categories=None):
                     award = cat_name.replace("の受賞者", "") # 賞名部分抽出
                     question_text = f"『{award}』を受賞していますか？" # 受賞質問
                     category_type = "feature" # 特徴カテゴリに変更
+                    weight = WEIGHT_LOW # 重み低
                 else: # その他のカテゴリ
                     question_text = f"「{cat_name}」というカテゴリに分類されますか？"
 
@@ -1100,12 +1103,15 @@ def generate_question_map(dataset, selected_categories=None):
                             "熊本", "大分", "宮崎", "鹿児島", "沖縄"]: # 日本の都道府県
                     question_text = f"『{word}』出身、または縁がありますか？"
                     category_type = "feature"
+                    weight = WEIGHT_MID # 重み中
                 elif word.endswith("大学"):
                     question_text = f"『{word}』を卒業していますか？"
                     category_type = "feature"
+                    weight = WEIGHT_LOW # 重み低
                 elif word.endswith("賞"):
                     question_text = f"『{word}』を受賞していますか？"
                     category_type = "feature"
+                    weight = WEIGHT_LOW # 重み低
                 elif word.endswith("（"): # "タモリ（森田一義）" のような表記を避ける
                     continue
                 elif len(word) <= 4 and (re.fullmatch(r'[A-Z]+', word) or re.fullmatch(r'[A-Z][a-z]+', word)): # 英字略語
@@ -1113,6 +1119,7 @@ def generate_question_map(dataset, selected_categories=None):
                 elif word.endswith("者") or word.endswith("家") or word.endswith("選手"):
                     question_text = f"『{word}』としての側面も持っていますか？"
                     category_type = "occupation" # 職業カテゴリに変更
+                    weight = WEIGHT_MID # 重み中
                 else:
                     # デフォルトの名詞質問
                     question_text = f"『{word}』というキーワードに関連しますか？"
@@ -1139,6 +1146,7 @@ def generate_question_map(dataset, selected_categories=None):
                 qm[category_type].append({ # カテゴリタイプも反映
                     "key": key, 
                     "text": question_text,
+                    "weight": weight,
                     "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
                 })
                 added_keys.add(key)
@@ -1195,6 +1203,8 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
         for question in q_category_list: # 各質問ごとに
             key, test = question.get("key"), question.get("check") # キーとテスト関数取得
 
+            weight = question.get("weight", 10) # 重み取得（未定義なら10）
+
             if key in asked_keys: # 既に尋ねた質問はスキップ
                 continue
 
@@ -1213,7 +1223,7 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
                 score = 0 # 分割できない場合はスコア0
             else: # 分割できる場合
                 # (情報利得スコア) * (優先度ブースト)
-                score = (yes_count * no_count) * priority_weight # スコア計算
+                score = (yes_count * no_count) * weight # スコア計算
             
             if score > best_score: # 最良スコア更新
                 best_score = score # スコア更新
@@ -1221,8 +1231,6 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
             
             elif score == 0: # スコア0の質問を保持
                 zero_score_questions.append(question) # スコア0質問リストに追加
-
-    # ★★★ ここからロジック修正 ★★★
     
     # 1. 候補者を分割できる「良い質問」 (score > 0) が見つかった場合
     if best_question is not None:
@@ -1234,13 +1242,17 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     #     スコア0の「悪い質問」をするより、諦めて候補者を提示する方が良い
     if total_candidates <= 5:
         print("[DEBUG] 候補者が5人以下のため、スコア0の質問は行わず、推測を終了します。")
-        return None # ★ 諦める
+        return None # 諦める
 
     # 2b. 候補者がまだ多い (6人以上) 場合
     #     最後の手段として、スコア0の質問でもランダムに尋ねる
     if zero_score_questions:
-        print("[DEBUG] スコア>0の質問がありませんでした。スコア0の質問からランダムに選びます。")
-        return random.choice(zero_score_questions) # スコア0の質問からランダムに選択
+        print("[DEBUG] スコア > 0の質問がありませんでした。スコア0の質問からランダムに選びます。")
+        # スコア0の中でも、なるべく重みが大きいものを選ぶ
+        zero_score_questions.sort(key=lambda q: q.get("weight", 0), reverse=True)
+        # 上位10個からランダム
+        top_zeros = zero_score_questions[:10]
+        return random.choice(top_zeros)
         
     # 3. 本当に尋ねる質問が何も残っていない場合
     return None # 諦める
@@ -1507,7 +1519,7 @@ if __name__ == "__main__":
 
     # データの閾値を緩和
     # 特徴量がこの数未満の人物は検索開始前に除外されます。
-    MIN_FEATURE_THRESHOLD = 100 # 閾値
+    MIN_FEATURE_THRESHOLD = 35 # 閾値
 
     # --- 実行フロー ---
     try:
