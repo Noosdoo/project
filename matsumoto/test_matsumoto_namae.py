@@ -528,7 +528,6 @@ def extract_features_from_summary(summary):
     features["alive_text"] = 0 if ("没" in s or "死去" in s or "亡くな" in s) else 1 # 生存フラグ
     return features # 抽出特徴辞書返す
 
-
     # グループ活動の判定
     # 「メンバー」「結成」「解散」「トリオ」「コンビ」などがあればグループ活動の可能性大
     GROUP_KEYWORDS = ["グループ", "ユニット", "コンビ", "トリオ", "バンド", "メンバー", "結成", "解散", "加入", "脱退"]
