@@ -1293,113 +1293,109 @@ def save_mistake_log(user_answers, final_candidates):
         print(f"[ERROR] ログ保存失敗: {e}")
 
 # -----------------------
-# アキネーター本体ループ (★「戻る」機能のバグを完全修正)
-# -----------------------
-# -----------------------
-# 改修版: アキネーター本体ループ
+# アキネーター本体ループ (修正版: リカバリー回数制限 3回まで)
 # -----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
     """
     候補者が1人になるまで質問を続ける。
-    間違い許容機能（リカバリー）付き。
+    リカバリー（ニアミス探索）は最大3回までとし、それ以上は謝罪して終了する。
     """
     
-
     # ゲーム用データセット
     valid_dataset = [p for p in dataset if p.get("features")]
     current_candidates = valid_dataset.copy()
     
     # 履歴管理
-    # user_answers: { "key": "y"|"n"|"u" } -> リカバリー計算用
     user_answers = {} 
-    # history: 戻る機能用
     history = [(current_candidates.copy(), set(), 0)] 
     
     # 質問マップ生成
     qm_dict = generate_question_map(valid_dataset, selected_categories) 
 
-    print(f"=== 🕵️ 人物検索開始 (間違い許容モード) ===")
+    # ★ 追加: リカバリー回数のカウンター
+    recovery_attempt_count = 0
+
+    print(f"=== 🕵️ 人物検索開始 (回数制限付きリカバリーモード) ===")
     print("回答: y(はい) / n(いいえ) / u(わからない) / b(戻る)")
     print("--------------------------------------------------")
     
     loop_count = 0
+    last_recovery_count = -1 
+
     while len(history) > 0 and loop_count < max_questions:
         loop_count += 1
         current_candidates, asked_keys, current_asked_count = history[-1]
         
-        # --- 判定ロジック: リカバリー発動チェック ---
+        # --- リカバリー発動トリガー ---
         trigger_recovery = False
         
-        # ケースA: 候補が0人になった
+        # 判定 A: 候補が0人
         if len(current_candidates) == 0:
-            print("\n[!] 条件に完全に一致する候補がいなくなりました。")
-            trigger_recovery = True
+            print("\n[!] 候補がいなくなりました。")
+            trigger_recovery = True 
 
-        # ケースB: 候補が1人になった (推測タイム)
+        # 判定 B: 候補が1人になり、推測を行った
         elif len(current_candidates) == 1:
             c = current_candidates[0]
             print(f"\n===============================")
             print(f"🎉 答えが絞り込めました！ ({current_asked_count}回の質問)")
             ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n) > ").strip().lower()
 
-            if ans in ("y", "yes"):
+            if ans in ("y", "yes", "はい"):
                 print(f"🎉 正解！お疲れ様でした！ (名前: {c['name']})")
                 return [c]
             else:
                 print(f"🤔 違いましたか...。")
-                trigger_recovery = True # 正解じゃなかったのでリカバリーへ
+                trigger_recovery = True
 
         # ------------------------------------------------
-        # ★ リカバリー (救済) モード
+        # ★ リカバリー (再構築) ロジック
         # ------------------------------------------------
         if trigger_recovery:
-            print("\n🔄 **リカバリーモード発動** 🔄")
-            print("回答ミスがあった可能性を考慮し、全データから再探索します...")
-            print("※ 「間違い数」が 3回以下 の人物を候補として復活させます。")
             
+            # ★★★ ここに回数制限のロジックを追加 ★★★
+            recovery_attempt_count += 1
+            
+            if recovery_attempt_count > 3:
+                print("\n========================================")
+                print("🙇 申し訳ありません。")
+                print("条件を緩和して3回再探索しましたが、特定に至りませんでした。")
+                print("私の知識不足か、回答に誤りがあった可能性があります。")
+                print("========================================")
+                save_mistake_log(user_answers, current_candidates)
+                return [] # 終了
+
+            print(f"\n🔄 **リカバリー発動 ({recovery_attempt_count}/3回目)** 🔄")
+            print("これまでの回答と「不一致が3つ以内」の人物を再検索します...")
+
             # 全員に対して「間違い数」を計算
             near_misses = []
             for person in valid_dataset:
-                # ここで間違い数を計算
                 miss_count = calculate_mismatches(person, user_answers)
                 
-                # ★「間違え数が3を超えたら削除（対象外）」のロジック
+                # 間違い3回以内を復活
                 if miss_count <= 3:
-                    near_misses.append({
-                        "person": person,
-                        "misses": miss_count
-                    })
+                    near_misses.append(person)
             
-            # 間違いが少ない順にソート
-            near_misses.sort(key=lambda x: x["misses"])
-            
-            # 上位5名を表示
-            if not near_misses:
-                print("❌ 救済できませんでした。条件に近い人物がいません。")
-                # ログ保存
+            # 直前に「違う」と言われた人物をリストから除外
+            if len(current_candidates) == 1:
+                 rejected_name = current_candidates[0]["name"]
+                 near_misses = [p for p in near_misses if p["name"] != rejected_name]
+
+            # 救済候補が0人、または変化なしの場合
+            if not near_misses or len(near_misses) == last_recovery_count:
+                print("❌ 救済できませんでした（これ以上条件に近い人物がいません）。申し訳ありません。")
                 save_mistake_log(user_answers, current_candidates)
                 return []
 
-            print("\n【もしかして、この方々ですか？】")
-            top_n = near_misses[:5]
-            for i, item in enumerate(top_n, 1):
-                p = item["person"]
-                m = item["misses"]
-                print(f" {i}. {p['name']} (不一致数: {m})")
-            
-            print(f" {len(top_n)+1}. どちらでもない（終了する）")
+            last_recovery_count = len(near_misses)
 
-            try:
-                sel = int(input(f"番号を選択してください (1-{len(top_n)+1}) > "))
-                if 1 <= sel <= len(top_n):
-                    chosen = top_n[sel-1]["person"]
-                    print(f"🎉 よかったです！正解は『{chosen['name']}』でした！")
-                    return [chosen]
-            except: pass
+            print(f"👉 **{len(near_misses)}名** を新たな候補として再設定しました。質問を続けます。")
+            print("--------------------------------------------------")
 
-            print("お力になれず申し訳ありません。今回の履歴を保存して終了します。")
-            save_mistake_log(user_answers, current_candidates)
-            return []
+            # ニアミス集団を次の状態としてセット
+            history.append((near_misses, asked_keys, current_asked_count))
+            continue
 
         # ------------------------------------------------
         # 通常の質問選択フロー
@@ -1407,22 +1403,26 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         question = find_best_question(current_candidates, qm_dict, asked_keys)
 
         if question is None:
-            # 質問切れの場合もリカバリーに飛ばすために強制的に0人にする
             history.append(([], asked_keys, current_asked_count))
             continue
 
         key, q_text, test = question["key"], question["text"], question["check"]
         
-        print(f"\n[質問 {current_asked_count+1}] (候補: {len(current_candidates)}人)")
+        # 予想分割数を表示
+        yes_count_analysis = sum(1 for c in current_candidates if test(c))
+        no_count_analysis = len(current_candidates) - yes_count_analysis
+        
+        print(f"\n[質問 {current_asked_count+1}] 残り候補: {len(current_candidates)}人")
+        print(f"📊 [分析] Yes: {yes_count_analysis}人 / No: {no_count_analysis}人")
+        
         ans = input(q_text + " （y/n/u/b） > ").strip().lower()
 
         # --- 戻る処理 ---
         if ans in ("b", "back"):
             if len(history) > 1:
                 history.pop()
-                # user_answers から最新の回答を削除（簡易的な同期）
-                # ※厳密には前の質問キーを特定して消す必要があるが、
-                # この簡易実装ではリカバリー時のスコアにわずかなゴミが残る程度で動作はする
+                if key in user_answers:
+                    del user_answers[key]
                 print("<<< 1つ前の質問に戻りました。")
                 continue
             else:
@@ -1438,12 +1438,10 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             next_candidates = [c for c in current_candidates if not test(c)]
         else:
             user_val = "u"
-            next_candidates = current_candidates.copy() # 絞り込まない
+            next_candidates = current_candidates.copy() 
         
-        # ★ ここで回答を保存（リカバリー計算用）
         user_answers[key] = user_val 
 
-        # 新しい状態を履歴に追加
         next_asked_keys = asked_keys.copy()
         next_asked_keys.add(key)
         history.append((next_candidates, next_asked_keys, current_asked_count + 1))
