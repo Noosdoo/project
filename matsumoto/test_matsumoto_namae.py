@@ -841,7 +841,6 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
-        ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
         ("actor_wikidata", "俳優でもありますか？", "occupation"),
         ("singer_wikidata", "歌手でもありますか？", "occupation"),
@@ -1235,6 +1234,14 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             print(f"\n===============================")
             print(f"🎉 答えが絞り込めました！ ({current_asked_count}回の質問)")
             
+            # ★ 画像URL取得機能 (以前追加したものがあればここに復活させます)
+            print(f"--- 候補者の画像を取得中: {c['name']} ---")
+            image_url = get_wikipedia_main_image(c['name'])
+            if image_url:
+                print(f"📷 画像URL: {image_url}")
+            else:
+                print("📷 (画像は見つかりませんでした)")
+        
             ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n/b) > ").strip().lower()
 
             if ans in ("y", "yes"):
@@ -1278,25 +1285,8 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         #--- 4. 質問の選択 (2人以上の場合) ---
         
                
-        # 最初の質問(asked_count == 0)かどうかをチェック
-        if current_asked_count == 0:
+        question = find_best_question(current_candidates, qm_dict, current_asked_keys)
             
-            # 質問マップ(qm_dict)から "gender_male" の質問オブジェクトを手動で探す
-            question = None
-            for q in qm_dict.get("common", []):
-                if q.get("key") == "gender_male":
-                    question = q
-                    break
-            
-            # もし "gender_male" が何らかの理由で見つからなければ、通常のロジックにフォールバック
-            if question is None:
-                print("[WARN] 'gender_male' が質問マップに見つかりません。通常の最適化ロジックに戻します。")
-                question = find_best_question(current_candidates, qm_dict, current_asked_keys)
-        
-        else:
-            # 2問目以降は通常の最適化ロジック
-            question = find_best_question(current_candidates, qm_dict, current_asked_keys)
-
         if question is None:
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
             break # 質問が尽きた
