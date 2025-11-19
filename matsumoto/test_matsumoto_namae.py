@@ -885,50 +885,68 @@ def generate_question_map(dataset, selected_categories=None):
     qm = {"occupation": [], "activity": [], "feature": [], "common": []} # 質問マップ初期化
     added_keys = set() # 追加済み特徴キーセット
 
+    # --- 重みの定義 ---
+    WEIGHT_URGENT = 1000 # 生死
+    WEIGHT_HIGH   = 500  # 年代、大まかな職業
+    WEIGHT_MID    = 100  # 事務所、出身地、血液型
+    WEIGHT_LOW    = 50   # 具体的な作品名
+    WEIGHT_MIN    = 10   # 細かいキーワード
+
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
-        ("alive_text", "現在もご存命ですか？", "common"),
-        ("actor_wikidata", "俳優でもありますか？", "occupation"),
-        ("singer_wikidata", "歌手でもありますか？", "occupation"),
-        ("politician_wikidata", "政治家でもありますか？", "occupation"),
-        ("age_20s", "現在、20代ですか？", "common"), ("age_30s", "現在、30代ですか？", "common"),
-        ("age_40s", "現在、40代ですか？", "common"), ("age_50s", "現在、50代ですか？", "common"),
-        ("born_1980s", "1980年代生まれですか？", "common"), ("born_1990s", "1990年代生まれですか？", "common"),
-        ("born_2000s", "2000年代生まれですか？", "common"),
-        ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common"),
-        ("has_katakana", "名前にカタカナが含まれていますか？", "common"),
-        ("is_hiragana_only", "名前はひらがなだけですか？", "common"),
-        ("from_tokyo", "出身は東京ですか？", "feature"),
-        ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature"),
-        ("grad_todai", "東京大学を卒業していますか？", "feature"),
-        ("grad_waseda", "早稲田大学を卒業していますか？", "feature"),
-        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature"),
-        ("blood_A", "血液型はA型ですか？", "feature"),
-        ("blood_B", "血液型はB型ですか？", "feature"),
-        ("blood_O", "血液型はO型ですか？", "feature"),
-        ("blood_AB", "血液型はAB型ですか？", "feature"),
-        ("not_japanese_only", "日本以外の国籍（ルーツ）を持っていますか？", "feature"),
-        ("has_family_info", "家族（親・配偶者・子供）にも有名人がいますか？", "feature"),
-        ("field_literature", "主な活動分野は「文学」ですか？", "occupation"),
-        ("field_music", "主な活動分野は「音楽」ですか？", "occupation"),
-        ("field_science", "主な活動分野は「科学」ですか？", "occupation"),
-        ("award_shiju", "紫綬褒章を受章していますか？", "feature"),
-        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature"),
-        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature"),
+        # [最優先]
+        ("alive_text", "現在もご存命ですか？", "common", WEIGHT_URGENT),
 
-        # グループ活動・事務所系
-        ("is_group_member", "グループやユニットの一員として活動していますか（いましたか）？", "activity"),
-        ("office_yoshimoto", "吉本興業に所属していますか？", "feature"),
-        ("office_johnnys", "SMILE-UP.（旧ジャニーズ）やSTARTOに関連するアイドルですか？", "feature"),
-        ("office_horipro", "ホリプロに所属していますか？", "feature"),
-        ("office_oscar", "オスカープロモーションに所属していますか？", "feature"),
-        ("office_amuse", "アミューズに所属していますか？", "feature"),
-        ("office_stardust", "スターダストプロモーションに所属していますか？", "feature"),
-        ("office_ota", "太田プロダクションに所属していますか？", "feature"),
-        ("office_ldh", "LDH（EXILE TRIBEなど）に関連していますか？", "feature"),
-        ("office_shiki", "劇団四季に関連していますか？", "feature"),
-        ("office_takarazuka", "宝塚歌劇団に関連していますか？", "feature"),
-        ("office_akb", "AKB48グループや坂道シリーズに関連していますか？", "feature"),
+        # [優先]
+        ("age_20s", "現在、20代ですか？", "common", WEIGHT_HIGH), 
+        ("age_30s", "現在、30代ですか？", "common", WEIGHT_HIGH),
+        ("age_40s", "現在、40代ですか？", "common", WEIGHT_HIGH), 
+        ("age_50s", "現在、50代ですか？", "common", WEIGHT_HIGH),
+        ("born_1980s", "1980年代生まれですか？", "common", WEIGHT_HIGH), 
+        ("born_1990s", "1990年代生まれですか？", "common", WEIGHT_HIGH),
+        ("born_2000s", "2000年代生まれですか？", "common", WEIGHT_HIGH),
+        
+        ("actor_wikidata", "俳優ですか？", "occupation", WEIGHT_HIGH),
+        ("singer_wikidata", "歌手ですか？", "occupation", WEIGHT_HIGH),
+        ("politician_wikidata", "政治家ですか？", "occupation", WEIGHT_HIGH),
+        ("field_literature", "主な活動分野は「文学」ですか？", "occupation", WEIGHT_HIGH),
+        ("field_music", "主な活動分野は「音楽」ですか？", "occupation", WEIGHT_HIGH),
+        ("field_science", "主な活動分野は「科学」ですか？", "occupation", WEIGHT_HIGH),
+
+        # [普通]
+        ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common", WEIGHT_MID),
+        ("has_katakana", "名前にカタカナが含まれていますか？", "common", WEIGHT_MID),
+        ("is_hiragana_only", "名前はひらがなだけですか？", "common", WEIGHT_MID),
+        ("from_tokyo", "出身は東京ですか？", "feature", WEIGHT_MID),
+        ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature", WEIGHT_MID),
+        ("blood_A", "血液型はA型ですか？", "feature", WEIGHT_MID),
+        ("blood_B", "血液型はB型ですか？", "feature", WEIGHT_MID),
+        ("blood_O", "血液型はO型ですか？", "feature", WEIGHT_MID),
+        ("blood_AB", "血液型はAB型ですか？", "feature", WEIGHT_MID),
+        ("not_japanese_only", "日本以外の国籍（ルーツ）を持っていますか？", "feature", WEIGHT_MID),
+        ("has_family_info", "家族（親・配偶者・子供）にも有名人がいますか？", "feature", WEIGHT_MID),
+        
+        # [低め]
+        ("grad_todai", "東京大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_waseda", "早稲田大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("award_shiju", "紫綬褒章を受章していますか？", "feature", WEIGHT_LOW),
+        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
+        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
+        
+        # [追加分]
+        ("is_group_member", "グループやユニットの一員として活動していますか（いましたか）？", "activity", WEIGHT_MID),
+        ("office_yoshimoto", "吉本興業に所属していますか？", "feature", WEIGHT_MID),
+        ("office_johnnys", "SMILE-UP.（旧ジャニーズ）やSTARTOに関連するアイドルですか？", "feature", WEIGHT_MID),
+        ("office_horipro", "ホリプロに所属していますか？", "feature", WEIGHT_MID),
+        ("office_oscar", "オスカープロモーションに所属していますか？", "feature", WEIGHT_MID),
+        ("office_amuse", "アミューズに所属していますか？", "feature", WEIGHT_MID),
+        ("office_stardust", "スターダストプロモーションに所属していますか？", "feature", WEIGHT_MID),
+        ("office_ota", "太田プロダクションに所属していますか？", "feature", WEIGHT_MID),
+        ("office_ldh", "LDH（EXILE TRIBEなど）に関連していますか？", "feature", WEIGHT_MID),
+        ("office_shiki", "劇団四季に関連していますか？", "feature", WEIGHT_MID),
+        ("office_takarazuka", "宝塚歌劇団に関連していますか？", "feature", WEIGHT_MID),
+        ("office_akb", "AKB48グループや坂道シリーズに関連していますか？", "feature", WEIGHT_MID),
     ]
 
     # 共通質問を追加
@@ -946,28 +964,28 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 2. FEATURE_KEYWORDS に基づく質問 (Summary由来) ---
     feature_questions_def = {
-        "comedian": ("お笑い芸人ですか？", "occupation"),
-        "seiyuu": ("声優として活動していますか？", "occupation"),
-        "athlete": ("スポーツ選手ですか？", "occupation"),
-        "model": ("モデルとして活動していますか？", "occupation"),
-        "idol": ("アイドル活動をしていましたか（していますか）？", "occupation"),
-        "youtuber": ("YouTuberとして活動していますか？", "occupation"),
-        "director": ("監督（映画やアニメなど）ですか？", "occupation"),
-        "taiga": ("大河ドラマに出演しましたか？", "activity"),
-        "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity"),
-        "romance_drama": ("恋愛ドラマに出演しましたか？", "activity"),
-        "movie": ("映画に出演していますか？", "activity"),
-        "action": ("アクション作品に出演していますか？", "activity"),
-        "stage": ("舞台（演劇・ミュージカル）に出演していますか？", "activity"),
-        "anime": ("アニメ作品に関わっていますか？", "activity"),
-        "hollywood": ("海外（ハリウッド等）の作品に出演していますか？", "activity"),
-        "nhk": ("NHK（朝ドラなど）に出演したことがありますか？", "activity"),
-        "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature"),
-        "mc": ("司会者（MC）として有名ですか？", "activity"),
-        "radio": ("ラジオ番組を持っていますか？", "activity"),
-        "cm": ("CMに多く出演していますか？", "activity"),
-        "married": ("結婚していることを公表していますか？", "feature"),
-        "author": ("本（エッセイなど）を出版したことがありますか？", "feature"),
+        "comedian": ("お笑い芸人ですか？", "occupation", WEIGHT_HIGH),
+        "seiyuu": ("声優として活動していますか？", "occupation", WEIGHT_HIGH),
+        "athlete": ("スポーツ選手ですか？", "occupation", WEIGHT_HIGH),
+        "model": ("モデルとして活動していますか？", "occupation", WEIGHT_HIGH),
+        "idol": ("アイドル活動をしていましたか（していますか）？", "occupation", WEIGHT_HIGH),
+        "youtuber": ("YouTuberとして活動していますか？", "occupation", WEIGHT_HIGH),
+        "director": ("監督（映画やアニメなど）ですか？", "occupation", WEIGHT_HIGH),
+        "taiga": ("大河ドラマに出演しましたか？", "activity", WEIGHT_MID),
+        "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity", WEIGHT_MID),
+        "romance_drama": ("恋愛ドラマに出演しましたか？", "activity", WEIGHT_LOW),
+        "movie": ("映画に出演していますか？", "activity", WEIGHT_MID),
+        "action": ("アクション作品に出演していますか？", "activity", WEIGHT_LOW),
+        "stage": ("舞台（演劇・ミュージカル）に出演していますか？", "activity", WEIGHT_MID),
+        "anime": ("アニメ作品に関わっていますか？", "activity", WEIGHT_MID),
+        "hollywood": ("海外（ハリウッド等）の作品に出演していますか？", "activity", WEIGHT_MID),
+        "nhk": ("NHK（朝ドラなど）に出演したことがありますか？", "activity", WEIGHT_MID),
+        "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature", WEIGHT_MID),
+        "mc": ("司会者（MC）として有名ですか？", "activity", WEIGHT_MID),
+        "radio": ("ラジオ番組を持っていますか（いましたか）？", "activity", WEIGHT_LOW),
+        "cm": ("CMに多く出演していますか？", "activity", WEIGHT_LOW),
+        "married": ("結婚していることを公表していますか？", "feature", WEIGHT_MID),
+        "author": ("本（エッセイなど）を出版したことがありますか？", "feature", WEIGHT_LOW),
     }
 
     # 仕事カテゴリに基づくフィルタリングマップ
@@ -1042,6 +1060,7 @@ def generate_question_map(dataset, selected_categories=None):
         
         question_text = "" # 質問テキスト初期化
         category_type = "activity" # デフォルトカテゴリ
+        weight = WEIGHT_MIN # デフォルトは最低ランク
         
         try:
             # カテゴリ (cat_) の質問生成
@@ -1114,6 +1133,7 @@ def generate_question_map(dataset, selected_categories=None):
                 title = key[len("work_"):]
                 question_text = f"『{title}』という作品や番組に出演（または関連）していますか？"
                 category_type = "activity" # 活動に関する質問
+                weight = WEIGHT_LOW
 
             if question_text: # 質問テキストが生成された場合
                 qm[category_type].append({ # カテゴリタイプも反映
@@ -1487,7 +1507,7 @@ if __name__ == "__main__":
 
     # データの閾値を緩和
     # 特徴量がこの数未満の人物は検索開始前に除外されます。
-    MIN_FEATURE_THRESHOLD = 30 # 閾値
+    MIN_FEATURE_THRESHOLD = 100 # 閾値
 
     # --- 実行フロー ---
     try:
