@@ -61,7 +61,7 @@ CATEGORIES = [
     "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本のレスリング選手", "日本のオリンピック選手",
     "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手",
     # 芸術・文化
-    "日本の画家", "日本の写真家", "日本の建築家", "日本のデザイナー",
+    "日本の画家", "日本の建築家", "日本のデザイナー", "日本の音楽家"
 ]
 
 # Wikipedia APIに送る際のヘッダー
@@ -74,18 +74,34 @@ def get_dynamic_cache_path(categories_list, prefix="people_list"):
     """
     選択されたカテゴリリストから一意のハッシュを生成し、
     キャッシュファイル名（.json）を返す。
+    
+    ★ 修正: 
+    - 全選択 (または0選択) の場合のみ "ALL" を使用。
+    - それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
     """
-    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュになるようにする
+    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュ/名前になるようにする
     sorted_cats = sorted(list(set(categories_list)))
     
-    # JSON文字列に変換
-    cat_string = json.dumps(sorted_cats)
+    num_cats = len(sorted_cats)
+    total_cats = len(CATEGORIES) # グローバルのカテゴリ総数を参照
     
-    # MD5ハッシュを生成
-    hash_hex = hashlib.md5(cat_string.encode('utf-8')).hexdigest()
-    
-    # 例: people_list_abcdef123456.json
-    return f"{prefix}_{hash_hex}.json"
+    filename_part = ""
+
+    # --- ファイル名のルールを決定 ---
+
+    # 1. カテゴリ未選択(Enter) または 全カテゴリを選択した場合
+    if num_cats == 0 or num_cats == total_cats:
+        filename_part = "ALL"
+        
+    # 2. それ以外 (1カテゴリでも、40カテゴリでも) の場合
+    else:
+        # カテゴリ名をアンダースコアで連結
+        # (ファイル名として使えない文字を置換)
+        safe_names = [re.sub(r'[\\/:*?"<>|]', '-', cat) for cat in sorted_cats]
+        filename_part = "_".join(safe_names)
+
+    # 最終的なファイル名を返す
+    return f"{prefix}_{filename_part}.json"
 
 # -----------------------
 # 除外ルール: 人物ページかどうか判定
@@ -532,7 +548,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 # (summaryの取得状況をログに出す)
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=150, sleep=0.1):
+                           limit=None, max_workers=50, sleep=0.1):
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
@@ -649,8 +665,8 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     # (性別・年齢・職業・出身地などの処理)
                     g = wd.get("gender_qid") # 性別QID
 
-                    if g == "Q6581097": features["gender_male"] = 1 # 男性
-                    elif g == "Q6581072": features["gender_female"] = 1 # 女性
+                    if g == "Q6581097": features["gender"] = "male" # 男性
+                    elif g == "Q6581072": features["gender"] = "female" # 女性
 
                     birth_time = wd.get("birth_time") # 生年月日
                     current_year = datetime.now().year # 現在の西暦年
@@ -1410,7 +1426,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.05           # API呼び出し間隔（秒）
+    SLEEP = 0.1           # API呼び出し間隔（秒）
     CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
     DEPTH = 1              # カテゴリ深度
     BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
