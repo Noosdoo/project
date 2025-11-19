@@ -528,6 +528,31 @@ def extract_features_from_summary(summary):
     features["alive_text"] = 0 if ("没" in s or "死去" in s or "亡くな" in s) else 1 # 生存フラグ
     return features # 抽出特徴辞書返す
 
+
+    # --- 3. ★追加: グループ活動の判定 ---
+    # 「メンバー」「結成」「解散」「トリオ」「コンビ」などがあればグループ活動の可能性大
+    GROUP_KEYWORDS = ["グループ", "ユニット", "コンビ", "トリオ", "バンド", "メンバー", "結成", "解散", "加入", "脱退"]
+    features["is_group_member"] = int(any(kw in s for kw in GROUP_KEYWORDS))
+
+    # --- 4. ★追加: 有名事務所・劇団の判定 (ハードコード) ---
+    # Janomeで分解される前に、フルネームで検知する
+    FAMOUS_OFFICES = {
+        "office_yoshimoto": ["吉本興業", "よしもと"],
+        "office_johnnys": ["ジャニーズ", "SMILE-UP", "スマイルアップ", "STARTO", "光GENJI", "SMAP", "嵐", "King & Prince", "Snow Man", "SixTONES"],
+        "office_horipro": ["ホリプロ"],
+        "office_oscar": ["オスカープロモーション", "オスカー"],
+        "office_amuse": ["アミューズ"],
+        "office_stardust": ["スターダストプロモーション", "スターダスト"],
+        "office_kenon": ["研音"],
+        "office_burning": ["バーニング"],
+        "office_ota": ["太田プロ", "太田プロダクション"],
+        "office_ldh": ["LDH", "EXILE", "三代目"],
+        "office_shiki": ["劇団四季"],
+        "office_takarazuka": ["宝塚歌劇団", "宝塚", "娘役", "男役"],
+        "office_akb": ["AKB", "乃木坂", "櫻坂", "欅坂", "日向坂", "SKE", "NMB", "HKT", "秋元康"],
+    }
+
+    
 # -----------------------
 # ユーティリティ: 人物リスト読み込み
 # -----------------------
