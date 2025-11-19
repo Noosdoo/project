@@ -543,8 +543,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 
 
 # -----------------------
-# Step2: データセット構築（並列版）
-# (summaryの取得状況をログに出す)
+# Step2: データセット構築（並列）
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
                            limit=None, max_workers=30, sleep=0.1): #max_workersを小さくすればエラーを防げる
