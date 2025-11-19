@@ -529,7 +529,6 @@ def extract_features_from_summary(summary):
     return features # 抽出特徴辞書返す
 
     # グループ活動の判定
-    # 「メンバー」「結成」「解散」「トリオ」「コンビ」などがあればグループ活動の可能性大
     GROUP_KEYWORDS = ["グループ", "ユニット", "コンビ", "トリオ", "バンド", "メンバー", "結成", "解散", "加入", "脱退"]
     features["is_group_member"] = int(any(kw in s for kw in GROUP_KEYWORDS))
 
