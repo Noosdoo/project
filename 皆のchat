@@ -9,3 +9,7 @@
 
 requestsをインストールするには
 pip install requests wikipedia-api janome
+
+pip install wikipedia-api requests janome
+
+pip install janome
