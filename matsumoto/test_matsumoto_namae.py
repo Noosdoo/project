@@ -526,6 +526,8 @@ def extract_features_from_summary(summary):
         try: features["birth_year"] = int(m.group(1)) # 生年を整数で保存
         except: pass # 整数変換失敗は無視
     features["alive_text"] = 0 if ("没" in s or "死去" in s or "亡くな" in s) else 1 # 生存フラグ
+
+    
     return features # 抽出特徴辞書返す
 
 # -----------------------
