@@ -67,6 +67,39 @@ CATEGORIES = [
 HEADERS = {"User-Agent": USER_AGENT}
 
 # -----------------------
+# Wikipediaのメイン画像URLを取得
+# -----------------------
+def get_wikipedia_main_image(title, thumb_size=300):
+    """
+    Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
+    """
+    params = {
+        "action": "query",
+        "titles": title,
+        "prop": "pageimages",      
+        "pithumbsize": str(thumb_size), 
+        "format": "json",
+    }
+    
+    data = get_json_with_retry(WIKI_API, params=params)
+    
+    if not data: return None
+    
+    pages = data.get("query", {}).get("pages", {})
+    if not pages: return None
+        
+    page_id = next(iter(pages))
+    page_data = pages[page_id]
+    
+    if "thumbnail" in page_data:
+        return page_data["thumbnail"]["source"]
+    elif "original" in page_data: 
+        return page_data["original"]["source"]
+    else:
+        return None
+
+
+# -----------------------
 # カテゴリに基づいたキャッシュファイル名
 # -----------------------
 def get_dynamic_cache_path(categories_list, prefix="people_list"):
