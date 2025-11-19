@@ -154,5 +154,23 @@
     },
     "final_candidates_count": 1,
     "top_candidate": "BOSS戸田"
+  },
+  {
+    "timestamp": "2025-11-19T16:13:03.541137",
+    "questions_count": 10,
+    "user_answers": {
+      "born_1980s": "y",
+      "age_30s": "y",
+      "singer_wikidata": "y",
+      "actor_wikidata": "y",
+      "has_katakana": "y",
+      "noun_芸者": "y",
+      "age_40s": "y",
+      "noun_作家": "u",
+      "noun_音楽家": "y",
+      "noun_奏者": "y"
+    },
+    "final_candidates_count": 1,
+    "top_candidate": "加藤シゲアキ"
   }
 ]
