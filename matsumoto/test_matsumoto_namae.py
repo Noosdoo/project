@@ -1400,7 +1400,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             if image_url:
                 print(f"📷 画像URL: {image_url}")
             else:
-                print("📷 (画像は見つかりませんでした)")
+                print("📷 (Wikipediaに画像は見つかりませんでした)")
         
             ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n/b) > ").strip().lower()
 
