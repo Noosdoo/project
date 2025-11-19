@@ -487,6 +487,27 @@ def extract_dynamic_features_from_summary(summary):
                 prefix = TARGET_POS_TYPES[pos_tuple] # プレフィックス取得
                 features[f"{prefix}{word}"] = 1 # 特徴として追加
     
+    # 『作品名』の抽出
+    if summary:
+        # 『』の中身をすべて抽出
+        work_titles = re.findall(r'『(.*?)』', summary)
+        
+        # 除外したい一般的な単語
+        IGNORE_TITLES = {
+            "日本", "世界", "現在", "公式", "一覧", "映画", "ドラマ", "漫画", "小説",
+            "アルバム", "シングル", "楽曲", "放送", "番組", "受賞", "概要", "本人",
+            "プロフィール", "経歴", "人物", "来歴", "出演", "作品", "歴史", "文化"
+        }
+
+        for title in work_titles:
+            # 記号などが含まれる長い文は除外（タイトルらしくないため）
+            if len(title) < 2 or len(title) > 20 or "," in title or "。" in title:
+                continue
+            
+            # 除外リストに含まれていなければ特徴に追加
+            if title not in IGNORE_TITLES:
+                features[f"work_{title}"] = 1
+
     if not features and summary: # summaryがある場合のみログ出力
         print(f"[DEBUG-DYNAMIC] Summaryは存在しましたが、抽出された動的特徴は0個でした。(Summary: {summary[:50]}...)")
             
@@ -978,11 +999,11 @@ def generate_question_map(dataset, selected_categories=None):
                 # 追加済みセットに登録
                 added_keys.add(key)
         
-    # --- 3. データセットから動的キーを読み込み、質問を生成する ---
+    # データセットから動的キーを読み込み、質問を生成する
 
     print("データセットをスキャンして、動的な質問（名詞・形容詞・動詞・カテゴリ）を生成します...")
     all_dynamic_keys = set() # すべての動的特徴キーセット
-    DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_", "cat_") # 動的特徴のプレフィックス
+    DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_", "cat_", "work_") # 動的特徴のプレフィックス
     
     # データセットスキャン
     for rec in dataset:
@@ -1087,6 +1108,12 @@ def generate_question_map(dataset, selected_categories=None):
             elif key.startswith("verb_"):
                 verb = key[len("verb_"):]
                 question_text = f"『{verb}（こと）』を（よく）しますか？"
+
+            # 作品名 (work_) の質問生成
+            elif key.startswith("work_"):
+                title = key[len("work_"):]
+                question_text = f"『{title}』という作品や番組に出演（または関連）していますか？"
+                category_type = "activity" # 活動に関する質問
 
             if question_text: # 質問テキストが生成された場合
                 qm[category_type].append({ # カテゴリタイプも反映
