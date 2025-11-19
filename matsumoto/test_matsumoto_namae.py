@@ -106,29 +106,29 @@ def get_wikipedia_main_image(title, thumb_size=300):
     Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
     """
     params = {
-        "action": "query",
-        "titles": title,
-        "prop": "pageimages",      
-        "pithumbsize": str(thumb_size), 
-        "format": "json",
+        "action": "query",                  # アクション
+        "titles": title,                    # ページタイトル
+        "prop": "pageimages",               # ページ画像プロパティ
+        "pithumbsize": str(thumb_size),     # サムネイルサイズ
+        "format": "json",                   # フォーマット
     }
     
-    data = get_json_with_retry(WIKI_API, params=params)
+    data = get_json_with_retry(WIKI_API, params=params)  # APIリクエスト
     
-    if not data: return None
+    if not data: return None  # エラー時はNone返す
     
-    pages = data.get("query", {}).get("pages", {})
-    if not pages: return None
+    pages = data.get("query", {}).get("pages", {})  # ページ情報取得
+    if not pages: return None  # ページなし
         
-    page_id = next(iter(pages))
-    page_data = pages[page_id]
+    page_id = next(iter(pages)) # 最初のページID取得
+    page_data = pages[page_id]  # ページデータ取得
     
-    if "thumbnail" in page_data:
-        return page_data["thumbnail"]["source"]
-    elif "original" in page_data: 
-        return page_data["original"]["source"]
-    else:
-        return None
+    if "thumbnail" in page_data: # サムネイルがある場合
+        return page_data["thumbnail"]["source"] # サムネイルURL返す
+    elif "original" in page_data: # オリジナル画像がある場合
+        return page_data["original"]["source"] # オリジナル画像URL返す
+    else: # 画像なし
+        return None # None返す
 
 
 # -----------------------
