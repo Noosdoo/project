@@ -527,13 +527,11 @@ def extract_features_from_summary(summary):
         except: pass # 整数変換失敗は無視
     features["alive_text"] = 0 if ("没" in s or "死去" in s or "亡くな" in s) else 1 # 生存フラグ
 
-    # --- 3. ★追加: グループ活動の判定 ---
-    # 「メンバー」「結成」「解散」「トリオ」「コンビ」などがあればグループ活動の可能性大
+    # グループ活動の判定
     GROUP_KEYWORDS = ["グループ", "ユニット", "コンビ", "トリオ", "バンド", "メンバー", "結成", "解散", "加入", "脱退"]
     features["is_group_member"] = int(any(kw in s for kw in GROUP_KEYWORDS))
 
-    # --- 4. ★追加: 有名事務所・劇団の判定 (ハードコード) ---
-    # Janomeで分解される前に、フルネームで検知する
+    # 有名事務所・劇団の判定
     FAMOUS_OFFICES = {
         "office_yoshimoto": ["吉本興業", "よしもと"],
         "office_johnnys": ["ジャニーズ", "SMILE-UP", "スマイルアップ", "STARTO", "光GENJI", "SMAP", "嵐", "King & Prince", "Snow Man", "SixTONES"],
@@ -550,8 +548,8 @@ def extract_features_from_summary(summary):
         "office_akb": ["AKB", "乃木坂", "櫻坂", "欅坂", "日向坂", "SKE", "NMB", "HKT", "秋元康"],
     }
 
-    for key, keywords in FAMOUS_OFFICES.items():
-        features[key] = int(any(kw in s for kw in keywords))
+    for key, keywords in FAMOUS_OFFICES.items(): # 事務所ごとに判定
+        features[key] = int(any(kw in s for kw in keywords)) # キーワードがあれば1
 
     return features # 抽出特徴辞書返す
 
@@ -896,6 +894,20 @@ def generate_question_map(dataset, selected_categories=None):
         ("award_shiju", "紫綬褒章を受章していますか？", "feature"),
         ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature"),
         ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature"),
+
+        # グループ活動・事務所系
+        ("is_group_member", "グループやユニットの一員として活動していますか（いましたか）？", "activity"),
+        ("office_yoshimoto", "吉本興業に所属していますか？", "feature"),
+        ("office_johnnys", "SMILE-UP.（旧ジャニーズ）やSTARTOに関連するアイドルですか？", "feature"),
+        ("office_horipro", "ホリプロに所属していますか？", "feature"),
+        ("office_oscar", "オスカープロモーションに所属していますか？", "feature"),
+        ("office_amuse", "アミューズに所属していますか？", "feature"),
+        ("office_stardust", "スターダストプロモーションに所属していますか？", "feature"),
+        ("office_ota", "太田プロダクションに所属していますか？", "feature"),
+        ("office_ldh", "LDH（EXILE TRIBEなど）に関連していますか？", "feature"),
+        ("office_shiki", "劇団四季に関連していますか？", "feature"),
+        ("office_takarazuka", "宝塚歌劇団に関連していますか？", "feature"),
+        ("office_akb", "AKB48グループや坂道シリーズに関連していますか？", "feature"),
     ]
 
     # 共通質問を追加
@@ -982,11 +994,9 @@ def generate_question_map(dataset, selected_categories=None):
     print(f"   → {len(all_dynamic_keys)} 種類のユニークな動的特徴を発見しました。") # 発見数ログ
 
     # フィルタリング
-    total_people = len(dataset)
-    
-    # 閾値を緩和 (最低2人)
-    min_count = max(2, int(total_people * 0.001)) # 最低1‰または2人
-    max_count = int(total_people * 0.95)          # 最高95%
+    total_people = len(dataset) # 総人物数
+    min_count = max(3, int(total_people * 0.002))  # 最低0.2%または3人
+    max_count = int(total_people * 0.90) # 最高90%
     
     useful_dynamic_keys = set() # 有用な動的特徴キーセット
     for key in all_dynamic_keys: # 動的特徴キーごとに
@@ -1065,7 +1075,7 @@ def generate_question_map(dataset, selected_categories=None):
                     category_type = "occupation" # 職業カテゴリに変更
                 else:
                     # デフォルトの名詞質問
-                    question_text = f"『{word}』というキーワードに（強く）関連しますか？"
+                    question_text = f"『{word}』というキーワードに関連しますか？"
 
             # 形容詞 (adj_) の質問生成
             elif key.startswith("adj_"):
