@@ -1254,20 +1254,10 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     # すべての質問カテゴリをループ
     for category_name, q_category_list in qm_dict.items(): # 質問カテゴリごとに
         
-        # 質問カテゴリに応じて優先度を設定
-        # --------------------------------------------------
-        if category_name in ("common", "occupation"):
-            # 「男性ですか」「俳優ですか」などの本質的な質問
-            priority_weight = 10.0 # 優先度高
-        else:
-            # 「月光に関連しますか」「大河ドラマに出ましたか」などの詳細な質問
-            priority_weight = 1.0  # 優先度標準
-        # --------------------------------------------------
-
         for question in q_category_list: # 各質問ごとに
             key, test = question.get("key"), question.get("check") # キーとテスト関数取得
 
-            weight = question.get("weight", 10) # 重み取得（未定義なら10）
+            weight = question.get("weight", 1.0) # 重み取得（未定義なら1.0）
 
             if key in asked_keys: # 既に尋ねた質問はスキップ
                 continue
@@ -1421,30 +1411,11 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
 
             else: # 「いいえ (n)」の場合
                 print(f"🤔 違いましたか...。『{c['name']}』を今回の候補から完全に除外します。")
-                
-                wrong_guess_name = c["name"]
-                
-                # マスターデータセットから永久除外
-                current_game_dataset = [p for p in current_game_dataset if p["name"] != wrong_guess_name]
-                
-                history.pop() # [1人] の状態を捨てる
-                
-                if not history: break # 履歴が空になったら終了
-                
-                # 1つ前の状態（複数候補）を取得し、そこからも除外
-                candidates_prev, asked_keys_prev, asked_count_prev = history[-1]
-                
-                candidates_updated = [p for p in candidates_prev if p["name"] != wrong_guess_name]
-                
-                # 履歴の末尾（1つ前の状態）を、除外後の状態で「更新」する
-                history[-1] = (candidates_updated, asked_keys_prev, asked_count_prev)
-
-                print(f"--- 1つ前の状態 (候補 {len(candidates_updated)}人) に戻り、質問を続けます ---")
-                continue 
+                print("残念ながら、これ以上候補がいません。お役に立てず、申し訳ございません。")
+                print("===============================")
+                return None # ゲーム終了
         
         #--- 4. 質問の選択 (2人以上の場合) ---
-        
-               
         question = find_best_question(current_candidates, qm_dict, current_asked_keys)
             
         if question is None:
