@@ -64,7 +64,41 @@ CATEGORIES = [
 ]
 
 # Wikipedia APIに送る際のヘッダー
-HEADERS = {"User-Agent": USER_AGENT}
+HEADERS = {"User-Agent": USER_AGENT}]
+
+
+# -----------------------
+# リトライ機能付きJSON取得 (APIエラー対策)
+# -----------------------
+def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_factor=1.0):
+    """
+    APIにリクエストを送り、JSONデコードエラーや429/503エラーの場合、
+    指数関数的バックオフ（待機時間延長）でリトライする。
+    """
+    for i in range(retries):
+        try:
+            res = requests.get(url, params=params, headers=headers, timeout=15)
+            res.raise_for_status() 
+            return res.json() 
+        
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in (429, 503):
+                wait_time = backoff_factor * (2 ** i)
+                # print(f"  [RETRY] {e.response.status_code}エラー。{wait_time:.1f}秒待機してリトライします...")
+                time.sleep(wait_time)
+            else:
+                return None 
+        
+        except json.JSONDecodeError as e:
+            wait_time = backoff_factor * (2 ** i)
+            # print(f"  [JSONデコードエラー] {wait_time:.1f}秒待機してリトライします...")
+            time.sleep(wait_time)
+        
+        except requests.exceptions.RequestException as e:
+            wait_time = backoff_factor * (2 ** i)
+            time.sleep(wait_time)
+    
+    return None
 
 # -----------------------
 # Wikipediaのメイン画像URLを取得
