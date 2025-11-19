@@ -657,7 +657,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 # Step2: データセット構築（並列）
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=5, sleep=0.1): #max_workers（並列数）を小さくすればエラーを防げる
+                           limit=None, max_workers=10, sleep=0.1): #max_workers（並列数）を小さくすればエラーを防げる
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
