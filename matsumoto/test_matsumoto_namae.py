@@ -842,6 +842,7 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
+        ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
         ("alive_text", "現在もご存命ですか？", "common"),
         ("actor_wikidata", "俳優でもありますか？", "occupation"),
         ("singer_wikidata", "歌手でもありますか？", "occupation"),
