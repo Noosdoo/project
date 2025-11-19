@@ -1513,7 +1513,8 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         no_count_analysis = len(current_candidates) - yes_count_analysis
         
         print(f"\n[質問 {current_asked_count+1}] 残り候補: {len(current_candidates)}人")
-        # print(f"📊 [分析] Yes: {yes_count_analysis}人 / No: {no_count_analysis}人") # デバッグ用
+        
+        print(f"📊 [分析] Yes: {yes_count_analysis}人 / No: {no_count_analysis}人")
         
         ans = input(q_text + " （y/n/u/b） > ").strip().lower()
 
