@@ -1022,6 +1022,7 @@ def generate_question_map(dataset, selected_categories=None):
             qm[category].append({
                 "key": key,                                    # キー
                 "text": text,                                  # 質問テキスト
+                "weight": weight,                              # 重み
                 "check": lambda rec,                           # チェック関数
                 k=key: rec.get("features",{}).get(k) == 1      # 特徴が1かどうか
             })
@@ -1072,11 +1073,11 @@ def generate_question_map(dataset, selected_categories=None):
     # 質問マップに追加
     for key in allowed_feature_keys: 
         if key in feature_questions_def and key not in added_keys: # 定義済みかつ未追加なら
-            text, category = feature_questions_def[key] # テキストとカテゴリ取得
+            text, category, weight = feature_questions_def[key] # テキストとカテゴリ取得
             if any(key in rec.get("features", {}) for rec in dataset): # キー存在チェック
                 # 質問マップに追加
                 qm[category].append({
-                    "key": key, "text": text,
+                    "key": key, "text": text, "weight": weight,
                     "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
                 })
                 # 追加済みセットに登録
