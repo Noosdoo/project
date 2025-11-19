@@ -53,19 +53,83 @@ CATEGORIES = [
     "日本の俳優", "日本の女優", "お笑い芸人", "日本の声優", "日本のアイドル", "日本のモデル", "日本の歌手",
     "日本の作曲家", "日本の映画監督", "日本の舞台俳優", "日本のアナウンサー", "日本のYouTuber",
     # 文学・学問
-    "日本の作家", "日本の漫画家", "日本の小説家", "日本の詩人", "日本の科学者", "日本の数学者", "日本の物理学者",
-    "日本の化学者", "日本の医師", "日本の教育者", "日本の研究者", "日本の発明家",
+    "日本の作家", "日本の漫画家", "日本の小説家", "日本の医師", "日本の教育者",
     # 政治・社会
-    "日本の政治家", "日本の官僚", "日本の経営者", "日本の起業家", "日本の弁護士",
+    "日本の政治家", "日本の官僚", "日本の実業家", "日本の起業家", "日本の弁護士",
     # スポーツ
-    "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本のレスリング選手", "日本のオリンピック選手",
-    "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手",
+    "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本の格闘家", "日本のレスリング選手", "日本のオリンピック選手",
+    "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手", "日本のゴルフ選手",
     # 芸術・文化
-    "日本の画家", "日本の写真家", "日本の建築家", "日本のデザイナー",
+    "日本の画家", "日本の建築家", "日本のデザイナー", "日本の作曲家"
 ]
 
 # Wikipedia APIに送る際のヘッダー
 HEADERS = {"User-Agent": USER_AGENT}
+
+
+# -----------------------
+# リトライ機能付きJSON取得 (APIエラー対策)
+# -----------------------
+def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_factor=1.0):
+    # APIにリクエストを送り、JSONデコードエラーや429/503エラーの場合、指数関数的バックオフ（待機時間延長）でリトライする。
+
+    for i in range(retries):
+        try:
+            res = requests.get(url, params=params, headers=headers, timeout=15)
+            res.raise_for_status() 
+            return res.json() 
+        
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in (429, 503):
+                wait_time = backoff_factor * (2 ** i)
+                # print(f"  [RETRY] {e.response.status_code}エラー。{wait_time:.1f}秒待機してリトライします...")
+                time.sleep(wait_time)
+            else:
+                return None 
+        
+        except json.JSONDecodeError as e:
+            wait_time = backoff_factor * (2 ** i)
+            # print(f"  [JSONデコードエラー] {wait_time:.1f}秒待機してリトライします...")
+            time.sleep(wait_time)
+        
+        except requests.exceptions.RequestException as e:
+            wait_time = backoff_factor * (2 ** i)
+            time.sleep(wait_time)
+    
+    return None
+
+# -----------------------
+# Wikipediaのメイン画像URLを取得
+# -----------------------
+def get_wikipedia_main_image(title, thumb_size=300):
+    """
+    Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
+    """
+    params = {
+        "action": "query",
+        "titles": title,
+        "prop": "pageimages",      
+        "pithumbsize": str(thumb_size), 
+        "format": "json",
+    }
+    
+    data = get_json_with_retry(WIKI_API, params=params)
+    
+    if not data: return None
+    
+    pages = data.get("query", {}).get("pages", {})
+    if not pages: return None
+        
+    page_id = next(iter(pages))
+    page_data = pages[page_id]
+    
+    if "thumbnail" in page_data:
+        return page_data["thumbnail"]["source"]
+    elif "original" in page_data: 
+        return page_data["original"]["source"]
+    else:
+        return None
+
 
 # -----------------------
 # カテゴリに基づいたキャッシュファイル名
@@ -74,18 +138,34 @@ def get_dynamic_cache_path(categories_list, prefix="people_list"):
     """
     選択されたカテゴリリストから一意のハッシュを生成し、
     キャッシュファイル名（.json）を返す。
+    
+    ★ 修正: 
+    - 全選択 (または0選択) の場合のみ "ALL" を使用。
+    - それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
     """
-    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュになるようにする
+    # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュ/名前になるようにする
     sorted_cats = sorted(list(set(categories_list)))
     
-    # JSON文字列に変換
-    cat_string = json.dumps(sorted_cats)
+    num_cats = len(sorted_cats)
+    total_cats = len(CATEGORIES) # グローバルのカテゴリ総数を参照
     
-    # MD5ハッシュを生成
-    hash_hex = hashlib.md5(cat_string.encode('utf-8')).hexdigest()
-    
-    # 例: people_list_abcdef123456.json
-    return f"{prefix}_{hash_hex}.json"
+    filename_part = ""
+
+    # --- ファイル名のルールを決定 ---
+
+    # 1. カテゴリ未選択(Enter) または 全カテゴリを選択した場合
+    if num_cats == 0 or num_cats == total_cats:
+        filename_part = "ALL"
+        
+    # 2. それ以外 (1カテゴリでも、40カテゴリでも) の場合
+    else:
+        # カテゴリ名をアンダースコアで連結
+        # (ファイル名として使えない文字を置換)
+        safe_names = [re.sub(r'[\\/:*?"<>|]', '-', cat) for cat in sorted_cats]
+        filename_part = "_".join(safe_names)
+
+    # 最終的なファイル名を返す
+    return f"{prefix}_{filename_part}.json"
 
 # -----------------------
 # 除外ルール: 人物ページかどうか判定
@@ -472,6 +552,27 @@ def extract_dynamic_features_from_summary(summary):
                 prefix = TARGET_POS_TYPES[pos_tuple] # プレフィックス取得
                 features[f"{prefix}{word}"] = 1 # 特徴として追加
     
+    # 『作品名』の抽出
+    if summary:
+        # 『』の中身をすべて抽出
+        work_titles = re.findall(r'『(.*?)』', summary)
+        
+        # 除外したい一般的な単語
+        IGNORE_TITLES = {
+            "日本", "世界", "現在", "公式", "一覧", "映画", "ドラマ", "漫画", "小説",
+            "アルバム", "シングル", "楽曲", "放送", "番組", "受賞", "概要", "本人",
+            "プロフィール", "経歴", "人物", "来歴", "出演", "作品", "歴史", "文化"
+        }
+
+        for title in work_titles:
+            # 記号などが含まれる長い文は除外（タイトルらしくないため）
+            if len(title) < 2 or len(title) > 20 or "," in title or "。" in title:
+                continue
+            
+            # 除外リストに含まれていなければ特徴に追加
+            if title not in IGNORE_TITLES:
+                features[f"work_{title}"] = 1
+
     if not features and summary: # summaryがある場合のみログ出力
         print(f"[DEBUG-DYNAMIC] Summaryは存在しましたが、抽出された動的特徴は0個でした。(Summary: {summary[:50]}...)")
             
@@ -511,6 +612,31 @@ def extract_features_from_summary(summary):
         try: features["birth_year"] = int(m.group(1)) # 生年を整数で保存
         except: pass # 整数変換失敗は無視
     features["alive_text"] = 0 if ("没" in s or "死去" in s or "亡くな" in s) else 1 # 生存フラグ
+
+    # グループ活動の判定
+    GROUP_KEYWORDS = ["グループ", "ユニット", "コンビ", "トリオ", "バンド", "メンバー", "結成", "解散", "加入", "脱退"]
+    features["is_group_member"] = int(any(kw in s for kw in GROUP_KEYWORDS))
+
+    # 有名事務所・劇団の判定
+    FAMOUS_OFFICES = {
+        "office_yoshimoto": ["吉本興業", "よしもと"],
+        "office_johnnys": ["ジャニーズ", "SMILE-UP", "スマイルアップ", "STARTO", "光GENJI", "SMAP", "嵐", "King & Prince", "Snow Man", "SixTONES"],
+        "office_horipro": ["ホリプロ"],
+        "office_oscar": ["オスカープロモーション", "オスカー"],
+        "office_amuse": ["アミューズ"],
+        "office_stardust": ["スターダストプロモーション", "スターダスト"],
+        "office_kenon": ["研音"],
+        "office_burning": ["バーニング"],
+        "office_ota": ["太田プロ", "太田プロダクション"],
+        "office_ldh": ["LDH", "EXILE", "三代目"],
+        "office_shiki": ["劇団四季"],
+        "office_takarazuka": ["宝塚歌劇団", "宝塚", "娘役", "男役"],
+        "office_akb": ["AKB", "乃木坂", "櫻坂", "欅坂", "日向坂", "SKE", "NMB", "HKT", "秋元康"],
+    }
+
+    for key, keywords in FAMOUS_OFFICES.items(): # 事務所ごとに判定
+        features[key] = int(any(kw in s for kw in keywords)) # キーワードがあれば1
+
     return features # 抽出特徴辞書返す
 
 # -----------------------
@@ -528,11 +654,10 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 
 
 # -----------------------
-# Step2: データセット構築（並列版）
-# (summaryの取得状況をログに出す)
+# Step2: データセット構築（並列）
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=150, sleep=0.1):
+                           limit=None, max_workers=30, sleep=0.1): #max_workers（並列数）を小さくすればエラーを防げる
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
@@ -649,8 +774,8 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     # (性別・年齢・職業・出身地などの処理)
                     g = wd.get("gender_qid") # 性別QID
 
-                    if g == "Q6581097": features["gender_male"] = 1 # 男性
-                    elif g == "Q6581072": features["gender_female"] = 1 # 女性
+                    if g == "Q6581097": features["gender"] = "male" # 男性
+                    elif g == "Q6581072": features["gender"] = "female" # 女性
 
                     birth_time = wd.get("birth_time") # 生年月日
                     current_year = datetime.now().year # 現在の西暦年
@@ -825,37 +950,68 @@ def generate_question_map(dataset, selected_categories=None):
     qm = {"occupation": [], "activity": [], "feature": [], "common": []} # 質問マップ初期化
     added_keys = set() # 追加済み特徴キーセット
 
+    # --- 重みの定義 ---
+    WEIGHT_URGENT = 1000 # 生死
+    WEIGHT_HIGH   = 500  # 年代、大まかな職業
+    WEIGHT_MID    = 100  # 事務所、出身地、血液型
+    WEIGHT_LOW    = 50   # 具体的な作品名
+    WEIGHT_MIN    = 10   # 細かいキーワード
+
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
-        ("gender_male", "男性ですか？", "common"), ("gender_female", "女性ですか？", "common"),
-        ("alive_text", "現在もご存命ですか？", "common"),
-        ("actor_wikidata", "俳優でもありますか？", "occupation"),
-        ("singer_wikidata", "歌手でもありますか？", "occupation"),
-        ("politician_wikidata", "政治家でもありますか？", "occupation"),
-        ("age_20s", "現在、20代ですか？", "common"), ("age_30s", "現在、30代ですか？", "common"),
-        ("age_40s", "現在、40代ですか？", "common"), ("age_50s", "現在、50代ですか？", "common"),
-        ("born_1980s", "1980年代生まれですか？", "common"), ("born_1990s", "1990年代生まれですか？", "common"),
-        ("born_2000s", "2000年代生まれですか？", "common"),
-        ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common"),
-        ("has_katakana", "名前にカタカナが含まれていますか？", "common"),
-        ("is_hiragana_only", "名前はひらがなだけですか？", "common"),
-        ("from_tokyo", "出身は東京ですか？", "feature"),
-        ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature"),
-        ("grad_todai", "東京大学を卒業していますか？", "feature"),
-        ("grad_waseda", "早稲田大学を卒業していますか？", "feature"),
-        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature"),
-        ("blood_A", "血液型はA型ですか？", "feature"),
-        ("blood_B", "血液型はB型ですか？", "feature"),
-        ("blood_O", "血液型はO型ですか？", "feature"),
-        ("blood_AB", "血液型はAB型ですか？", "feature"),
-        ("not_japanese_only", "日本以外の国籍（ルーツ）を持っていますか？", "feature"),
-        ("has_family_info", "家族（親・配偶者・子供）にも有名人がいますか？", "feature"),
-        ("field_literature", "主な活動分野は「文学」ですか？", "occupation"),
-        ("field_music", "主な活動分野は「音楽」ですか？", "occupation"),
-        ("field_science", "主な活動分野は「科学」ですか？", "occupation"),
-        ("award_shiju", "紫綬褒章を受章していますか？", "feature"),
-        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature"),
-        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature"),
+        # [最優先]
+        ("alive_text", "現在もご存命ですか？", "common", WEIGHT_URGENT),
+
+        # [優先]
+        ("age_20s", "現在、20代ですか？", "common", WEIGHT_HIGH), 
+        ("age_30s", "現在、30代ですか？", "common", WEIGHT_HIGH),
+        ("age_40s", "現在、40代ですか？", "common", WEIGHT_HIGH), 
+        ("age_50s", "現在、50代ですか？", "common", WEIGHT_HIGH),
+        ("born_1980s", "1980年代生まれですか？", "common", WEIGHT_HIGH), 
+        ("born_1990s", "1990年代生まれですか？", "common", WEIGHT_HIGH),
+        ("born_2000s", "2000年代生まれですか？", "common", WEIGHT_HIGH),
+        
+        ("actor_wikidata", "俳優ですか？", "occupation", WEIGHT_HIGH),
+        ("singer_wikidata", "歌手ですか？", "occupation", WEIGHT_HIGH),
+        ("politician_wikidata", "政治家ですか？", "occupation", WEIGHT_HIGH),
+        ("field_literature", "主な活動分野は「文学」ですか？", "occupation", WEIGHT_HIGH),
+        ("field_music", "主な活動分野は「音楽」ですか？", "occupation", WEIGHT_HIGH),
+        ("field_science", "主な活動分野は「科学」ですか？", "occupation", WEIGHT_HIGH),
+
+        # [普通]
+        ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common", WEIGHT_MID),
+        ("has_katakana", "名前にカタカナが含まれていますか？", "common", WEIGHT_MID),
+        ("is_hiragana_only", "名前はひらがなだけですか？", "common", WEIGHT_MID),
+        ("from_tokyo", "出身は東京ですか？", "feature", WEIGHT_MID),
+        ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature", WEIGHT_MID),
+        ("blood_A", "血液型はA型ですか？", "feature", WEIGHT_MID),
+        ("blood_B", "血液型はB型ですか？", "feature", WEIGHT_MID),
+        ("blood_O", "血液型はO型ですか？", "feature", WEIGHT_MID),
+        ("blood_AB", "血液型はAB型ですか？", "feature", WEIGHT_MID),
+        ("not_japanese_only", "日本以外の国籍（ルーツ）を持っていますか？", "feature", WEIGHT_MID),
+        ("has_family_info", "家族（親・配偶者・子供）にも有名人がいますか？", "feature", WEIGHT_MID),
+        
+        # [低め]
+        ("grad_todai", "東京大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_waseda", "早稲田大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("award_shiju", "紫綬褒章を受章していますか？", "feature", WEIGHT_LOW),
+        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
+        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
+        
+        # [追加分]
+        ("is_group_member", "グループやユニットの一員として活動していますか（いましたか）？", "activity", WEIGHT_MID),
+        ("office_yoshimoto", "吉本興業に所属していますか？", "feature", WEIGHT_MID),
+        ("office_johnnys", "SMILE-UP.（旧ジャニーズ）やSTARTOに関連するアイドルですか？", "feature", WEIGHT_MID),
+        ("office_horipro", "ホリプロに所属していますか？", "feature", WEIGHT_MID),
+        ("office_oscar", "オスカープロモーションに所属していますか？", "feature", WEIGHT_MID),
+        ("office_amuse", "アミューズに所属していますか？", "feature", WEIGHT_MID),
+        ("office_stardust", "スターダストプロモーションに所属していますか？", "feature", WEIGHT_MID),
+        ("office_ota", "太田プロダクションに所属していますか？", "feature", WEIGHT_MID),
+        ("office_ldh", "LDH（EXILE TRIBEなど）に関連していますか？", "feature", WEIGHT_MID),
+        ("office_shiki", "劇団四季に関連していますか？", "feature", WEIGHT_MID),
+        ("office_takarazuka", "宝塚歌劇団に関連していますか？", "feature", WEIGHT_MID),
+        ("office_akb", "AKB48グループや坂道シリーズに関連していますか？", "feature", WEIGHT_MID),
     ]
 
     # 共通質問を追加
@@ -873,28 +1029,28 @@ def generate_question_map(dataset, selected_categories=None):
 
     # --- 2. FEATURE_KEYWORDS に基づく質問 (Summary由来) ---
     feature_questions_def = {
-        "comedian": ("お笑い芸人ですか？", "occupation"),
-        "seiyuu": ("声優として活動していますか？", "occupation"),
-        "athlete": ("スポーツ選手ですか？", "occupation"),
-        "model": ("モデルとして活動していますか？", "occupation"),
-        "idol": ("アイドル活動をしていましたか（していますか）？", "occupation"),
-        "youtuber": ("YouTuberとして活動していますか？", "occupation"),
-        "director": ("監督（映画やアニメなど）ですか？", "occupation"),
-        "taiga": ("大河ドラマに出演しましたか？", "activity"),
-        "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity"),
-        "romance_drama": ("恋愛ドラマに出演しましたか？", "activity"),
-        "movie": ("映画に出演していますか？", "activity"),
-        "action": ("アクション作品に出演していますか？", "activity"),
-        "stage": ("舞台（演劇・ミュージカル）に出演していますか？", "activity"),
-        "anime": ("アニメ作品に関わっていますか？", "activity"),
-        "hollywood": ("海外（ハリウッド等）の作品に出演していますか？", "activity"),
-        "nhk": ("NHK（朝ドラなど）に出演したことがありますか？", "activity"),
-        "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature"),
-        "mc": ("司会者（MC）として有名ですか？", "activity"),
-        "radio": ("ラジオ番組を持っていますか？", "activity"),
-        "cm": ("CMに多く出演していますか？", "activity"),
-        "married": ("結婚していることを公表していますか？", "feature"),
-        "author": ("本（エッセイなど）を出版したことがありますか？", "feature"),
+        "comedian": ("お笑い芸人ですか？", "occupation", WEIGHT_HIGH),
+        "seiyuu": ("声優として活動していますか？", "occupation", WEIGHT_HIGH),
+        "athlete": ("スポーツ選手ですか？", "occupation", WEIGHT_HIGH),
+        "model": ("モデルとして活動していますか？", "occupation", WEIGHT_HIGH),
+        "idol": ("アイドル活動をしていましたか（していますか）？", "occupation", WEIGHT_HIGH),
+        "youtuber": ("YouTuberとして活動していますか？", "occupation", WEIGHT_HIGH),
+        "director": ("監督（映画やアニメなど）ですか？", "occupation", WEIGHT_HIGH),
+        "taiga": ("大河ドラマに出演しましたか？", "activity", WEIGHT_MID),
+        "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity", WEIGHT_MID),
+        "romance_drama": ("恋愛ドラマに出演しましたか？", "activity", WEIGHT_LOW),
+        "movie": ("映画に出演していますか？", "activity", WEIGHT_MID),
+        "action": ("アクション作品に出演していますか？", "activity", WEIGHT_LOW),
+        "stage": ("舞台（演劇・ミュージカル）に出演していますか？", "activity", WEIGHT_MID),
+        "anime": ("アニメ作品に関わっていますか？", "activity", WEIGHT_MID),
+        "hollywood": ("海外（ハリウッド等）の作品に出演していますか？", "activity", WEIGHT_MID),
+        "nhk": ("NHK（朝ドラなど）に出演したことがありますか？", "activity", WEIGHT_MID),
+        "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature", WEIGHT_MID),
+        "mc": ("司会者（MC）として有名ですか？", "activity", WEIGHT_MID),
+        "radio": ("ラジオ番組を持っていますか（いましたか）？", "activity", WEIGHT_LOW),
+        "cm": ("CMに多く出演していますか？", "activity", WEIGHT_LOW),
+        "married": ("結婚していることを公表していますか？", "feature", WEIGHT_MID),
+        "author": ("本（エッセイなど）を出版したことがありますか？", "feature", WEIGHT_LOW),
     }
 
     # 仕事カテゴリに基づくフィルタリングマップ
@@ -926,11 +1082,11 @@ def generate_question_map(dataset, selected_categories=None):
                 # 追加済みセットに登録
                 added_keys.add(key)
         
-    # --- 3. データセットから動的キーを読み込み、質問を生成する ---
+    # データセットから動的キーを読み込み、質問を生成する
 
     print("データセットをスキャンして、動的な質問（名詞・形容詞・動詞・カテゴリ）を生成します...")
     all_dynamic_keys = set() # すべての動的特徴キーセット
-    DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_", "cat_") # 動的特徴のプレフィックス
+    DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_", "cat_", "work_") # 動的特徴のプレフィックス
     
     # データセットスキャン
     for rec in dataset:
@@ -942,11 +1098,9 @@ def generate_question_map(dataset, selected_categories=None):
     print(f"   → {len(all_dynamic_keys)} 種類のユニークな動的特徴を発見しました。") # 発見数ログ
 
     # フィルタリング
-    total_people = len(dataset)
-    
-    # 閾値を緩和 (最低2人)
-    min_count = max(2, int(total_people * 0.001)) # 最低1‰または2人
-    max_count = int(total_people * 0.95)          # 最高95%
+    total_people = len(dataset) # 総人物数
+    min_count = max(3, int(total_people * 0.002))  # 最低0.2%または3人
+    max_count = int(total_people * 0.90) # 最高90%
     
     useful_dynamic_keys = set() # 有用な動的特徴キーセット
     for key in all_dynamic_keys: # 動的特徴キーごとに
@@ -971,6 +1125,7 @@ def generate_question_map(dataset, selected_categories=None):
         
         question_text = "" # 質問テキスト初期化
         category_type = "activity" # デフォルトカテゴリ
+        weight = WEIGHT_MIN # デフォルトは最低ランク
         
         try:
             # カテゴリ (cat_) の質問生成
@@ -982,10 +1137,12 @@ def generate_question_map(dataset, selected_categories=None):
                     if place in PREFECTURES: continue # 都道府県名はスキップ（名詞質問で対応）
                     question_text = f"『{place}』の出身ですか？" # 出身地質問
                     category_type = "feature" # 特徴カテゴリに変更
+                    weight = WEIGHT_MID # 重み中
                 elif cat_name.endswith("所属者"): # 所属カテゴリ
                     group = cat_name.replace("所属者", "") # グループ名部分抽出
                     question_text = f"『{group}』に所属していますか（しましたか）？" # 所属質問
                     category_type = "feature" # 特徴カテゴリに変更
+                    weight = WEIGHT_MID # 重み中
                 elif cat_name.endswith("関連の人物"): # 関連人物カテゴリ
                     topic = cat_name.replace("関連の人物", "") # トピック部分抽出
                     question_text = f"『{topic}』に関連する人物ですか？" # 関連質問
@@ -993,6 +1150,7 @@ def generate_question_map(dataset, selected_categories=None):
                     award = cat_name.replace("の受賞者", "") # 賞名部分抽出
                     question_text = f"『{award}』を受賞していますか？" # 受賞質問
                     category_type = "feature" # 特徴カテゴリに変更
+                    weight = WEIGHT_LOW # 重み低
                 else: # その他のカテゴリ
                     question_text = f"「{cat_name}」というカテゴリに分類されますか？"
 
@@ -1010,12 +1168,15 @@ def generate_question_map(dataset, selected_categories=None):
                             "熊本", "大分", "宮崎", "鹿児島", "沖縄"]: # 日本の都道府県
                     question_text = f"『{word}』出身、または縁がありますか？"
                     category_type = "feature"
+                    weight = WEIGHT_MID # 重み中
                 elif word.endswith("大学"):
                     question_text = f"『{word}』を卒業していますか？"
                     category_type = "feature"
+                    weight = WEIGHT_LOW # 重み低
                 elif word.endswith("賞"):
                     question_text = f"『{word}』を受賞していますか？"
                     category_type = "feature"
+                    weight = WEIGHT_LOW # 重み低
                 elif word.endswith("（"): # "タモリ（森田一義）" のような表記を避ける
                     continue
                 elif len(word) <= 4 and (re.fullmatch(r'[A-Z]+', word) or re.fullmatch(r'[A-Z][a-z]+', word)): # 英字略語
@@ -1023,9 +1184,10 @@ def generate_question_map(dataset, selected_categories=None):
                 elif word.endswith("者") or word.endswith("家") or word.endswith("選手"):
                     question_text = f"『{word}』としての側面も持っていますか？"
                     category_type = "occupation" # 職業カテゴリに変更
+                    weight = WEIGHT_MID # 重み中
                 else:
                     # デフォルトの名詞質問
-                    question_text = f"『{word}』というキーワードに（強く）関連しますか？"
+                    question_text = f"『{word}』というキーワードに関連しますか？"
 
             # 形容詞 (adj_) の質問生成
             elif key.startswith("adj_"):
@@ -1038,10 +1200,18 @@ def generate_question_map(dataset, selected_categories=None):
                 verb = key[len("verb_"):]
                 question_text = f"『{verb}（こと）』を（よく）しますか？"
 
+            # 作品名 (work_) の質問生成
+            elif key.startswith("work_"):
+                title = key[len("work_"):]
+                question_text = f"『{title}』という作品や番組に出演（または関連）していますか？"
+                category_type = "activity" # 活動に関する質問
+                weight = WEIGHT_LOW
+
             if question_text: # 質問テキストが生成された場合
                 qm[category_type].append({ # カテゴリタイプも反映
                     "key": key, 
                     "text": question_text,
+                    "weight": weight,
                     "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1
                 })
                 added_keys.add(key)
@@ -1098,6 +1268,8 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
         for question in q_category_list: # 各質問ごとに
             key, test = question.get("key"), question.get("check") # キーとテスト関数取得
 
+            weight = question.get("weight", 10) # 重み取得（未定義なら10）
+
             if key in asked_keys: # 既に尋ねた質問はスキップ
                 continue
 
@@ -1116,7 +1288,7 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
                 score = 0 # 分割できない場合はスコア0
             else: # 分割できる場合
                 # (情報利得スコア) * (優先度ブースト)
-                score = (yes_count * no_count) * priority_weight # スコア計算
+                score = (yes_count * no_count) * weight # スコア計算
             
             if score > best_score: # 最良スコア更新
                 best_score = score # スコア更新
@@ -1124,8 +1296,6 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
             
             elif score == 0: # スコア0の質問を保持
                 zero_score_questions.append(question) # スコア0質問リストに追加
-
-    # ★★★ ここからロジック修正 ★★★
     
     # 1. 候補者を分割できる「良い質問」 (score > 0) が見つかった場合
     if best_question is not None:
@@ -1137,13 +1307,17 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
     #     スコア0の「悪い質問」をするより、諦めて候補者を提示する方が良い
     if total_candidates <= 5:
         print("[DEBUG] 候補者が5人以下のため、スコア0の質問は行わず、推測を終了します。")
-        return None # ★ 諦める
+        return None # 諦める
 
     # 2b. 候補者がまだ多い (6人以上) 場合
     #     最後の手段として、スコア0の質問でもランダムに尋ねる
     if zero_score_questions:
-        print("[DEBUG] スコア>0の質問がありませんでした。スコア0の質問からランダムに選びます。")
-        return random.choice(zero_score_questions) # スコア0の質問からランダムに選択
+        print("[DEBUG] スコア > 0の質問がありませんでした。スコア0の質問からランダムに選びます。")
+        # スコア0の中でも、なるべく重みが大きいものを選ぶ
+        zero_score_questions.sort(key=lambda q: q.get("weight", 0), reverse=True)
+        # 上位10個からランダム
+        top_zeros = zero_score_questions[:10]
+        return random.choice(top_zeros)
         
     # 3. 本当に尋ねる質問が何も残っていない場合
     return None # 諦める
@@ -1221,6 +1395,14 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             print(f"\n===============================")
             print(f"🎉 答えが絞り込めました！ ({current_asked_count}回の質問)")
             
+            # ★ 画像URL取得機能 (以前追加したものがあればここに復活させます)
+            print(f"--- 候補者の画像を取得中: {c['name']} ---")
+            image_url = get_wikipedia_main_image(c['name'])
+            if image_url:
+                print(f"📷 画像URL: {image_url}")
+            else:
+                print("📷 (画像は見つかりませんでした)")
+        
             ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n/b) > ").strip().lower()
 
             if ans in ("y", "yes"):
@@ -1264,25 +1446,8 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         #--- 4. 質問の選択 (2人以上の場合) ---
         
                
-        # 最初の質問(asked_count == 0)かどうかをチェック
-        if current_asked_count == 0:
+        question = find_best_question(current_candidates, qm_dict, current_asked_keys)
             
-            # 質問マップ(qm_dict)から "gender_male" の質問オブジェクトを手動で探す
-            question = None
-            for q in qm_dict.get("common", []):
-                if q.get("key") == "gender_male":
-                    question = q
-                    break
-            
-            # もし "gender_male" が何らかの理由で見つからなければ、通常のロジックにフォールバック
-            if question is None:
-                print("[WARN] 'gender_male' が質問マップに見つかりません。通常の最適化ロジックに戻します。")
-                question = find_best_question(current_candidates, qm_dict, current_asked_keys)
-        
-        else:
-            # 2問目以降は通常の最適化ロジック
-            question = find_best_question(current_candidates, qm_dict, current_asked_keys)
-
         if question is None:
             print("\n質問が尽きるか、残りの候補で質問が分けられなくなりました。残りの候補から推測します...")
             break # 質問が尽きた
@@ -1410,7 +1575,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.05           # API呼び出し間隔（秒）
+    SLEEP = 0.1           # API呼び出し間隔（秒）
     CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
     DEPTH = 1              # カテゴリ深度
     BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
@@ -1419,7 +1584,7 @@ if __name__ == "__main__":
 
     # データの閾値を緩和
     # 特徴量がこの数未満の人物は検索開始前に除外されます。
-    MIN_FEATURE_THRESHOLD = 30 # 閾値
+    MIN_FEATURE_THRESHOLD = 35 # 閾値
 
     # --- 実行フロー ---
     try:
@@ -1436,8 +1601,8 @@ if __name__ == "__main__":
         dynamic_list_path = get_dynamic_cache_path(selected_categories, prefix="people_list")
         dynamic_dataset_path = get_dynamic_cache_path(selected_categories, prefix="people_dataset")
 
-        print(f"[INFO] ターゲットリスト: {dynamic_list_path}")
-        print(f"[INFO] ターゲットデータセット: {dynamic_dataset_path}")
+        print(f"ターゲットリスト: {dynamic_list_path}")
+        print(f"ターゲットデータセット: {dynamic_dataset_path}")
         
         # ステップ実行
         run_step("collect",                          # データ収集ステップ
