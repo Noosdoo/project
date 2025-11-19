@@ -64,17 +64,15 @@ CATEGORIES = [
 ]
 
 # Wikipedia APIに送る際のヘッダー
-HEADERS = {"User-Agent": USER_AGENT}]
+HEADERS = {"User-Agent": USER_AGENT}
 
 
 # -----------------------
 # リトライ機能付きJSON取得 (APIエラー対策)
 # -----------------------
 def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_factor=1.0):
-    """
-    APIにリクエストを送り、JSONデコードエラーや429/503エラーの場合、
-    指数関数的バックオフ（待機時間延長）でリトライする。
-    """
+    # APIにリクエストを送り、JSONデコードエラーや429/503エラーの場合、指数関数的バックオフ（待機時間延長）でリトライする。
+
     for i in range(retries):
         try:
             res = requests.get(url, params=params, headers=headers, timeout=15)
