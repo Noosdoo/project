@@ -998,8 +998,6 @@ def generate_question_map(dataset, selected_categories=None):
         ("award_shiju", "紫綬褒章を受章していますか？", "feature", WEIGHT_LOW),
         ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
         ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
-        
-        # [追加分]
         ("is_group_member", "グループやユニットの一員として活動していますか（いましたか）？", "activity", WEIGHT_MID),
         ("office_yoshimoto", "吉本興業に所属していますか？", "feature", WEIGHT_MID),
         ("office_johnnys", "SMILE-UP.（旧ジャニーズ）やSTARTOに関連するアイドルですか？", "feature", WEIGHT_MID),
@@ -1015,7 +1013,7 @@ def generate_question_map(dataset, selected_categories=None):
     ]
 
     # 共通質問を追加
-    for key, text, category in common_questions_def:
+    for key, text, category, weight in common_questions_def:
         key_exists = any(key in rec.get("features", {}) for rec in dataset) # キー存在チェック
         if key_exists and key not in added_keys: # 未追加なら追加
             # 質問マップに追加
