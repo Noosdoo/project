@@ -529,12 +529,12 @@ def extract_features_from_summary(summary):
     return features # 抽出特徴辞書返す
 
 
-    # --- 3. ★追加: グループ活動の判定 ---
+    # グループ活動の判定
     # 「メンバー」「結成」「解散」「トリオ」「コンビ」などがあればグループ活動の可能性大
     GROUP_KEYWORDS = ["グループ", "ユニット", "コンビ", "トリオ", "バンド", "メンバー", "結成", "解散", "加入", "脱退"]
     features["is_group_member"] = int(any(kw in s for kw in GROUP_KEYWORDS))
 
-    # --- 4. ★追加: 有名事務所・劇団の判定 (ハードコード) ---
+    # 有名事務所・劇団の判定 (ハードコード) 
     # Janomeで分解される前に、フルネームで検知する
     FAMOUS_OFFICES = {
         "office_yoshimoto": ["吉本興業", "よしもと"],
@@ -552,7 +552,7 @@ def extract_features_from_summary(summary):
         "office_akb": ["AKB", "乃木坂", "櫻坂", "欅坂", "日向坂", "SKE", "NMB", "HKT", "秋元康"],
     }
 
-    
+
 # -----------------------
 # ユーティリティ: 人物リスト読み込み
 # -----------------------
