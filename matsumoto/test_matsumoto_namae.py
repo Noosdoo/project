@@ -528,30 +528,6 @@ def extract_features_from_summary(summary):
     features["alive_text"] = 0 if ("没" in s or "死去" in s or "亡くな" in s) else 1 # 生存フラグ
     return features # 抽出特徴辞書返す
 
-    # グループ活動の判定
-    # 「メンバー」「結成」「解散」「トリオ」「コンビ」などがあればグループ活動の可能性大
-    GROUP_KEYWORDS = ["グループ", "ユニット", "コンビ", "トリオ", "バンド", "メンバー", "結成", "解散", "加入", "脱退"]
-    features["is_group_member"] = int(any(kw in s for kw in GROUP_KEYWORDS))
-
-    # 有名事務所・劇団の判定 (ハードコード) 
-    # Janomeで分解される前に、フルネームで検知する
-    FAMOUS_OFFICES = {
-        "office_yoshimoto": ["吉本興業", "よしもと"],
-        "office_johnnys": ["ジャニーズ", "SMILE-UP", "スマイルアップ", "STARTO", "光GENJI", "SMAP", "嵐", "King & Prince", "Snow Man", "SixTONES"],
-        "office_horipro": ["ホリプロ"],
-        "office_oscar": ["オスカープロモーション", "オスカー"],
-        "office_amuse": ["アミューズ"],
-        "office_stardust": ["スターダストプロモーション", "スターダスト"],
-        "office_kenon": ["研音"],
-        "office_burning": ["バーニング"],
-        "office_ota": ["太田プロ", "太田プロダクション"],
-        "office_ldh": ["LDH", "EXILE", "三代目"],
-        "office_shiki": ["劇団四季"],
-        "office_takarazuka": ["宝塚歌劇団", "宝塚", "娘役", "男役"],
-        "office_akb": ["AKB", "乃木坂", "櫻坂", "欅坂", "日向坂", "SKE", "NMB", "HKT", "秋元康"],
-    }
-
-
 # -----------------------
 # ユーティリティ: 人物リスト読み込み
 # -----------------------
@@ -866,6 +842,9 @@ def generate_question_map(dataset, selected_categories=None):
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
         ("alive_text", "現在もご存命ですか？", "common"),
+        ("actor_wikidata", "俳優でもありますか？", "occupation"),
+        ("singer_wikidata", "歌手でもありますか？", "occupation"),
+        ("politician_wikidata", "政治家でもありますか？", "occupation"),
         ("age_20s", "現在、20代ですか？", "common"), ("age_30s", "現在、30代ですか？", "common"),
         ("age_40s", "現在、40代ですか？", "common"), ("age_50s", "現在、50代ですか？", "common"),
         ("born_1980s", "1980年代生まれですか？", "common"), ("born_1990s", "1990年代生まれですか？", "common"),
@@ -875,6 +854,9 @@ def generate_question_map(dataset, selected_categories=None):
         ("is_hiragana_only", "名前はひらがなだけですか？", "common"),
         ("from_tokyo", "出身は東京ですか？", "feature"),
         ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature"),
+        ("grad_todai", "東京大学を卒業していますか？", "feature"),
+        ("grad_waseda", "早稲田大学を卒業していますか？", "feature"),
+        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature"),
         ("blood_A", "血液型はA型ですか？", "feature"),
         ("blood_B", "血液型はB型ですか？", "feature"),
         ("blood_O", "血液型はO型ですか？", "feature"),
