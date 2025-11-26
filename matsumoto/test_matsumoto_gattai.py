@@ -1397,7 +1397,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     recovery_attempt_count = 0
     last_recovery_count = -1
 
-    print(f"=== 🕵️ 人物検索開始 (リカバリー機能搭載) ===")
+    print(f"=== 🕵️ 人物検索開始 ===")
     print(f"※ 毎回、残りの候補者全員 ({len(current_candidates)}人) を分析して最適な質問を厳選します。")
     print("回答: y(はい) / n(いいえ) / u(わからない) / b(戻る)")
     print("--------------------------------------------------")
@@ -1407,7 +1407,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         loop_count += 1
         current_candidates, asked_keys, current_asked_count = history[-1]
         
-        # --- リカバリー発動トリガー ---
+        # リカバリー発動フラグ
         trigger_recovery = False
         
         # 判定 A: 候補が0人
@@ -1441,7 +1441,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 trigger_recovery = True
 
         # ------------------------------
-        # リカバリー (再構築) ロジック
+        # リカバリーロジック
         # ------------------------------
         if trigger_recovery:
             recovery_attempt_count += 1
