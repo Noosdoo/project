@@ -163,25 +163,27 @@ def get_dynamic_cache_path(categories_list, prefix="people_list"):
     return f"{prefix}_{filename_part}.json"
 
 # -----------------------
-# 除外ルール: 人物ページかどうか判定
+# 除外ルール : 人物ページかどうか判定
 # -----------------------
 def is_person_page(title):
-    exclude_keywords = ["一覧", "号", "歴史", "編"] # 除外キーワード
+    exclude_keywords = ["一覧", "号", "歴史", "編"]       # 除外キーワード
     return not any(k in title for k in exclude_keywords) # 人物ページとみなす
 
 # -----------------------
-# ユーティリティ: Wikipediaカテゴリからタイトル取得
+# ユーティリティ : Wikipediaカテゴリからタイトル取得
 # -----------------------
 def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=1.5):
     # 再帰的にカテゴリメンバーを収集
     if collected is None:
         collected = set() # 初期化
     cmtitle = f"Category:{category}" # カテゴリタイトル
+
     # APIパラメータ
     params = {
         "action": "query", "list": "categorymembers",
         "cmtitle": cmtitle, "cmlimit": str(cmlimit), "format": "json"
     }
+    
     # ページネーション対応
     cont = None
     while True:
@@ -237,10 +239,12 @@ def choose_categories():
         print(f"{i}. {cat}")
     print("複数選ぶ場合はカンマ区切りで番号を入力してください (例: 1,3,5) / 全ての場合は Enter")
     choice = input("> ").strip() # ユーザー入力
+
     # 選択処理
     if not choice:
         print("全カテゴリを対象にします。"); return CATEGORIES # 全選択
     selected = [] # 選択カテゴリ
+
     # 入力をパース
     for part in choice.split(","):
         # 番号をインデックスに変換
@@ -248,13 +252,14 @@ def choose_categories():
             idx = int(part)-1 # 1始まりを0始まりに変換
             if 0 <= idx < len(CATEGORIES): selected.append(CATEGORIES[idx]) # 有効なカテゴリを追加
         except: pass
+
     # 無効な入力は無視
     if not selected:
         print("カテゴリが選択されなかったため、全カテゴリを対象にします。"); return CATEGORIES
     print(f"選択されたカテゴリ: {', '.join(selected)}"); return selected
 
 # -----------------------
-# Step1: 全カテゴリから人物を収集して保存 
+# 全カテゴリから人物を収集して保存 
 # -----------------------
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_path=PEOPLE_LIST_FILE, corresponding_dataset_path=DATASET_FILE):
 
@@ -287,12 +292,12 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
             # カテゴリ比較 (カテゴリが一致しているか？)
             if saved_categories == target_categories and people_list is not None: 
                 
-                print(f"\n--- 💾 キャッシュが見つかりました ---")
+                print(f"\n--- キャッシュが見つかりました ---")
                 print(f"リスト: {save_path}")
                 print(f"データセット: {corresponding_dataset_path}")
                 print("このキャッシュを使用しますか？")
-                print("  1: キャッシュを使用 (収集/構築をスキップ)")
-                print("  2: 再収集 (キャッシュを削除して最初から)")
+                print("  1 : キャッシュを使用 (収集/構築をスキップ)")
+                print("  2 : 再収集 (キャッシュを削除して最初から)")
                 
                 choice = input(" (1/2) > ").strip() # ユーザー入力
                 
