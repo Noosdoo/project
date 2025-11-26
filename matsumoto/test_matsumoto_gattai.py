@@ -27,9 +27,9 @@ try:
     print("Janome (形態素解析) を読み込みました。")
 except ImportError:
     print("---------------------------------------------------------------")
-    print("エラー: Janomeがインストールされていません。")
+    print("エラー : Janomeがインストールされていません。")
     print("動的な質問生成（名詞分析）を利用するには、Janomeが必要です。")
-    print("ターミナルで `pip install -U janome` を実行してください。")
+    print("ターミナルで 'pip install -U janome' を実行してください。")
     print("---------------------------------------------------------------")
     JANOME_TOKENIZER = None
 except Exception as e:
@@ -60,15 +60,14 @@ CATEGORIES = [
     "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本の格闘家", "日本のレスリング選手", "日本のオリンピック選手",
     "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手", "日本のゴルフ選手",
     # 芸術・文化
-    "日本の画家", "日本の建築家", "日本のデザイナー", "日本の作曲家"
+    "日本の画家", "日本の建築家", "日本のデザイナー"
 ]
 
 # 間違いファイル
-MISTAKE_LOG_FILE = "mistake_log.json" # 間違いデータの保存先
+MISTAKE_LOG_FILE = "mistake_log.json"
 
 # Wikipedia APIに送る際のヘッダー
 HEADERS = {"User-Agent": USER_AGENT}
-
 
 # -----------------------
 # リトライ機能付きJSON取得 (APIエラー対策)
@@ -76,28 +75,26 @@ HEADERS = {"User-Agent": USER_AGENT}
 def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_factor=1.0):
     # APIにリクエストを送り、JSONデコードエラーや429/503エラーの場合、指数関数的バックオフ（待機時間延長）でリトライする。
 
-    for i in range(retries):
+    for i in range(retries): # リトライ回数分ループ
         try:
-            res = requests.get(url, params=params, headers=headers, timeout=15)
-            res.raise_for_status() 
-            return res.json() 
-        
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code in (429, 503):
-                wait_time = backoff_factor * (2 ** i)
-                # print(f"  [RETRY] {e.response.status_code}エラー。{wait_time:.1f}秒待機してリトライします...")
-                time.sleep(wait_time)
+            res = requests.get(url, params=params, headers=headers, timeout=15) # APIリクエスト
+            res.raise_for_status()  # HTTPエラーチェック
+            return res.json() # JSONデコードして返す
+         
+        except requests.exceptions.HTTPError as e: # HTTPエラー処理
+            if e.response.status_code in (429, 503): # レート制限またはサービス利用不可
+                wait_time = backoff_factor * (2 ** i) # 指数関数的バックオフ
+                time.sleep(wait_time) # 待機
             else:
-                return None 
+                return None # その他のHTTPエラーはリトライしない
         
-        except json.JSONDecodeError as e:
-            wait_time = backoff_factor * (2 ** i)
-            # print(f"  [JSONデコードエラー] {wait_time:.1f}秒待機してリトライします...")
-            time.sleep(wait_time)
+        except json.JSONDecodeError as e: # JSONデコードエラー処理
+            wait_time = backoff_factor * (2 ** i) # 指数関数的バックオフ
+            time.sleep(wait_time) # 待機
         
-        except requests.exceptions.RequestException as e:
-            wait_time = backoff_factor * (2 ** i)
-            time.sleep(wait_time)
+        except requests.exceptions.RequestException as e: # その他のリクエスト例外処理
+            wait_time = backoff_factor * (2 ** i) # 指数関数的バックオフ
+            time.sleep(wait_time) # 待機
     
     return None
 
@@ -105,9 +102,8 @@ def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_fa
 # Wikipediaのメイン画像URLを取得
 # -----------------------
 def get_wikipedia_main_image(title, thumb_size=300):
-    """
-    Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
-    """
+    # Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
+
     params = {
         "action": "query",                  # アクション
         "titles": title,                    # ページタイトル
@@ -138,29 +134,25 @@ def get_wikipedia_main_image(title, thumb_size=300):
 # カテゴリに基づいたキャッシュファイル名
 # -----------------------
 def get_dynamic_cache_path(categories_list, prefix="people_list"):
-    """
-    選択されたカテゴリリストから一意のハッシュを生成し、
-    キャッシュファイル名（.json）を返す。
+    # 選択されたカテゴリリストから一意のハッシュを生成し、キャッシュファイル名（.json）を返す。
     
-    ★ 修正: 
-    - 全選択 (または0選択) の場合のみ "ALL" を使用。
-    - それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
-    """
+    # 全選択 (または0選択) の場合のみ "ALL" を使用。それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
+
     # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュ/名前になるようにする
     sorted_cats = sorted(list(set(categories_list)))
     
-    num_cats = len(sorted_cats)
+    num_cats = len(sorted_cats)  # 選択されたカテゴリ数
     total_cats = len(CATEGORIES) # グローバルのカテゴリ総数を参照
     
     filename_part = ""
 
     # --- ファイル名のルールを決定 ---
 
-    # 1. カテゴリ未選択(Enter) または 全カテゴリを選択した場合
+    # カテゴリ未選択(Enter) または 全カテゴリを選択した場合
     if num_cats == 0 or num_cats == total_cats:
         filename_part = "ALL"
         
-    # 2. それ以外 (1カテゴリでも、40カテゴリでも) の場合
+    # それ以外 (1カテゴリでも、40カテゴリでも) の場合
     else:
         # カテゴリ名をアンダースコアで連結
         # (ファイル名として使えない文字を置換)
@@ -171,25 +163,27 @@ def get_dynamic_cache_path(categories_list, prefix="people_list"):
     return f"{prefix}_{filename_part}.json"
 
 # -----------------------
-# 除外ルール: 人物ページかどうか判定
+# 除外ルール : 人物ページかどうか判定
 # -----------------------
 def is_person_page(title):
-    exclude_keywords = ["一覧", "号", "歴史", "編"] # 除外キーワード
+    exclude_keywords = ["一覧", "号", "歴史", "編"]       # 除外キーワード
     return not any(k in title for k in exclude_keywords) # 人物ページとみなす
 
 # -----------------------
-# ユーティリティ: Wikipediaカテゴリからタイトル取得
+# ユーティリティ : Wikipediaカテゴリからタイトル取得
 # -----------------------
 def get_category_members(category, cmlimit=50, depth=1, collected=None, sleep=1.5):
     # 再帰的にカテゴリメンバーを収集
     if collected is None:
         collected = set() # 初期化
     cmtitle = f"Category:{category}" # カテゴリタイトル
+
     # APIパラメータ
     params = {
         "action": "query", "list": "categorymembers",
         "cmtitle": cmtitle, "cmlimit": str(cmlimit), "format": "json"
     }
+    
     # ページネーション対応
     cont = None
     while True:
@@ -245,10 +239,12 @@ def choose_categories():
         print(f"{i}. {cat}")
     print("複数選ぶ場合はカンマ区切りで番号を入力してください (例: 1,3,5) / 全ての場合は Enter")
     choice = input("> ").strip() # ユーザー入力
+
     # 選択処理
     if not choice:
         print("全カテゴリを対象にします。"); return CATEGORIES # 全選択
     selected = [] # 選択カテゴリ
+
     # 入力をパース
     for part in choice.split(","):
         # 番号をインデックスに変換
@@ -256,13 +252,14 @@ def choose_categories():
             idx = int(part)-1 # 1始まりを0始まりに変換
             if 0 <= idx < len(CATEGORIES): selected.append(CATEGORIES[idx]) # 有効なカテゴリを追加
         except: pass
+
     # 無効な入力は無視
     if not selected:
         print("カテゴリが選択されなかったため、全カテゴリを対象にします。"); return CATEGORIES
     print(f"選択されたカテゴリ: {', '.join(selected)}"); return selected
 
 # -----------------------
-# Step1: 全カテゴリから人物を収集して保存 
+# 全カテゴリから人物を収集して保存 
 # -----------------------
 def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_path=PEOPLE_LIST_FILE, corresponding_dataset_path=DATASET_FILE):
 
@@ -295,12 +292,12 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
             # カテゴリ比較 (カテゴリが一致しているか？)
             if saved_categories == target_categories and people_list is not None: 
                 
-                print(f"\n--- 💾 キャッシュが見つかりました ---")
+                print(f"\n--- キャッシュが見つかりました ---")
                 print(f"リスト: {save_path}")
                 print(f"データセット: {corresponding_dataset_path}")
                 print("このキャッシュを使用しますか？")
-                print("  1: キャッシュを使用 (収集/構築をスキップ)")
-                print("  2: 再収集 (キャッシュを削除して最初から)")
+                print("  1 : キャッシュを使用 (収集/構築をスキップ)")
+                print("  2 : 再収集 (キャッシュを削除して最初から)")
                 
                 choice = input(" (1/2) > ").strip() # ユーザー入力
                 
@@ -345,18 +342,13 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
         print(f"   → {len(people)} 件取得（フィルタ前）") # 取得数表示
         filtered = []
         for name in people:
-            # ① 除外語フィルタ
+            # 除外語フィルタ
             if any(word in name for word in EXCLUDE_KEYWORDS):
                 continue
 
-            # ② 名前があまりにも短い・数字だけの場合などを除外
+            # 名前があまりにも短い・数字だけの場合などを除外
             if len(name) < 2 or re.fullmatch(r"[0-9０-９A-Za-z]+", name):
                 continue
-
-            # （オプション）人物らしいワードが含まれるかチェック
-            # ※ここは厳密にしすぎると漏れも出るので任意
-            # if not any(hint in name for hint in INCLUDE_HINTS):
-            #     continue
 
             filtered.append(name)
 
@@ -389,7 +381,7 @@ def get_wikibase_item_from_wikipedia(title):
     params = {"action": "query", "titles": title, "prop": "pageprops", "format": "json"} # APIパラメータ
     try:
         res = requests.get(WIKI_API, params=params, headers=HEADERS, timeout=15) # APIリクエスト
-        data = res.json(); pages = data.get("query", {}).get("pages", {}) # JSON解析
+        data = res.json(); pages = data.get("query", {}).get("pages", {})        # JSON解析
         if not pages: return None # ページなし
         page = next(iter(pages.values())); pp = page.get("pageprops", {}) # ページプロパティ
         return pp.get("wikibase_item") # Wikibase ID返す
@@ -401,8 +393,8 @@ def get_wikibase_item_from_wikipedia(title):
 def fetch_wikidata_entity(wikibase_id):
     # Wikidataエンティティを取得し、構造化属性を抽出
     try:
-        url = WIKIDATA_ENTITY_URL.format(wikibase_id) # エンティティURL
-        res = requests.get(url, headers=HEADERS, timeout=15) # APIリクエスト
+        url = WIKIDATA_ENTITY_URL.format(wikibase_id)          # エンティティURL
+        res = requests.get(url, headers=HEADERS, timeout=15)   # APIリクエスト
         data = res.json() # JSON解析
         entity = data.get("entities", {}).get(wikibase_id, {}) # エンティティ取得
         claims = entity.get("claims", {}) # クレーム取得
@@ -583,8 +575,7 @@ def extract_dynamic_features_from_summary(summary):
 
 
 # -----------------------
-# summaryから【キーワードベース（静的）】で特徴を抽出 
-# （こちらは元の関数名 extract_features_from_summary のまま)
+# summaryからキーワードベースで特徴を抽出 
 # -----------------------
 FEATURE_KEYWORDS = {
     "taiga": ["大河ドラマ", "大河"], "tokusatsu": ["仮面ライダー", "スーパー戦隊", "ウルトラマン", "特撮"],
@@ -602,7 +593,7 @@ FEATURE_KEYWORDS = {
 }
 
 # -----------------------
-# summaryから【キーワードベース（静的）】で特徴を抽出
+# summaryからキーワードベースで特徴を抽出
 # -----------------------
 def extract_features_from_summary(summary):
     s = summary or "" # summaryがNoneの場合は空文字に
@@ -643,7 +634,7 @@ def extract_features_from_summary(summary):
     return features # 抽出特徴辞書返す
 
 # -----------------------
-# ユーティリティ: 人物リスト読み込み
+# ユーティリティ : 人物リスト読み込み
 # -----------------------
 def load_people_list(people_list_path=PEOPLE_LIST_FILE):
     # 人物リストを読み込む
@@ -657,20 +648,24 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 
 
 # -----------------------
-# Step2: データセット構築（並列）
+# データセット構築（並列）
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
                            limit=None, max_workers=30, sleep=0.1): #max_workers（並列数）を小さくすればエラーを防げる
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
+
     if people is None:
         print("人物リストが存在しません。まず collect_people を実行してください。")
         return None
+    
     if JANOME_TOKENIZER is None:
         print("Janomeが読み込まれていないため、データ構築をスキップします。")
         return None
+    
     existing = {} # 既存データ読み込み
+
     if os.path.exists(dataset_path): # 既存データがあれば読み込み
         try:
             with open(dataset_path, "r", encoding="utf-8") as f: # JSON読み込み
@@ -679,7 +674,9 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
         except Exception as e:
             print(f"既存データ読み込み失敗: {e}") # エラー表示
             existing = {} # 既存データリセット
+
     targets = people # 処理対象リスト
+
     if limit is not None: # 制限があれば切り詰め
         targets = targets[:limit] # 切り詰め
     targets_to_process = [n for n in targets if n not in existing or not existing[n].get("features")] # 未処理のみ
@@ -706,7 +703,7 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                 # 成功ログは大量に出すぎるためコメントアウト
                 # print(f"  [DEBUG-PROCESS] {name}: page.summary 取得成功 (長さ: {len(page.summary)})")
 
-            # --- 基本情報 ---
+            # 基本情報
             rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None}
             
             # 1. キーワードベース（静的）の特徴抽出
@@ -726,7 +723,7 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             if dynamic_features:
                 features.update(dynamic_features) # featuresにマージ
             
-            # --- カテゴリ特徴 ---
+            # カテゴリ特徴
             try:
                 page_categories = page.categories # カテゴリ取得
                 # 無視するカテゴリ (広すぎる、ノイズになる)
@@ -760,21 +757,21 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                 print(f"  [DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
 
 
-            # --- 名前構造 ---
+            # 名前構造
             if re.search(r'[ァ-ヶ]', name): # カタカナ文字が含まれるか
                 features["has_katakana"] = 1 # カタカナありフラグ
             if re.fullmatch(r'[ぁ-ん]+', name): # 名前がひらがなのみか
                 features["is_hiragana_only"] = 1 # ひらがなのみフラグ
             rec["features"] = features # 特徴セット保存
 
-            # --- Wikidata取得 ---
+            # Wikidata取得
             wikibase_id = get_wikibase_item_from_wikipedia(name) # Wikibase ID取得
             if wikibase_id: # Wikibase IDがあればWikidata取得
                 wd = fetch_wikidata_entity(wikibase_id) # Wikidata取得
                 rec["wikidata"] = wd # Wikidata保存
                 if wd: # Wikidataが取得できたら追加特徴抽出
 
-                    # (性別・年齢・職業・出身地などの処理)
+                    # 性別・年齢・職業・出身地などの処理
                     g = wd.get("gender_qid") # 性別QID
 
                     if g == "Q6581097": features["gender"] = "male" # 男性
@@ -905,7 +902,7 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
 
 
 # -----------------------
-# Step3: アキネーター本体 データセット読み込み
+# アキネーター本体 データセット読み込み
 # -----------------------
 def load_dataset(dataset_path=DATASET_FILE, min_feature_threshold=10):
     """
@@ -947,7 +944,7 @@ def load_dataset(dataset_path=DATASET_FILE, min_feature_threshold=10):
         return None
 
 # -----------------------
-# 質問マップの自動生成 (Janome動的質問＋閾値緩和)
+# 質問マップの自動生成
 # -----------------------
 def generate_question_map(dataset, selected_categories=None):
     qm = {"occupation": [], "activity": [], "feature": [], "common": []} # 質問マップ初期化
@@ -1236,15 +1233,13 @@ def generate_question_map(dataset, selected_categories=None):
 
 
 # -----------------------
-# 最適な質問を見つけるアルゴリズム (質問の厳選)
+# 最適な質問を見つけるアルゴリズム
 # -----------------------
 def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
-    """
-    【重要】解析用候補者リスト(candidates_for_analysis)を最も効率よく
-    半分(50/50)に分割できる質問を厳選。
-    スコアが0の質問も保持し、他にない場合の保険とする。
-    職業や性別など、本質的な質問のスコアに「優先度ブースト」をかける。
-    """
+    # 解析用候補者リスト(candidates_for_analysis)を最も効率よく、半分(50/50)に分割できる質問を厳選。
+    # スコアが0の質問も保持し、他にない場合の保険とする。
+    # 職業や性別など、本質的な質問のスコアに「優先度ブースト」をかける。
+
     best_question = None # 最適な質問
     best_score = -1 # スコアの初期値
 
@@ -1265,7 +1260,7 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
             if key in asked_keys: # 既に尋ねた質問はスキップ
                 continue
 
-            # --- シミュレーション (解析用候補者リストで行う) ---
+            # シミュレーション (解析用候補者リストで行う)
             yes_count = 0 # はいカウント
             no_count = 0 # いいえカウント
             for c in candidates_for_analysis: # 各候補者ごとに
@@ -1316,18 +1311,18 @@ def find_best_question(candidates_for_analysis, qm_dict, asked_keys):
 
 
 # -----------------------
-# 関数1: ミスマッチ（間違い）数を計算
+# 関数1 : ミスマッチ（間違い）数を計算
 # -----------------------
 def calculate_mismatches(person, user_answers):
     """
     人物の特徴とユーザーの回答履歴を比較し、矛盾（ミスマッチ）の数を数える。
     """
     mismatches = 0
-    person_features = person.get("features", {})
+    person_features = person.get("features", {}) # 人物の特徴辞書取得
     
-    for key, ans in user_answers.items():
+    for key, ans in user_answers.items(): # ユーザー回答履歴をループ
         # 特徴を持っているか (1:持ってる, 0/None:持ってない)
-        has_feature = person_features.get(key) == 1
+        has_feature = person_features.get(key) == 1 # 特徴があるかどうか
         
         if ans == "y": # ユーザー「はい」
             if not has_feature: mismatches += 1 # 特徴がない -> ミス
@@ -1335,10 +1330,10 @@ def calculate_mismatches(person, user_answers):
             if has_feature: mismatches += 1 # 特徴がある -> ミス
         # 'u' (わからない) はミスにカウントしない
         
-    return mismatches
+    return mismatches # ミスマッチ数を返す
 
 # -----------------------
-# 関数2: 失敗時のログ保存
+# 関数2 : 失敗時のログ保存
 # -----------------------
 def save_mistake_log(user_answers, final_candidates):
     """
@@ -1370,13 +1365,10 @@ def save_mistake_log(user_answers, final_candidates):
 
 
 # -----------------------
-# アキネーター本体ループ (修正版: リカバリー機能統合)
+# 著名人検索本体ループ
 # -----------------------
 def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
-    """
-    候補者が1人になるまで質問を続ける。
-    リカバリー（ニアミス探索）は最大3回まで。
-    """
+    # 候補者が1人になるまで質問を続ける。リカバリー（ニアミス探索）は最大3回まで。
     
     # ゲーム用データセット (featuresを持つデータのみ)
     valid_dataset = [p for p in dataset if p.get("features")]
@@ -1405,7 +1397,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     recovery_attempt_count = 0
     last_recovery_count = -1
 
-    print(f"=== 🕵️ 人物検索開始 (リカバリー機能搭載) ===")
+    print(f"=== 🕵️ 人物検索開始 ===")
     print(f"※ 毎回、残りの候補者全員 ({len(current_candidates)}人) を分析して最適な質問を厳選します。")
     print("回答: y(はい) / n(いいえ) / u(わからない) / b(戻る)")
     print("--------------------------------------------------")
@@ -1415,7 +1407,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         loop_count += 1
         current_candidates, asked_keys, current_asked_count = history[-1]
         
-        # --- リカバリー発動トリガー ---
+        # リカバリー発動フラグ
         trigger_recovery = False
         
         # 判定 A: 候補が0人
@@ -1448,9 +1440,9 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 print(f"🤔 違いましたか...。")
                 trigger_recovery = True
 
-        # ------------------------------------------------
-        # ★ リカバリー (再構築) ロジック
-        # ------------------------------------------------
+        # ------------------------------
+        # リカバリーロジック
+        # ------------------------------
         if trigger_recovery:
             recovery_attempt_count += 1
             
@@ -1494,9 +1486,9 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             history.append((near_misses, asked_keys, current_asked_count))
             continue
 
-        # ------------------------------------------------
+        # -----------------------
         # 通常の質問選択フロー
-        # ------------------------------------------------
+        # -----------------------
         question = find_best_question(current_candidates, qm_dict, asked_keys)
 
         if question is None:
@@ -1518,7 +1510,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         
         ans = input(q_text + " （y/n/u/b） > ").strip().lower()
 
-        # --- 戻る処理 ---
+        # 戻る処理
         if ans in ("b", "back"):
             if len(history) > 1:
                 history.pop()
@@ -1536,7 +1528,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 print("これ以上戻れません。")
                 continue
 
-        # --- 回答処理と記録 ---
+        # 回答処理と記録
         if ans in ("y", "yes", "はい"):
             user_val = "y"
             next_candidates = [c for c in current_candidates if test(c)]
@@ -1584,6 +1576,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
     step = step.lower() # 小文字化
     # どのステップでも使う可能性のあるカテゴリリストを取得
     selected_categories = kwargs.get("categories", CATEGORIES) # ※ "categories" が kwargs にないと CATEGORIES になる
+
     if step == "collect": # データ収集ステップ
         # 収集実行
         return collect_people(categories=selected_categories,               # 選択カテゴリ
