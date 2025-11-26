@@ -5,9 +5,9 @@
 
 
 これでファイル開ける
-.\people_list_日本の俳優.json
-.\people_dataset_日本の俳優.json
-                  ↑
+code .\people_list_日本の俳優.json
+code .\people_dataset_日本の俳優.json
+                       ↑ここは各自名前変更
 
 
 
