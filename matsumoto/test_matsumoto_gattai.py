@@ -27,9 +27,9 @@ try:
     print("Janome (形態素解析) を読み込みました。")
 except ImportError:
     print("---------------------------------------------------------------")
-    print("エラー: Janomeがインストールされていません。")
+    print("エラー : Janomeがインストールされていません。")
     print("動的な質問生成（名詞分析）を利用するには、Janomeが必要です。")
-    print("ターミナルで `pip install -U janome` を実行してください。")
+    print("ターミナルで 'pip install -U janome' を実行してください。")
     print("---------------------------------------------------------------")
     JANOME_TOKENIZER = None
 except Exception as e:
@@ -64,11 +64,10 @@ CATEGORIES = [
 ]
 
 # 間違いファイル
-MISTAKE_LOG_FILE = "mistake_log.json" # 間違いデータの保存先
+MISTAKE_LOG_FILE = "mistake_log.json"
 
 # Wikipedia APIに送る際のヘッダー
 HEADERS = {"User-Agent": USER_AGENT}
-
 
 # -----------------------
 # リトライ機能付きJSON取得 (APIエラー対策)
@@ -76,28 +75,26 @@ HEADERS = {"User-Agent": USER_AGENT}
 def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_factor=1.0):
     # APIにリクエストを送り、JSONデコードエラーや429/503エラーの場合、指数関数的バックオフ（待機時間延長）でリトライする。
 
-    for i in range(retries):
+    for i in range(retries): # リトライ回数分ループ
         try:
-            res = requests.get(url, params=params, headers=headers, timeout=15)
-            res.raise_for_status() 
-            return res.json() 
-        
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code in (429, 503):
-                wait_time = backoff_factor * (2 ** i)
-                # print(f"  [RETRY] {e.response.status_code}エラー。{wait_time:.1f}秒待機してリトライします...")
-                time.sleep(wait_time)
+            res = requests.get(url, params=params, headers=headers, timeout=15) # APIリクエスト
+            res.raise_for_status()  # HTTPエラーチェック
+            return res.json() # JSONデコードして返す
+         
+        except requests.exceptions.HTTPError as e: # HTTPエラー処理
+            if e.response.status_code in (429, 503): # レート制限またはサービス利用不可
+                wait_time = backoff_factor * (2 ** i) # 指数関数的バックオフ
+                time.sleep(wait_time) # 待機
             else:
-                return None 
+                return None # その他のHTTPエラーはリトライしない
         
-        except json.JSONDecodeError as e:
-            wait_time = backoff_factor * (2 ** i)
-            # print(f"  [JSONデコードエラー] {wait_time:.1f}秒待機してリトライします...")
-            time.sleep(wait_time)
+        except json.JSONDecodeError as e: # JSONデコードエラー処理
+            wait_time = backoff_factor * (2 ** i) # 指数関数的バックオフ
+            time.sleep(wait_time) # 待機
         
-        except requests.exceptions.RequestException as e:
-            wait_time = backoff_factor * (2 ** i)
-            time.sleep(wait_time)
+        except requests.exceptions.RequestException as e: # その他のリクエスト例外処理
+            wait_time = backoff_factor * (2 ** i) # 指数関数的バックオフ
+            time.sleep(wait_time) # 待機
     
     return None
 
@@ -105,9 +102,8 @@ def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_fa
 # Wikipediaのメイン画像URLを取得
 # -----------------------
 def get_wikipedia_main_image(title, thumb_size=300):
-    """
-    Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
-    """
+    # Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
+
     params = {
         "action": "query",                  # アクション
         "titles": title,                    # ページタイトル
@@ -138,29 +134,25 @@ def get_wikipedia_main_image(title, thumb_size=300):
 # カテゴリに基づいたキャッシュファイル名
 # -----------------------
 def get_dynamic_cache_path(categories_list, prefix="people_list"):
-    """
-    選択されたカテゴリリストから一意のハッシュを生成し、
-    キャッシュファイル名（.json）を返す。
+    # 選択されたカテゴリリストから一意のハッシュを生成し、キャッシュファイル名（.json）を返す。
     
-    ★ 修正: 
-    - 全選択 (または0選択) の場合のみ "ALL" を使用。
-    - それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
-    """
+    # 全選択 (または0選択) の場合のみ "ALL" を使用。それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
+
     # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュ/名前になるようにする
     sorted_cats = sorted(list(set(categories_list)))
     
-    num_cats = len(sorted_cats)
+    num_cats = len(sorted_cats)  # 選択されたカテゴリ数
     total_cats = len(CATEGORIES) # グローバルのカテゴリ総数を参照
     
     filename_part = ""
 
     # --- ファイル名のルールを決定 ---
 
-    # 1. カテゴリ未選択(Enter) または 全カテゴリを選択した場合
+    # カテゴリ未選択(Enter) または 全カテゴリを選択した場合
     if num_cats == 0 or num_cats == total_cats:
         filename_part = "ALL"
         
-    # 2. それ以外 (1カテゴリでも、40カテゴリでも) の場合
+    # それ以外 (1カテゴリでも、40カテゴリでも) の場合
     else:
         # カテゴリ名をアンダースコアで連結
         # (ファイル名として使えない文字を置換)
@@ -1323,11 +1315,11 @@ def calculate_mismatches(person, user_answers):
     人物の特徴とユーザーの回答履歴を比較し、矛盾（ミスマッチ）の数を数える。
     """
     mismatches = 0
-    person_features = person.get("features", {})
+    person_features = person.get("features", {}) # 人物の特徴辞書取得
     
-    for key, ans in user_answers.items():
+    for key, ans in user_answers.items(): # ユーザー回答履歴をループ
         # 特徴を持っているか (1:持ってる, 0/None:持ってない)
-        has_feature = person_features.get(key) == 1
+        has_feature = person_features.get(key) == 1 # 特徴があるかどうか
         
         if ans == "y": # ユーザー「はい」
             if not has_feature: mismatches += 1 # 特徴がない -> ミス
@@ -1335,7 +1327,7 @@ def calculate_mismatches(person, user_answers):
             if has_feature: mismatches += 1 # 特徴がある -> ミス
         # 'u' (わからない) はミスにカウントしない
         
-    return mismatches
+    return mismatches # ミスマッチ数を返す
 
 # -----------------------
 # 関数2: 失敗時のログ保存
