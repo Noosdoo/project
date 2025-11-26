@@ -13,3 +13,9 @@ pip install requests wikipedia-api janome
 pip install wikipedia-api requests janome
 
 pip install janome
+
+フロントエンド班の大島です。
+牛島さん。あなたの協力が必要です。SOS!!
+とりあえずサイト上の1つ戻るが機能していないです！
+多分test_matsumoto_gattaiとの結合も出来ていないと思います！！
+12/3,4,5日あたりで完璧にしちゃいましょう('Д')/!!!!!!!
