@@ -60,7 +60,7 @@ CATEGORIES = [
     "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本の格闘家", "日本のレスリング選手", "日本のオリンピック選手",
     "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手", "日本のゴルフ選手",
     # 芸術・文化
-    "日本の画家", "日本の建築家", "日本のデザイナー", "日本の作曲家"
+    "日本の画家", "日本の建築家", "日本のデザイナー"
 ]
 
 # 間違いファイル
@@ -1576,7 +1576,7 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
     step = step.lower() # 小文字化
     # どのステップでも使う可能性のあるカテゴリリストを取得
     selected_categories = kwargs.get("categories", CATEGORIES) # ※ "categories" が kwargs にないと CATEGORIES になる
-    
+
     if step == "collect": # データ収集ステップ
         # 収集実行
         return collect_people(categories=selected_categories,               # 選択カテゴリ
