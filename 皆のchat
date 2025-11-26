@@ -4,16 +4,14 @@
 いつも通り柏駅で「幻のラーメン食い逃げチャレンジ」してぇなぁ
 
 
-これでファイル開ける
+（🔴これでファイル開ける
 code .\people_list_日本の俳優.json
 code .\people_dataset_日本の俳優.json
-                       ↑ここは各自名前変更
+                       ↑ここは各自名前変更）
 
+ファイル保存は、同期してファイル開いてドラッグで移動
 
-
-
-
-requestsをインストールするには
+🔴requestsをインストールするには
 pip install requests wikipedia-api janome
 
 pip install wikipedia-api requests janome
