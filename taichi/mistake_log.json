@@ -172,5 +172,38 @@
     },
     "final_candidates_count": 1,
     "top_candidate": "加藤シゲアキ"
+  },
+  {
+    "timestamp": "2025-11-26T15:29:09.741937",
+    "questions_count": 9,
+    "user_answers": {
+      "actor_wikidata": "n",
+      "born_1990s": "y",
+      "age_20s": "y",
+      "singer_wikidata": "y",
+      "noun_東京": "y",
+      "from_tokyo": "y",
+      "stage": "y",
+      "noun_神奈川": "y",
+      "noun_音楽家": "y"
+    },
+    "final_candidates_count": 1,
+    "top_candidate": "永瀬廉"
+  },
+  {
+    "timestamp": "2025-11-26T15:31:26.514924",
+    "questions_count": 8,
+    "user_answers": {
+      "age_30s": "y",
+      "born_1980s": "y",
+      "from_tokyo": "y",
+      "cat_世界水泳選手権日本代表選手": "y",
+      "actor_wikidata": "y",
+      "noun_静岡": "y",
+      "noun_山形": "y",
+      "noun_チーム": "n"
+    },
+    "final_candidates_count": 1,
+    "top_candidate": "片平あかね"
   }
 ]
