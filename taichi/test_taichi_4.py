@@ -709,11 +709,11 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     cat_name = cat_title.replace("Category:", "").strip() # カテゴリ名抽出
                     
                     # (キーワードのどれか一つでもカテゴリ名に含まれていたら無視)
-                    if any(keyword in cat_name for keyword in IGNORE_CAT_KEYWORDS):
+                    if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
                          continue
                     
                     # 無視リストにあるか、"〇〇年生" "〇〇年没" 形式は無視
-                    if cat_name in IGNORE_CATS or cat_name.endswith("年生") or cat_name.endswith("年没"):
+                    if cat_name in IGNORE_CATS_KEYWORDS or cat_name.endswith("年生") or cat_name.endswith("年没"):
                          continue
                          
                     # 特徴として追加 (例: cat_日本の俳優)
