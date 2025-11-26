@@ -451,7 +451,7 @@ def fetch_wikidata_entity(wikibase_id):
         if "P166" in claims:
             award_qids = [] # 受賞QIDリスト
             for c in claims["P166"]: # 各クレーム処理
-                     try:
+                    try:
                         v = c["mainsnak"]["datavalue"]["value"] # 値取得
                         if isinstance(v, dict) and "id" in v: award_qids.append(v["id"]) # QID追加
                     except Exception: pass # エラー無視
