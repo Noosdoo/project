@@ -944,6 +944,137 @@ def load_dataset(dataset_path=DATASET_FILE, min_feature_threshold=10):
         return None
 
 # -----------------------
+# 新規人物データの取得と追記
+# -----------------------
+def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
+    """
+    ユーザーが入力した人物名に基づき、Wikipedia/Wikidataからデータを取得し、
+    既存のデータセットファイルに追記する。
+    ※ 追記前に、データセット内の名前の重複をチェックする。
+    """
+    
+    # 既存のデータセットを読み込み
+    existing_dataset = []
+    if os.path.exists(dataset_path):
+        try:
+            with open(dataset_path, "r", encoding="utf-8") as f:
+                existing_dataset = json.load(f)
+        except Exception as e:
+            # 警告: 読み込み失敗時は空リストから再スタート
+            print(f"[警告] 既存データセットの読み込みに失敗しました ({e})。新しいデータのみで再作成を試みます。")
+            existing_dataset = []
+            
+    # ★ 名前重複チェック ★
+    existing_names = {rec.get("name") for rec in existing_dataset if isinstance(rec, dict) and rec.get("name")}
+    
+    if new_person_name in existing_names:
+        print(f"⚠️ 『{new_person_name}』は既にデータセットに存在しています。データは上書きされず、スキップされます。")
+        return # 重複しているため、ここで処理を終了
+
+    
+    print(f"\n💡 新規データとして『{new_person_name}』の情報を構築します...")
+    
+    # process_single_person の定義 (※中身は以前のコードのまま)
+    def process_single_person(name):
+        # ... (以前提供したprocess_single_personの中身をそのままここにコピー＆貼り付け) ...
+        try:
+            wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
+            page = wiki.page(name)
+            
+            if not page.exists() or not page.summary:
+                print(f"[ERROR] 『{name}』のWikipediaページが見つからないか、内容が空です。")
+                return None
+            
+            rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None}
+            
+            # 1. キーワードベース（静的）の特徴抽出
+            features = extract_features_from_summary(page.summary)
+
+            # 2. Janome（動的）の特徴抽出
+            if JANOME_TOKENIZER:
+                dynamic_features = extract_dynamic_features_from_summary(page.summary)
+                if dynamic_features:
+                    features.update(dynamic_features)
+            
+            # 3. カテゴリ特徴抽出
+            try:
+                page_categories = page.categories
+                IGNORE_CATS_KEYWORDS = {
+                    "存命人物", "死去した人物", "日本の人物", "曖昧さ回避", 
+                    "リダイレクト", "人物", "生年", "没年", "年没", "年生",
+                    "世紀没", "世紀生", "各年の音楽", "各年のスポーツ",
+                    "ウィキデータ", "ID", "記事", "テンプレート", "出典",
+                    "外部リンク", "カテゴリ", "リンク", "英語版ウィキ",
+                    "日本語版ウィキ", "ウィキペディア", "ウィキメディア・コモンズ",
+                    "スタブ", "項目", "一覧", "一覧記事", "記事一覧", "ポータル",
+                    "参考文献", "脚注", "注釈", "引用", "プロジェクト", "編集"
+                }
+                
+                for cat_title in page_categories.keys():
+                    cat_name = cat_title.replace("Category:", "").strip()
+                    if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
+                        continue
+                    if cat_name.endswith("年生") or cat_name.endswith("年没"):
+                        continue
+                    features[f"cat_{cat_name}"] = 1
+                
+            except Exception as e:
+                print(f"[DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
+            
+            # 名前構造の追加
+            if re.search(r'[ァ-ヶ]', name):
+                features["has_katakana"] = 1
+            if re.fullmatch(r'[ぁ-ん]+', name):
+                features["is_hiragana_only"] = 1
+                
+            rec["features"] = features
+
+            # 4. Wikidata取得
+            wikibase_id = get_wikibase_item_from_wikipedia(name)
+            if wikibase_id:
+                wd = fetch_wikidata_entity(wikibase_id)
+                rec["wikidata"] = wd
+                if wd:
+                    g = wd.get("gender_qid")
+                    if g == "Q6581097": features["gender"] = "male"
+                    elif g == "Q6581072": features["gender"] = "female"
+                    
+                    birth_time = wd.get("birth_time")
+                    current_year = datetime.now().year
+                    if birth_time:
+                        try:
+                            birth_year = int(birth_time.strip("+-").split("-")[0])
+                            age = current_year - birth_year
+                            if 20 <= age < 30: features["age_20s"] = 1
+                            # ... その他の年代ロジックも必要に応じて移植
+                        except Exception: pass
+
+            return rec
+
+        except Exception as e:
+            print(f"[致命的エラー] 『{name}』の解析中にエラーが発生しました: {e}")
+            return None
+        # process_single_person の終わり
+    
+    new_record = process_single_person(new_person_name)
+
+    if not new_record:
+        print("データ取得に失敗したため、データセットへの追記をスキップします。")
+        return
+
+    # 既存のリストに新しいレコードを追加
+    existing_dataset.append(new_record)
+    
+    # データセットを上書き保存（ファイル名はそのまま）
+    try:
+        with open(dataset_path, "w", encoding="utf-8") as f:
+            json.dump(existing_dataset, f, ensure_ascii=False, indent=2)
+        print(f"✅ データセット {dataset_path} に『{new_person_name}』の情報を追記しました。")
+        print("次回ゲーム実行時から、この新しい情報が推測に使われます！")
+    except Exception as e:
+        print(f"[ERROR] データセットファイルへの追記に失敗しました: {e}")
+
+# -----------------------
 # 質問マップの自動生成
 # -----------------------
 def generate_question_map(dataset, selected_categories=None):
@@ -1367,7 +1498,7 @@ def save_mistake_log(user_answers, final_candidates):
 # -----------------------
 # 著名人検索本体ループ
 # -----------------------
-def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100):
+def akinator_play(dataset, selected_categories=None, max_questions=1000, analysis_size=100, dataset_path_for_new_entry=DATASET_FILE):
     # 候補者が1人になるまで質問を続ける。リカバリー（ニアミス探索）は最大3回まで。
     
     # ゲーム用データセット (featuresを持つデータのみ)
@@ -1453,6 +1584,13 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 print("私の知識不足か、回答に誤りがあった可能性があります。")
                 print("========================================")
                 save_mistake_log(user_answers, current_candidates)
+
+                print("\n あなたが思い浮かべた人物を教えていただけますか？")
+                correct_name = input("人物名を入力してください (例: 広瀬すず / スキップは Enter): ").strip()
+
+                if correct_name:
+                    # 新しい人物情報を取得し、データセットに追記
+                    fetch_and_add_new_person_data(correct_name, dataset_path=dataset_path_for_new_entry)
                 return [] # 終了
 
             print(f"\n🔄 **リカバリー発動 ({recovery_attempt_count}/3回目)** 🔄")
@@ -1601,7 +1739,8 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
         return akinator_play(ds,                                               # データセット
                              selected_categories=selected_categories,          # 選択カテゴリ
                              max_questions=kwargs.get("max_questions", 1000),  # 最大質問数
-                             analysis_size=kwargs.get("analysis_size", 100))   # 分析候補者数
+                             analysis_size=kwargs.get("analysis_size", 100),
+                             dataset_path_for_new_entry=dataset_path)   # 分析候補者数
     else: # 不明なステップ
         raise ValueError("不明なステップです。collect, build, play のいずれかを指定してください。")
 
