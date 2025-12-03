@@ -646,6 +646,172 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
     except Exception: return None # エラー時はNone返す
 
 
+def scrape_person_data(name, source_type="auto"):
+    """
+    指定された人物名のWikipedia/Wikidataを取得し、データレコードを作成して返す。
+    エラー時は {"name": name, "error": ...} を返す。
+    """
+    try:
+        wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
+        page = wiki.page(name)
+
+        # ページ存在チェック & 検索フォールバック
+        if not page.exists():
+            search_results = wiki.search(name)
+            if search_results:
+                page = wiki.page(search_results[0])
+            else:
+                return {"name": name, "error": "ページなし"}
+
+        if not page.summary:
+            return {"name": name, "error": "Summaryが空"}
+
+        # 基本情報
+        rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None, "source": source_type}
+        
+        # 1. キーワードベース（静的）の特徴抽出
+        features = extract_features_from_summary(page.summary)
+
+        # 2. Janome（動的）の特徴抽出
+        if JANOME_TOKENIZER:
+            dynamic_features = extract_dynamic_features_from_summary(page.summary)
+            if dynamic_features:
+                features.update(dynamic_features)
+        
+        # 3. カテゴリ特徴抽出
+        try:
+            page_categories = page.categories
+            IGNORE_CATS_KEYWORDS = {
+                "存命人物", "死去した人物", "日本の人物", "曖昧さ回避", 
+                "リダイレクト", "人物", "生年", "没年", "年没", "年生",
+                "世紀没", "世紀生", "各年の音楽", "各年のスポーツ",
+                "ウィキデータ", "ID", "記事", "テンプレート", "出典",
+                "外部リンク", "カテゴリ", "リンク", "英語版ウィキ",
+                "日本語版ウィキ", "ウィキペディア", "ウィキメディア・コモンズ",
+                "スタブ", "項目", "一覧", "一覧記事", "記事一覧", "ポータル",
+                "参考文献", "脚注", "注釈", "引用", "プロジェクト", "編集"
+            }
+            
+            for cat_title in page_categories.keys():
+                cat_name = cat_title.replace("Category:", "").strip()
+                if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
+                    continue
+                if cat_name.endswith("年生") or cat_name.endswith("年没"):
+                    continue
+                features[f"cat_{cat_name}"] = 1
+        except Exception as e:
+            print(f"  [DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
+
+        # 名前構造
+        if re.search(r'[ァ-ヶ]', name):
+            features["has_katakana"] = 1
+        if re.fullmatch(r'[ぁ-ん]+', name):
+            features["is_hiragana_only"] = 1
+        
+        rec["features"] = features
+
+        # 4. Wikidata取得 & 詳細解析
+        wikibase_id = get_wikibase_item_from_wikipedia(name)
+        if wikibase_id:
+            wd = fetch_wikidata_entity(wikibase_id)
+            rec["wikidata"] = wd
+            
+            if wd:
+                # --- 性別 ---
+                g = wd.get("gender_qid")
+                if g == "Q6581097": features["gender"] = "male"
+                elif g == "Q6581072": features["gender"] = "female"
+                
+                # --- 年齢計算 ---
+                birth_time = wd.get("birth_time")
+                current_year = datetime.now().year
+                if birth_time:
+                    try:
+                        birth_year = int(birth_time.strip("+-").split("-")[0])
+                        age = current_year - birth_year
+                        if 20 <= age < 30: features["age_20s"] = 1
+                        if 30 <= age < 40: features["age_30s"] = 1
+                        if 40 <= age < 50: features["age_40s"] = 1
+                        if 50 <= age < 60: features["age_50s"] = 1
+                        if 1980 <= birth_year <= 1989: features["born_1980s"] = 1
+                        if 1990 <= birth_year <= 1999: features["born_1990s"] = 1
+                        if 2000 <= birth_year <= 2009: features["born_2000s"] = 1
+                    except: pass
+                
+                # --- 死亡年 ---
+                if wd.get("death_time"):
+                    try:
+                        death_year = int(wd["death_time"].strip("+-").split("-")[0])
+                        if 1900 <= death_year <= 1999: features["died_20c"] = 1
+                    except: pass
+
+                # --- 血液型 (P1853) ---
+                if "P1853" in wd: # ※ wd は claims ではなく entity["claims"] を参照する wd です
+                    try:
+                        # fetch_wikidata_entity で wd["claims"] を取得しているので wd を使う
+                        v_id = wd.get("claims", {}).get("P1853", [{}])[0].get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
+                        if v_id == "Q170138": features["blood_A"] = 1
+                        if v_id == "Q170162": features["blood_B"] = 1
+                        if v_id == "Q170196": features["blood_O"] = 1
+                        if v_id == "Q170094": features["blood_AB"] = 1
+                    except: pass
+
+                # --- 国籍 (P27) ---
+                if "P27" in wd:
+                    try:
+                        claims_P27 = wd.get("claims", {}).get("P27", [])
+                        if any(c.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id") != "Q17" for c in claims_P27):
+                            features["not_japanese_only"] = 1
+                    except: pass
+                
+                # --- 家族 (P22, P25, P26, P40) ---
+                family_keys = ["P22", "P25", "P26", "P40"]
+                if any(k in wd.get("claims", {}) for k in family_keys):
+                    features["has_family_info"] = 1 
+
+                # --- 活動分野 (P101) ---
+                if "P101" in wd:
+                    field_qids = []
+                    claims_P101 = wd.get("claims", {}).get("P101", [])
+                    for c in claims_P101:
+                        try:
+                            v_id = c.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
+                            field_qids.append(v_id)
+                        except: pass
+                    if "Q11631" in field_qids: features["field_literature"] = 1 # 文学
+                    if "Q483" in field_qids: features["field_music"] = 1 # 音楽
+                    if "Q1104" in field_qids: features["field_science"] = 1 # 科学
+                
+                # --- 職業 ---
+                occ_qs = wd.get("occupation_qids", [])
+                if any(q in occ_qs for q in ["Q33999", "Q10800557", "Q947873"]): features["actor_wikidata"] = 1 # 俳優
+                if any(q in occ_qs for q in ["Q177220", "Q639669", "Q10800557"]): features["singer_wikidata"] = 1 # 歌手
+                if "Q82955" in occ_qs: features["politician_wikidata"] = 1 # 政治家
+
+                # --- 出身地 ---
+                place_qid = wd.get("birth_place_qid")
+                TOKYO_QIDS = {"Q1490", "Q1228", "Q11103005", "Q200000", "Q200072"}
+                KANSAI_QIDS = {"Q172582", "Q16997", "Q486245", "Q132640", "Q132643"}
+                if place_qid in TOKYO_QIDS: features["from_tokyo"] = 1
+                elif place_qid in KANSAI_QIDS: features["from_kansai"] = 1
+
+                # --- 学歴 ---
+                edu_qids = wd.get("education_qids", [])
+                if "Q7981" in edu_qids: features["grad_todai"] = 1 # 東大
+                elif "Q174019" in edu_qids: features["grad_waseda"] = 1 # 早大
+                elif "Q302302" in edu_qids: features["grad_keio"] = 1 # 慶応
+
+                # --- 受賞歴 (P166) ---
+                award_qids = wd.get("award_qids", []) 
+                if "Q1138032" in award_qids: features["award_shiju"] = 1 # 紫綬褒章
+                if "Q1085422" in award_qids: features["award_academy_jp"] = 1 # 日本アカデミー賞
+                if "Q192200" in award_qids: features["award_blue_ribbon"] = 1 # ブルーリボン賞
+
+        return rec
+
+    except Exception as e:
+        return {"name": name, "error": str(e)}
+
 # -----------------------
 # データセット構築（並列）
 # -----------------------
@@ -678,226 +844,74 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
 
     if limit is not None: # 制限があれば切り詰め
         targets = targets[:limit] # 切り詰め
-    targets_to_process = [n for n in targets if n not in existing or not existing[n].get("features")] # 未処理のみ
-    print(f"データセット総件数: {len(targets)} 件中、処理対象: {len(targets_to_process)} 件") # 対象数表示
-
-
-    # スレッドで個別処理
-    def process_person(name):
-        try:
-            wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja") # WikipediaAPIインスタンス
-            page = wiki.page(name) # ページ取得
-            if not page.exists(): # ページが存在しない場合、検索して最良候補を取得
-                search_results = wiki.search(name) # 検索
-                if search_results:
-                    best_match = search_results[0] # 最良候補
-                    page = wiki.page(best_match) # 最良候補ページ取得
-                else:
-                    return {"name": name, "error": "ページなし"} # ページなしエラー返す
-
-            # page.summary の取得状況をログに出す
-            if not page.summary: # summaryが空の場合のログ
-                print(f"  [DEBUG-PROCESS] {name}: page.summary が空です。")
-            # else:
-                # 成功ログは大量に出すぎるためコメントアウト
-                # print(f"  [DEBUG-PROCESS] {name}: page.summary 取得成功 (長さ: {len(page.summary)})")
-
-            # 基本情報
-            rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None}
+    targets_to_process = []
+    for n in targets:
+        # 1. データセットに存在しない名前なら処理対象
+        if n not in existing:
+            targets_to_process.append(n)
+            continue
+        
+        record = existing[n]
+        
+        # 2. すでにデータがあり、かつ "manual" ラベルなら、絶対に上書きしない（保護）
+        if record.get("source") == "manual":
+            continue
             
-            # 1. キーワードベース（静的）の特徴抽出
-            features = extract_features_from_summary(page.summary)
-
-            summary = clean_text(page.summary) # テキストクリーンアップ
-
-            # 2. Janome（動的）の特徴を抽出し、featuresにマージする
-            dynamic_features = extract_dynamic_features_from_summary(page.summary)
+        # 3. データはあるが、featuresが空（以前の取得失敗データなど）なら再取得対象
+        if not record.get("features"):
+            targets_to_process.append(n)
             
-            # 動的特徴が空だった場合のログ
-            if not dynamic_features and page.summary:
-                # summaryはあったのに、Janomeが特徴を返さなかった場合
-                print(f"  [DEBUG-PROCESS] {name}: Summaryはありましたが、動的特徴は0個でした。")
+        # 4. それ以外（有効なautoデータがある）ならスキップ
 
-            # 動的特徴をマージ
-            if dynamic_features:
-                features.update(dynamic_features) # featuresにマージ
-            
-            # カテゴリ特徴
-            try:
-                page_categories = page.categories # カテゴリ取得
-                # 無視するカテゴリ (広すぎる、ノイズになる)
-                IGNORE_CATS_KEYWORDS = {
-                    "存命人物", "死去した人物", "日本の人物", "曖昧さ回避", 
-                    "リダイレクト", "人物", "生年", "没年", "年没", "年生",
-                    "世紀没", "世紀生", "各年の音楽", "各年のスポーツ",
-                    "ウィキデータ", "ID", "記事", "テンプレート", "出典",
-                    "外部リンク", "カテゴリ", "リンク", "英語版ウィキ",
-                    "日本語版ウィキ", "ウィキペディア", "ウィキメディア・コモンズ",
-                    "スタブ", "項目", "一覧", "一覧記事", "記事一覧", "ポータル",
-                    "参考文献", "脚注", "注釈", "引用", "プロジェクト", "編集"
-                }
-                
-                for cat_title in page_categories.keys(): # 各カテゴリ処理
-                    # 'Category:日本の俳優' -> '日本の俳優'
-                    cat_name = cat_title.replace("Category:", "").strip() # カテゴリ名抽出
-                    
-                    # (キーワードのどれか一つでもカテゴリ名に含まれていたら無視)
-                    if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
-                         continue
-                    
-                    # 無視リストにあるか、"〇〇年生" "〇〇年没" 形式は無視
-                    if cat_name in IGNORE_CATS_KEYWORDS or cat_name.endswith("年生") or cat_name.endswith("年没"):
-                         continue
-                         
-                    # 特徴として追加 (例: cat_日本の俳優)
-                    features[f"cat_{cat_name}"] = 1 # カテゴリ特徴として追加
-                    
-            except Exception as e: # カテゴリ取得失敗時のログ
-                print(f"  [DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
+    print(f"データセット総件数: {len(targets)} 件中、処理対象: {len(targets_to_process)} 件")# 対象数表示
 
-
-            # 名前構造
-            if re.search(r'[ァ-ヶ]', name): # カタカナ文字が含まれるか
-                features["has_katakana"] = 1 # カタカナありフラグ
-            if re.fullmatch(r'[ぁ-ん]+', name): # 名前がひらがなのみか
-                features["is_hiragana_only"] = 1 # ひらがなのみフラグ
-            rec["features"] = features # 特徴セット保存
-
-            # Wikidata取得
-            wikibase_id = get_wikibase_item_from_wikipedia(name) # Wikibase ID取得
-            if wikibase_id: # Wikibase IDがあればWikidata取得
-                wd = fetch_wikidata_entity(wikibase_id) # Wikidata取得
-                rec["wikidata"] = wd # Wikidata保存
-                if wd: # Wikidataが取得できたら追加特徴抽出
-
-                    # 性別・年齢・職業・出身地などの処理
-                    g = wd.get("gender_qid") # 性別QID
-
-                    if g == "Q6581097": features["gender"] = "male" # 男性
-                    elif g == "Q6581072": features["gender"] = "female" # 女性
-
-                    birth_time = wd.get("birth_time") # 生年月日
-                    current_year = datetime.now().year # 現在の西暦年
-                    if birth_time: # 生年月日があれば年齢関連特徴を追加
-                        try:
-                            birth_year = int(birth_time.strip("+-").split("-")[0]) # 西暦年抽出
-                            age = current_year - birth_year # 年齢計算
-                            if 20 <= age < 30: features["age_20s"] = 1 # 20代
-                            if 30 <= age < 40: features["age_30s"] = 1 # 30代
-                            if 40 <= age < 50: features["age_40s"] = 1 # 40代
-                            if 50 <= age < 60: features["age_50s"] = 1 # 50代
-                            if 1980 <= birth_year <= 1989: features["born_1980s"] = 1 # 1980年代生まれ
-                            if 1990 <= birth_year <= 1999: features["born_1990s"] = 1 # 1990年代生まれ
-                            if 2000 <= birth_year <= 2009: features["born_2000s"] = 1 # 2000年代生まれ
-                        except Exception as e:
-                            print(f"  [DEBUG] {name}: birth_time パース失敗. data='{birth_time}', error='{e}'") # ログ出力
-                            pass # 整数変換失敗は無視
-
-                    if wd.get("death_time"): # 死亡年月日があれば20世紀死亡フラグを追加
-                        try:
-                            death_year = int(wd["death_time"].strip("+-").split("-")[0]) # 西暦年抽出
-                            if 1900 <= death_year <= 1999: features["died_20c"] = 1 # 20世紀死亡
-                        except: pass
-
-                    # P1853 (血液型)
-                    if "P1853" in wd: # ※ wd は claims ではなく entity["claims"] を参照する wd です
-                        try:
-                            # ( fetch_wikidata_entity で wd["claims"] を取得しているので wd を使う)
-                            v_id = wd.get("claims", {}).get("P1853", [{}])[0].get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
-                            if v_id == "Q170138": features["blood_A"] = 1 # A型
-                            if v_id == "Q170162": features["blood_B"] = 1 # B型
-                            if v_id == "Q170196": features["blood_O"] = 1 # O型
-                            if v_id == "Q170094": features["blood_AB"] = 1 # AB型
-                        except: pass
-
-                    # P27 (国籍) (日本(Q17)以外があるか)
-                    if "P27" in wd:
-                        try:
-                            claims_P27 = wd.get("claims", {}).get("P27", [])
-                            if any(c.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id") != "Q17" for c in claims_P27):
-                                features["not_japanese_only"] = 1 # 日本国籍以外も持つ
-                        except: pass
-                        
-                    # P22, P25, P26, P40 (家族に有名人)
-                    family_keys = ["P22", "P25", "P26", "P40"]
-                    if any(k in wd.get("claims", {}) for k in family_keys):
-                        features["has_family_info"] = 1 
-
-                    # P101 (活動分野)
-                    if "P101" in wd:
-                        field_qids = []
-                        claims_P101 = wd.get("claims", {}).get("P101", [])
-                        for c in claims_P101:
-                            try:
-                                v_id = c.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
-                                field_qids.append(v_id)
-                            except: pass
-                        if "Q11631" in field_qids: features["field_literature"] = 1 # 文学
-                        if "Q483" in field_qids: features["field_music"] = 1 # 音楽
-                        if "Q1104" in field_qids: features["field_science"] = 1 # 科学
-                        
-                    occ_qs = wd.get("occupation_qids", []) # 職業QIDリスト
-                    if any(q in occ_qs for q in ["Q33999", "Q10800557", "Q947873"]): features["actor_wikidata"] = 1 # 俳優
-                    if any(q in occ_qs for q in ["Q177220", "Q639669", "Q10800557"]): features["singer_wikidata"] = 1 # 歌手
-
-                    if "Q82955" in occ_qs: features["politician_wikidata"] = 1 # 政治家
-
-                    place_qid = wd.get("birth_place_qid") # 出身地QID
-                    TOKYO_QIDS = {"Q1490", "Q1228", "Q11103005", "Q200000", "Q200072"} # 東京関連QID
-                    KANSAI_QIDS = {"Q172582", "Q16997", "Q486245", "Q132640", "Q132643"} # 関西関連QID
-                    if place_qid in TOKYO_QIDS: features["from_tokyo"] = 1 # 東京出身
-                    elif place_qid in KANSAI_QIDS: features["from_kansai"] = 1 # 関西出身
-
-                    edu_qids = wd.get("education_qids", []) # 教育機関QIDリスト
-                    if "Q7981" in edu_qids: features["grad_todai"] = 1 # 東大卒
-                    elif "Q174019" in edu_qids: features["grad_waseda"] = 1 # 早大卒
-                    elif "Q302302" in edu_qids: features["grad_keio"] = 1 # 慶応卒
-
-                    # P166 (受賞) の拡充
-                    award_qids = wd.get("award_qids", []) 
-                    if "Q1138032" in award_qids: features["award_shiju"] = 1 # 紫綬褒章
-                    if "Q1085422" in award_qids: features["award_academy_jp"] = 1 # 日本アカデミー賞
-                    if "Q192200" in award_qids: features["award_blue_ribbon"] = 1 # ブルーリボン賞
-
-            return rec # 正常終了返す
-
-        except Exception as e: # 致命的なエラー処理
-            print(f"[警告] {name} の解析中にエラーが発生しました: {e}")
-            # tracebackを出したい場合（任意）
-            # traceback.print_exc()
-            # エラーの時でも処理を止めずに、空データを返す
-            return {"name": name, "error": str(e), "features": []} # エラー情報を返す
-
-    # 並列処理開始
     new_records = [] # 新規取得レコードリスト
     processed_count = 0 # 処理済みカウンタ
     total_to_process = len(targets_to_process) # 総処理対象数
+    
     if total_to_process == 0:
-        print("処理対象の人物がいません。データセットは最新です。") # スキップ
-        return list(existing.values()) # 既存データ返す
+        print("処理対象の人物がいません。データセットは最新です。") 
+        return list(existing.values()) 
+        
     with ThreadPoolExecutor(max_workers=max_workers) as executor: # スレッドプール
-        future_to_name = {executor.submit(process_person, name): name for name in targets_to_process} # 未来オブジェクトマップ
+        # scrape_person_data を直接呼び出し、source_type="auto" を指定
+        future_to_name = {
+            executor.submit(scrape_person_data, name, source_type="auto"): name 
+            for name in targets_to_process
+        }
+        
         for future in as_completed(future_to_name): # 完了待ち
             name = future_to_name[future] # 名前取得
             processed_count += 1 # カウンタ更新
             try:
                 rec = future.result() # 結果取得
                 new_records.append(rec) # 新規レコード追加
+                
                 if "error" in rec: # エラー表示
-                    print(f"[{processed_count}/{total_to_process}] × {name}: {rec['error']}") # エラー表示
+                    # エラーなら ×
+                    print(f"[{processed_count}/{total_to_process}] × {name}: {rec['error']}") 
                 else:
-                    print(f"[{processed_count}/{total_to_process}] ✓ {name}") # 成功表示
+                    # 成功なら ✓
+                    print(f"[{processed_count}/{total_to_process}] ✓ {name}") 
+                    
             except Exception as e: # 例外処理
-                print(f"[{processed_count}/{total_to_process}] ⚠ {name}: {e}") # 例外表示
+                print(f"[{processed_count}/{total_to_process}] ⚠ {name}: {e}") 
+            
             time.sleep(sleep) # API負荷軽減
+
+    # マージ処理
     merged_data = existing.copy() # 既存データコピー
-    for rec in new_records: # 新規レコードマージ
-        merged_data[rec["name"]] = rec # マージ
+    for rec in new_records: 
+        merged_data[rec["name"]] = rec # 新しいデータで上書き（または新規追加）
+        
     final_dataset = list(merged_data.values()) # 最終データセットリスト化
-    with open(dataset_path, "w", encoding="utf-8") as f: # JSON保存
-        json.dump(final_dataset, f, ensure_ascii=False, indent=2) # 保存
-    print(f"データセットを保存しました: {dataset_path}（合計 {len(final_dataset)} 件）") # 保存完了表示
-    return final_dataset # 最終データセット返す
+    
+    # 保存処理
+    with open(dataset_path, "w", encoding="utf-8") as f: 
+        json.dump(final_dataset, f, ensure_ascii=False, indent=2) 
+        
+    print(f"データセットを保存しました: {dataset_path}（合計 {len(final_dataset)} 件）") 
+    return final_dataset
 
 
 # -----------------------
@@ -949,7 +963,7 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
     """
     ユーザーが入力した人物名に基づき、Wikipedia/Wikidataからデータを取得し、
     既存のデータセットファイルに追記する。
-    ※ 追記前に、データセット内の名前の重複をチェックする。
+    ※ 手動追加データとして source="manual" ラベルを付与する。
     """
     
     # 既存のデータセットを読み込み
@@ -963,108 +977,37 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
             print(f"[警告] 既存データセットの読み込みに失敗しました ({e})。新しいデータのみで再作成を試みます。")
             existing_dataset = []
             
-    # ★ 名前重複チェック ★
-    existing_names = {rec.get("name") for rec in existing_dataset if isinstance(rec, dict) and rec.get("name")}
+    # ★重複チェック★
+    # 「手動(manual)で登録済みのデータ」は上書きせず保護する。
+    # 「自動(auto)で登録済みのデータ」なら、今回の手動登録で上書き更新する。
+    existing_manual_names = {
+        rec.get("name") for rec in existing_dataset 
+        if isinstance(rec, dict) and rec.get("source") == "manual"
+    }
     
-    if new_person_name in existing_names:
-        print(f"⚠️ 『{new_person_name}』は既にデータセットに存在しています。データは上書きされず、スキップされます。")
-        return # 重複しているため、ここで処理を終了
+    if new_person_name in existing_manual_names:
+        print(f"⚠️ 『{new_person_name}』は既に手動データとして存在しています。データは上書きされず、スキップされます。")
+        return 
 
     
     print(f"\n💡 新規データとして『{new_person_name}』の情報を構築します...")
     
-    # process_single_person の定義 (※中身は以前のコードのまま)
-    def process_single_person(name):
-        # ... (以前提供したprocess_single_personの中身をそのままここにコピー＆貼り付け) ...
-        try:
-            wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
-            page = wiki.page(name)
-            
-            if not page.exists() or not page.summary:
-                print(f"[ERROR] 『{name}』のWikipediaページが見つからないか、内容が空です。")
-                return None
-            
-            rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None}
-            
-            # 1. キーワードベース（静的）の特徴抽出
-            features = extract_features_from_summary(page.summary)
+    # 共通関数を使ってデータ取得（source_type="manual" を指定）
+    new_record = scrape_person_data(new_person_name, source_type="manual")
 
-            # 2. Janome（動的）の特徴抽出
-            if JANOME_TOKENIZER:
-                dynamic_features = extract_dynamic_features_from_summary(page.summary)
-                if dynamic_features:
-                    features.update(dynamic_features)
-            
-            # 3. カテゴリ特徴抽出
-            try:
-                page_categories = page.categories
-                IGNORE_CATS_KEYWORDS = {
-                    "存命人物", "死去した人物", "日本の人物", "曖昧さ回避", 
-                    "リダイレクト", "人物", "生年", "没年", "年没", "年生",
-                    "世紀没", "世紀生", "各年の音楽", "各年のスポーツ",
-                    "ウィキデータ", "ID", "記事", "テンプレート", "出典",
-                    "外部リンク", "カテゴリ", "リンク", "英語版ウィキ",
-                    "日本語版ウィキ", "ウィキペディア", "ウィキメディア・コモンズ",
-                    "スタブ", "項目", "一覧", "一覧記事", "記事一覧", "ポータル",
-                    "参考文献", "脚注", "注釈", "引用", "プロジェクト", "編集"
-                }
-                
-                for cat_title in page_categories.keys():
-                    cat_name = cat_title.replace("Category:", "").strip()
-                    if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
-                        continue
-                    if cat_name.endswith("年生") or cat_name.endswith("年没"):
-                        continue
-                    features[f"cat_{cat_name}"] = 1
-                
-            except Exception as e:
-                print(f"[DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
-            
-            # 名前構造の追加
-            if re.search(r'[ァ-ヶ]', name):
-                features["has_katakana"] = 1
-            if re.fullmatch(r'[ぁ-ん]+', name):
-                features["is_hiragana_only"] = 1
-                
-            rec["features"] = features
-
-            # 4. Wikidata取得
-            wikibase_id = get_wikibase_item_from_wikipedia(name)
-            if wikibase_id:
-                wd = fetch_wikidata_entity(wikibase_id)
-                rec["wikidata"] = wd
-                if wd:
-                    g = wd.get("gender_qid")
-                    if g == "Q6581097": features["gender"] = "male"
-                    elif g == "Q6581072": features["gender"] = "female"
-                    
-                    birth_time = wd.get("birth_time")
-                    current_year = datetime.now().year
-                    if birth_time:
-                        try:
-                            birth_year = int(birth_time.strip("+-").split("-")[0])
-                            age = current_year - birth_year
-                            if 20 <= age < 30: features["age_20s"] = 1
-                            # ... その他の年代ロジックも必要に応じて移植
-                        except Exception: pass
-
-            return rec
-
-        except Exception as e:
-            print(f"[致命的エラー] 『{name}』の解析中にエラーが発生しました: {e}")
-            return None
-        # process_single_person の終わり
-    
-    new_record = process_single_person(new_person_name)
-
-    if not new_record:
-        print("データ取得に失敗したため、データセットへの追記をスキップします。")
+    # エラーチェック
+    if not new_record or "error" in new_record:
+        err_msg = new_record.get('error') if new_record else '不明なエラー'
+        print(f"データ取得に失敗したため、データセットへの追記をスキップします。（理由: {err_msg}）")
         return
 
-    # 既存のリストに新しいレコードを追加
+    # 既存リストに同じ名前（autoデータなど）がある場合は削除してから追加（上書き）
+    existing_dataset = [d for d in existing_dataset if d["name"] != new_person_name]
+    
+    # 新しいレコードを追加
     existing_dataset.append(new_record)
     
-    # データセットを上書き保存（ファイル名はそのまま）
+    # データセットを上書き保存
     try:
         with open(dataset_path, "w", encoding="utf-8") as f:
             json.dump(existing_dataset, f, ensure_ascii=False, indent=2)
@@ -1072,6 +1015,111 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
         print("次回ゲーム実行時から、この新しい情報が推測に使われます！")
     except Exception as e:
         print(f"[ERROR] データセットファイルへの追記に失敗しました: {e}")
+
+# -----------------------
+# データセット構築（並列）
+# -----------------------
+def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
+                           limit=None, max_workers=30, sleep=0.1): # max_workers（並列数）を調整して負荷管理
+    
+    # 人物リスト読み込み
+    people = load_people_list(people_list_path)
+
+    if people is None:
+        print("人物リストが存在しません。まず collect_people を実行してください。")
+        return None
+    
+    if JANOME_TOKENIZER is None:
+        print("Janomeが読み込まれていないため、データ構築をスキップします。")
+        return None
+    
+    existing = {} # 既存データ読み込み用辞書
+
+    if os.path.exists(dataset_path): # 既存データがあれば読み込み
+        try:
+            with open(dataset_path, "r", encoding="utf-8") as f: # JSON読み込み
+                # 名前をキーにした辞書に変換して検索を高速化
+                existing = {p["name"]: p for p in json.load(f)} 
+                print(f"{len(existing)} 件の既存データを読み込みました。未処理のみ並列処理します。") 
+        except Exception as e:
+            print(f"既存データ読み込み失敗: {e}") 
+            existing = {} # 読み込み失敗時はリセット
+
+    targets = people # 処理対象リスト
+    if limit is not None: # 制限があれば切り詰め
+        targets = targets[:limit] 
+
+    # 処理対象の選定（manualデータの保護ロジック含む）
+    targets_to_process = []
+    for n in targets:
+        # 1. データセットに存在しない名前なら処理対象
+        if n not in existing:
+            targets_to_process.append(n)
+            continue
+        
+        record = existing[n]
+        
+        # 2. すでにデータがあり、かつ "manual" ラベルなら、絶対に上書きしない（保護）
+        if record.get("source") == "manual":
+            continue
+            
+        # 3. データはあるが、featuresが空（以前の取得失敗データなど）なら再取得対象
+        if not record.get("features"):
+            targets_to_process.append(n)
+            
+        # 4. それ以外（有効なautoデータがある）ならスキップ
+
+    print(f"データセット総件数: {len(targets)} 件中、処理対象: {len(targets_to_process)} 件") 
+
+
+    # 並列処理開始
+    new_records = [] # 新規取得レコードリスト
+    processed_count = 0 # 処理済みカウンタ
+    total_to_process = len(targets_to_process) # 総処理対象数
+    
+    if total_to_process == 0:
+        print("処理対象の人物がいません。データセットは最新です。") 
+        return list(existing.values()) 
+        
+    with ThreadPoolExecutor(max_workers=max_workers) as executor: # スレッドプール
+        # scrape_person_data を直接呼び出し、source_type="auto" を指定
+        future_to_name = {
+            executor.submit(scrape_person_data, name, source_type="auto"): name 
+            for name in targets_to_process
+        }
+        
+        for future in as_completed(future_to_name): # 完了待ち
+            name = future_to_name[future] # 名前取得
+            processed_count += 1 # カウンタ更新
+            try:
+                rec = future.result() # 結果取得
+                new_records.append(rec) # 新規レコード追加
+                
+                if "error" in rec: # エラー表示
+                    # エラーなら ×
+                    print(f"[{processed_count}/{total_to_process}] × {name}: {rec['error']}") 
+                else:
+                    # 成功なら ✓
+                    print(f"[{processed_count}/{total_to_process}] ✓ {name}") 
+                    
+            except Exception as e: # 例外処理
+                print(f"[{processed_count}/{total_to_process}] ⚠ {name}: {e}") 
+            
+            time.sleep(sleep) # API負荷軽減
+
+    # マージ処理
+    merged_data = existing.copy() # 既存データコピー
+    for rec in new_records: 
+        merged_data[rec["name"]] = rec # 新しいデータで上書き（または新規追加）
+        
+    final_dataset = list(merged_data.values()) # 最終データセットリスト化
+    
+    # 保存処理
+    with open(dataset_path, "w", encoding="utf-8") as f: 
+        json.dump(final_dataset, f, ensure_ascii=False, indent=2) 
+        
+    print(f"データセットを保存しました: {dataset_path}（合計 {len(final_dataset)} 件）") 
+    return final_dataset
 
 # -----------------------
 # 質問マップの自動生成
