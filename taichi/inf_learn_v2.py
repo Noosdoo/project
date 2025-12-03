@@ -646,23 +646,40 @@ def load_dataset(dataset_path=DATASET_FILE, min_feature_threshold=10):
 def generate_question_map(dataset, selected_categories=None):
     qm = {"occupation": [], "activity": [], "feature": [], "common": []}
     added_keys = set()
-    WEIGHT_URGENT, WEIGHT_HIGH, WEIGHT_MID, WEIGHT_LOW = 1000, 500, 100, 50
+    
+    # 重みの定義
+    WEIGHT_URGENT = 1000 # 生死
+    WEIGHT_HIGH   = 500  # 職業、年代
+    WEIGHT_MID    = 100  # 事務所、出身、血液型
+    WEIGHT_LOW    = 50   # ★大学、CM、具体的な作品名など
+    WEIGHT_MIN    = 10   # その他細かいキーワード
 
+    # 1. 共通質問 (Wikidata由来 + 日付 + 名前)
     common_questions_def = [
         ("alive_text", "現在もご存命ですか？", "common", WEIGHT_URGENT),
         ("age_20s", "現在、20代ですか？", "common", WEIGHT_HIGH), 
         ("age_30s", "現在、30代ですか？", "common", WEIGHT_HIGH),
         ("age_40s", "現在、40代ですか？", "common", WEIGHT_HIGH), 
         ("age_50s", "現在、50代ですか？", "common", WEIGHT_HIGH),
+        
         ("actor_wikidata", "俳優ですか？", "occupation", WEIGHT_HIGH),
         ("singer_wikidata", "歌手ですか？", "occupation", WEIGHT_HIGH),
         ("politician_wikidata", "政治家ですか？", "occupation", WEIGHT_HIGH),
+        
         ("from_tokyo", "出身は東京ですか？", "feature", WEIGHT_MID),
         ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature", WEIGHT_MID),
         ("blood_A", "血液型はA型ですか？", "feature", WEIGHT_MID),
         ("blood_B", "血液型はB型ですか？", "feature", WEIGHT_MID),
         ("blood_O", "血液型はO型ですか？", "feature", WEIGHT_MID),
         ("is_group_member", "グループやユニットの一員として活動していますか？", "activity", WEIGHT_MID),
+
+        # ★以下、WEIGHT_LOW を使う質問を復活
+        ("grad_todai", "東京大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_waseda", "早稲田大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("award_shiju", "紫綬褒章を受章していますか？", "feature", WEIGHT_LOW),
+        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
+        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
     ]
 
     for key, text, category, weight in common_questions_def:
@@ -670,6 +687,7 @@ def generate_question_map(dataset, selected_categories=None):
             qm[category].append({"key": key, "text": text, "weight": weight, "check": lambda rec, k=key: rec.get("features",{}).get(k) == 1})
             added_keys.add(key)
 
+    # 2. キーワード質問 (Summary由来)
     feature_questions_def = {
         "comedian": ("お笑い芸人ですか？", "occupation", WEIGHT_HIGH),
         "seiyuu": ("声優として活動していますか？", "occupation", WEIGHT_HIGH),
@@ -677,6 +695,7 @@ def generate_question_map(dataset, selected_categories=None):
         "model": ("モデルとして活動していますか？", "occupation", WEIGHT_HIGH),
         "idol": ("アイドル活動をしていましたか？", "occupation", WEIGHT_HIGH),
         "youtuber": ("YouTuberとして活動していますか？", "occupation", WEIGHT_HIGH),
+        
         "taiga": ("大河ドラマに出演しましたか？", "activity", WEIGHT_MID),
         "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity", WEIGHT_MID),
         "movie": ("映画に出演していますか？", "activity", WEIGHT_MID),
@@ -684,6 +703,13 @@ def generate_question_map(dataset, selected_categories=None):
         "nhk": ("NHK（朝ドラなど）に出演したことがありますか？", "activity", WEIGHT_MID),
         "award": ("受賞歴がありますか？", "feature", WEIGHT_MID),
         "married": ("結婚していますか？", "feature", WEIGHT_MID),
+
+        # ★以下、WEIGHT_LOW を使う質問を復活
+        "romance_drama": ("恋愛ドラマに出演しましたか？", "activity", WEIGHT_LOW),
+        "action": ("アクション作品に出演していますか？", "activity", WEIGHT_LOW),
+        "radio": ("ラジオ番組を持っていますか（いましたか）？", "activity", WEIGHT_LOW),
+        "cm": ("CMに多く出演していますか？", "activity", WEIGHT_LOW),
+        "author": ("本（エッセイなど）を出版したことがありますか？", "feature", WEIGHT_LOW),
     }
 
     allowed_feature_keys = set(feature_questions_def.keys())
@@ -694,7 +720,7 @@ def generate_question_map(dataset, selected_categories=None):
                 qm[category].append({"key": key, "text": text, "weight": weight, "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1})
                 added_keys.add(key)
     
-    # 動的質問
+    # 3. 動的質問 (Janome由来)
     all_dynamic_keys = set()
     DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_", "cat_", "work_")
     for rec in dataset:
@@ -704,7 +730,7 @@ def generate_question_map(dataset, selected_categories=None):
     total_people = len(dataset)
     min_count, max_count = max(3, int(total_people * 0.002)), int(total_people * 0.90)
     
-    PREFECTURES = {"北海道", "東京", "神奈川", "埼玉", "千葉", "愛知", "大阪", "京都", "福岡"} # 簡易版
+    PREFECTURES = {"北海道", "東京", "神奈川", "埼玉", "千葉", "愛知", "大阪", "京都", "福岡"}
 
     for key in all_dynamic_keys:
         count = sum(1 for rec in dataset if rec.get("features", {}).get(key) == 1)
@@ -712,17 +738,21 @@ def generate_question_map(dataset, selected_categories=None):
         if key in added_keys: continue
         
         q_text, cat_type, w = "", "activity", WEIGHT_MIN
+        
         if key.startswith("cat_"):
             name = key[4:]
             if "出身" in name: q_text, cat_type, w = f"『{name.replace('出身の人物','')}』の出身ですか？", "feature", WEIGHT_MID
             elif "所属" in name: q_text, cat_type, w = f"『{name.replace('所属者','')}』に所属していますか？", "feature", WEIGHT_MID
             else: q_text = f"カテゴリ「{name}」に含まれますか？"
+            
         elif key.startswith("noun_"):
             word = key[5:]
             if word in PREFECTURES: q_text, cat_type, w = f"『{word}』にゆかりがありますか？", "feature", WEIGHT_MID
             else: q_text = f"キーワード『{word}』に関連しますか？"
+            
         elif key.startswith("work_"):
-            q_text, cat_type = f"作品『{key[5:]}』に関連していますか？", "activity"
+            # ★ここで WEIGHT_LOW を適用！ (作品名はそこそこ重要)
+            q_text, cat_type, w = f"作品『{key[5:]}』に関連していますか？", "activity", WEIGHT_LOW
 
         if q_text:
             qm[cat_type].append({"key": key, "text": q_text, "weight": w, "check": lambda rec, k=key: rec.get("features", {}).get(k) == 1})
