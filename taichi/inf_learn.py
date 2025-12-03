@@ -11,7 +11,6 @@ import hashlib # ★ ハッシュ化のため追加
 from datetime import datetime # 日付処理のため
 from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
 import sys # 標準入出力のエンコーディング設定用
-import traceback # デバッグ用にインポート
 
 # 標準入出力のエンコーディングをUTF-8に設定
 try:
