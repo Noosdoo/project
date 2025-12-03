@@ -7,7 +7,6 @@ import unicodedata # 文字列正規化用
 import random # ランダム選択用
 import wikipediaapi # Wikipedia API用
 import traceback # デバッグ用にインポート
-import hashlib # ★ ハッシュ化のため追加
 from datetime import datetime # 日付処理のため
 from concurrent.futures import ThreadPoolExecutor, as_completed # 並列処理用
 import sys # 標準入出力のエンコーディング設定用
@@ -1017,6 +1016,61 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
         print(f"[ERROR] データセットファイルへの追記に失敗しました: {e}")
 
 # -----------------------
+# 学習データの更新機能
+# -----------------------
+def refresh_learned_data(dataset_path=DATASET_FILE):
+    """
+    学習機能で追加された（source="manual"）データだけを
+    再スクレイピングして更新する関数。
+    """
+    if not os.path.exists(dataset_path):
+        print("データセットがありません。")
+        return
+
+    # 1. データ読み込み
+    with open(dataset_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # 2. 学習機能で追加された人（manualラベル）だけを抽出
+    target_names = [d["name"] for d in data if d.get("source") == "manual"]
+    
+    if not target_names:
+        print("学習機能で追加されたデータはありません。")
+        return
+
+    print(f"--- 学習機能で追加された {len(target_names)}件 のデータを更新します ---")
+    
+    updated_records = []
+    
+    # 3. 対象者だけ再取得
+    for i, name in enumerate(target_names, 1):
+        print(f"[{i}/{len(target_names)}] 更新中: {name}")
+        
+        # ラベル "manual" を維持したまま再取得
+        rec = scrape_person_data(name, source_type="manual")
+        
+        if not "error" in rec:
+            updated_records.append(rec)
+            print("  -> OK")
+        else:
+            print(f"  -> 失敗: {rec['error']}")
+            # 失敗時は古いデータを維持（消えないようにする）
+            old_rec = next(d for d in data if d["name"] == name)
+            updated_records.append(old_rec)
+        
+        time.sleep(1.0) # APIへのアクセス間隔
+
+    # 4. それ以外のデータ（一括収集データなど）はそのまま維持
+    other_data = [d for d in data if d.get("source") != "manual"]
+    
+    # 5. 合体して保存
+    final_data = other_data + updated_records
+    
+    with open(dataset_path, "w", encoding="utf-8") as f:
+        json.dump(final_data, f, ensure_ascii=False, indent=2)
+    print("完了しました。学習データの更新が完了しました。")
+
+# -----------------------
 # データセット構築（並列）
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
@@ -1777,6 +1831,8 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
             dataset_path=dataset_path, # 渡されたパス
             limit=kwargs.get("limit", None),
             sleep=kwargs.get("sleep", 1.5))
+    elif step == "refresh":
+        return refresh_learned_data(dataset_path=dataset_path)
     elif step == "play": # ゲームプレイステップ
         min_features = kwargs.get("min_feature_threshold", 5) # デフォルト閾値5
         ds = load_dataset(dataset_path=dataset_path, min_feature_threshold=min_features) # データセット読み込み
