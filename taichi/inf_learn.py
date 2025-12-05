@@ -502,10 +502,10 @@ def extract_dynamic_features_from_summary(summary):
         return {} 
 
     TARGET_POS_TYPES = {
-        ('名詞', '一般'): 'noun_',
+        ('名詞', '一般'): 'nounn_',
         ('名詞', '固有名詞'): 'noun_',
         ('形容詞', '自立'): 'adj_', 
-        ('動詞', '自立'): 'verb_' 
+        #('動詞', '自立'): 'verb_' 
     }
 
     # 除外単語リスト
@@ -1317,7 +1317,7 @@ def generate_question_map(dataset, selected_categories=None):
 
     print("データセットをスキャンして、動的な質問（名詞・形容詞・動詞・カテゴリ）を生成します...")
     all_dynamic_keys = set() # すべての動的特徴キーセット
-    DYNAMIC_PREFIXES = ("noun_", "adj_", "verb_", "cat_", "work_") # 動的特徴のプレフィックス
+    DYNAMIC_PREFIXES = ("noun_", "nounn_", "adj_", "verb_", "cat_", "work_") # 動的特徴のプレフィックス
     
     # データセットスキャン
     for rec in dataset:
@@ -1368,7 +1368,7 @@ def generate_question_map(dataset, selected_categories=None):
                     if place in PREFECTURES: continue # 都道府県名はスキップ（名詞質問で対応）
                     question_text = f"『{place}』の出身ですか？" # 出身地質問
                     category_type = "feature" # 特徴カテゴリに変更
-                    weight = WEIGHT_MID # 重み中
+                    weight = 20 # 重み中
                 elif cat_name.endswith("所属者"): # 所属カテゴリ
                     group = cat_name.replace("所属者", "") # グループ名部分抽出
                     question_text = f"『{group}』に所属していますか（しましたか）？" # 所属質問
@@ -1419,6 +1419,16 @@ def generate_question_map(dataset, selected_categories=None):
                 else:
                     # デフォルトの名詞質問
                     question_text = f"『{word}』というキーワードに関連しますか？"
+
+            # 別バージョンの名詞 (nounn_) の質問生成
+            elif key.startswith("nounn_"):
+                word = key[len("nounn_"):]
+                # 質問文を少しあいまいにしてもいいかもしれません
+                question_text = f"『{word}』に関することですか？" 
+                
+                category_type = "feature"
+                # 【ポイント】重みを最低にする（固有名詞より大幅に下げる）
+                weight = WEIGHT_MIN
 
             # 形容詞 (adj_) の質問生成
             elif key.startswith("adj_"):
@@ -1609,6 +1619,9 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     # 履歴管理
     user_answers = {} # { "age_20s": "y", ... }
     history = [(current_candidates.copy(), set(), 0)] 
+
+    # 除外リスト（「違う」と言われた人物を記録して二度聞かないようにする）
+    rejected_names = set()
     
     # 質問マップ生成
     qm_dict = generate_question_map(valid_dataset, selected_categories) 
@@ -1669,8 +1682,48 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 print("===============================")
                 return [c]
             else:
+                # 1. 拒否された名前を記録
+                rejected_names.add(c['name'])
                 print(f"🤔 違いましたか...。")
+                
+                # 2. リカバリー前に「次点」を推測する
+                print("念のため、もう一人可能性が高い人物を確認します...")
+                
+                # 全データの中から、現在拒否されている人以外で、最もミスマッチが少ない人を探す
+                candidates_with_score = []
+                for p in valid_dataset:
+                    if p['name'] in rejected_names: continue
+                    miss = calculate_mismatches(p, user_answers)
+                    candidates_with_score.append((miss, p))
+                
+                # ミスマッチが少ない順にソート
+                candidates_with_score.sort(key=lambda x: x[0])
+                
+                # 最上位の候補がいれば提示（ただしミスマッチが多すぎる場合はやらない）
+                if candidates_with_score:
+                    score, runner_up = candidates_with_score[0]
+                    
+                    # ミスマッチが5以下なら、まだ可能性があるので聞いてみる
+                    if score <= 5:
+                        print(f"もしかして... 次に条件に近いこの人ではありませんか？")
+                        
+                        # (オプション) 画像表示を入れるならここにも記述
+                        
+                        ans2 = input(f"👉 **『{runner_up['name']}』** ですか？ (y/n) > ").strip().lower()
+                        
+                        if ans2 in ("y", "yes", "はい"):
+                            print("-------------------------------")
+                            print(f"🎉 よかった！正解です！ (名前: {runner_up['name']})")
+                            print("===============================")
+                            return [runner_up]
+                        else:
+                            rejected_names.add(runner_up['name'])
+                            print("なるほど、この方でもありませんでしたか。")
+                
+                # 2回目もダメならリカバリーへ
                 trigger_recovery = True
+
+
 
         # ------------------------------
         # リカバリーロジック
@@ -1746,6 +1799,11 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         
         print(f"\n[質問 {current_asked_count+1}] 残り候補: {len(current_candidates)}人")
         
+        # 【追加】 候補者が10人以下なら名前を表示
+        if len(current_candidates) <= 10:
+            names_str = ", ".join([c['name'] for c in current_candidates])
+            print(f"👀 現在の候補: 【 {names_str} 】")
+
         print(f"📊 [分析] Yes: {yes_count_analysis}人 / No: {no_count_analysis}人")
         
         ans = input(q_text + " （y/n/u/b） > ").strip().lower()
@@ -1862,7 +1920,7 @@ if __name__ == "__main__":
 
     # データの閾値を緩和
     # 特徴量がこの数未満の人物は検索開始前に除外されます。
-    MIN_FEATURE_THRESHOLD = 35 # 閾値
+    MIN_FEATURE_THRESHOLD = 50 # 閾値
 
     # --- 実行フロー ---
     try:
