@@ -1,346 +1,311 @@
 import os
-import glob
-import time
-from flask import Flask, jsonify, request, session, send_from_directory
+import uuid
+import logging
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from flask_session import Session
 
-# ---- inf_learnロジックをインポート ----
-try:
-    import inf_learn as logic
-except ImportError:
-    print("エラー: 'inf_learn.py' が見つかりません。app.py と同じフォルダに置いてください。")
-    exit()
+# ★ 先ほどの長いコードを inf_learn.py として保存し、ここでインポートします
+import inf_learn as logic
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 # セッション設定
-app.secret_key = "my-super-secret-key-for-akinator"
-app.config["SESSION_PERMANENT"] = False
+app.config["SECRET_KEY"] = "super-dynamic-akinator-key"
 app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_USE_SIGNER"] = True
 app.config["SESSION_FILE_DIR"] = "./flask_session"
 Session(app)
 
-# =======================
-# データセット管理
-# =======================
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-DATASET_FILES = []   # 利用可能なファイルリスト
-DATASET = []         # ロード中のデータセット（リスト）
-QM_DICT = {}         # ロード中の質問マップ（辞書）
-ACTIVE_DATASET_ID = None
+# ==========================================
+# グローバルキャッシュ (データセットの再読み込み負荷を下げるため)
+# ==========================================
+# 構造: { "dataset_path": { "data": [人物リスト], "qm": {質問マップ} } }
+DATASET_CACHE = {}
 
-def scan_dataset_files():
+def get_cached_dataset_and_qm(categories):
     """
-    カレントディレクトリと ./datasets フォルダから
-    people_dataset*.json を探す
+    カテゴリに基づいてデータセットパスを特定し、
+    キャッシュにあればそれを、なければロード/構築して返す
     """
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    cwd = os.getcwd()
+    # 1. パスを特定
+    # inf_learnの関数を使ってパスを取得
+    list_path = logic.get_dynamic_cache_path(categories, prefix="people_list")
+    dataset_path = logic.get_dynamic_cache_path(categories, prefix="people_dataset")
+
+    # キャッシュヒット確認
+    if dataset_path in DATASET_CACHE:
+        return dataset_path, DATASET_CACHE[dataset_path]["data"], DATASET_CACHE[dataset_path]["qm"]
+
+    # 2. データセットが存在しない場合 -> エラー (Webからはcollect/buildは重すぎるため)
+    if not os.path.exists(dataset_path):
+        # 簡易対応: 存在しない場合はデモ用などのフォールバックロジックを入れるか、エラーを返す
+        # ここでは「データがありません」として返す
+        return dataset_path, None, None
+
+    # 3. ロード
+    logger.info(f"データセットをロード中... {dataset_path}")
+    # inf_learn の load_dataset を使用 (閾値は main の設定に合わせる)
+    ds = logic.load_dataset(dataset_path, min_feature_threshold=15)
     
-    # 探索対象ディレクトリ
-    search_dirs = [
-        base_dir,
-        os.path.join(base_dir, "datasets"),
-        cwd,
-        os.path.join(cwd, "datasets"),
-    ]
-    
-    found_files = set()
-    for d in search_dirs:
-        if not os.path.isdir(d): continue
-        pattern = os.path.join(d, "people_dataset*.json")
-        for f in glob.glob(pattern):
-            found_files.add(os.path.abspath(f))
-
-    if not found_files:
-        print("[WARN] people_dataset*.json が見つかりませんでした。")
-        return []
-
-    # ファイル情報作成
-    file_infos = []
-    for idx, path in enumerate(sorted(found_files)):
-        mtime = os.path.getmtime(path)
-        basename = os.path.basename(path)
-        # ラベル作成 (ファイル名から _ をスペースに置換などで見やすく)
-        label = os.path.splitext(basename)[0].replace("people_dataset_", "")
-        
-        file_infos.append({
-            "id": f"ds{idx+1}",
-            "path": path,
-            "label": label,
-            "mtime": mtime,
-        })
-
-    # 更新日時順にソート（新しいものがデフォルト）
-    file_infos.sort(key=lambda x: x["mtime"], reverse=True)
-    
-    # 先頭をデフォルトに設定
-    if file_infos:
-        file_infos[0]["is_default"] = True
-
-    return file_infos
-
-def load_dataset_by_id(dataset_id):
-    """ 指定IDのデータセットをロードしてグローバル変数にセット """
-    global DATASET, QM_DICT, ACTIVE_DATASET_ID
-
-    info = next((f for f in DATASET_FILES if f["id"] == dataset_id), None)
-    if not info:
-        raise ValueError(f"dataset_id='{dataset_id}' not found.")
-
-    path = info["path"]
-    print(f"[LOAD] データセット読み込み中: {path}")
-
-    # inf_learn の load_dataset を使用 (閾値は任意調整。ここでは10)
-    ds = logic.load_dataset(dataset_path=path, min_feature_threshold=10)
     if not ds:
-        raise RuntimeError("有効なデータがありません（閾値不足の可能性あり）。")
+        return dataset_path, None, None
 
-    # 質問マップ生成 (カテゴリ選択はNoneで全自動生成させる)
-    qm = logic.generate_question_map(ds, selected_categories=None)
+    # 4. 質問マップ生成 (これが重いのでキャッシュする)
+    logger.info("質問マップを生成中...")
+    qm = logic.generate_question_map(ds, selected_categories=categories)
 
-    DATASET = ds
-    QM_DICT = qm
-    ACTIVE_DATASET_ID = dataset_id
+    # 5. キャッシュに保存
+    DATASET_CACHE[dataset_path] = {
+        "data": ds,
+        "qm": qm
+    }
     
-    print(f"[LOAD] 完了: {len(DATASET)}人, 質問タイプ数={sum(len(v) for v in QM_DICT.values())}")
+    return dataset_path, ds, qm
 
-# 起動時にスキャン実行
-DATASET_FILES = scan_dataset_files()
-DEFAULT_DATASET_ID = DATASET_FILES[0]["id"] if DATASET_FILES else None
+# ==========================================
+# API エンドポイント
+# ==========================================
 
-# =======================
-# ルーティング
-# =======================
+@app.route('/categories', methods=['GET'])
+def get_categories():
+    """利用可能なカテゴリ一覧を返す"""
+    return jsonify({
+        "categories": logic.CATEGORIES
+    })
 
-@app.route("/")
-def serve_index():
-    return send_from_directory(".", "index.html")
+@app.route('/start', methods=['POST'])
+def start_game():
+    """ゲーム開始"""
+    data = request.json or {}
+    
+    # フロントエンドから送られてきたカテゴリリスト (なければ全カテゴリ)
+    selected_cats = data.get('categories', logic.CATEGORIES)
+    if not selected_cats:
+        selected_cats = logic.CATEGORIES
 
-@app.route("/datasets", methods=["GET"])
-def list_datasets():
-    """ フロントエンドへデータセット一覧を返す """
-    return jsonify({"datasets": DATASET_FILES})
+    # データセットの準備
+    path, ds, qm = get_cached_dataset_and_qm(selected_cats)
 
-@app.route("/start", methods=["POST"])
-def start_session():
-    """ 新規セッション開始 """
-    if not DATASET_FILES:
-        return jsonify({"error": "データセットファイルがありません。"}), 500
-
-    req = request.get_json(silent=True) or {}
-    dataset_id = req.get("dataset_id") or DEFAULT_DATASET_ID
-
-    try:
-        # 違うデータセットがリクエストされたらロードし直す
-        if dataset_id != ACTIVE_DATASET_ID:
-            load_dataset_by_id(dataset_id)
-    except Exception as e:
-        print(f"[ERROR] Load failed: {e}")
-        return jsonify({"error": str(e)}), 500
+    if ds is None:
+        return jsonify({
+            "type": "error",
+            "message": "データセットが見つかりません。先にローカルで python inf_learn.py を実行してデータを収集してください。",
+            "path": path
+        }), 404
 
     # セッション初期化
-    session["candidates"] = DATASET[:]  # 全員候補
-    session["asked_keys"] = []          # 質問済みキーリスト
-    session["steps"] = 0
-    session["dataset_id"] = dataset_id
-    session["history_stack"] = []       # Undo用スタック
+    session['sid'] = str(uuid.uuid4())[:8]
+    session['dataset_path'] = path
+    session['categories'] = selected_cats
+    # 候補者リスト (最初は全員)
+    session['candidates'] = ds
+    # 質問済みキー
+    session['asked_keys'] = []
+    session['steps'] = 0
+    # 履歴 (Undo用)
+    session['history'] = []
 
-    # 最初の質問を取得
-    return jsonify(find_next_action())
-
-@app.route("/answer", methods=["POST"])
-def handle_answer():
-    """ 回答を受け取り、候補を絞り込む """
-    data = request.json or {}
-    answer = data.get("answer")       # yes, no, dont_know
-    q_key = data.get("question_key")
-
-    candidates = session.get("candidates", [])
-    asked_keys = session.get("asked_keys", [])
-    steps = session.get("steps", 0)
-
-    # Undo用に現在の状態を保存
-    # ★修正: 今答えた質問キー(q_key)も保存する
-    # ★修正: candidatesリストをコピーして保存（参照渡し回避）
-    save_state_for_undo(candidates, asked_keys, steps, current_q_key=q_key)
-
-    # 絞り込みロジック
-    if answer in ("yes", "no") and q_key:
-        new_candidates = []
-        for person in candidates:
-            # 特徴を持っているか (1 or None/0)
-            has_feature = (person.get("features", {}).get(q_key) == 1)
-            
-            if answer == "yes":
-                if has_feature: new_candidates.append(person)
-            else: # no
-                if not has_feature: new_candidates.append(person)
-        
-        candidates = new_candidates
-
-    # dont_know の場合は絞り込まない (リストそのまま)
-
-    # 質問キーを記録
-    if q_key and q_key not in asked_keys:
-        asked_keys.append(q_key)
-
-    # セッション更新
-    session["candidates"] = candidates
-    session["asked_keys"] = asked_keys
-    session["steps"] = steps + 1
-
-    return jsonify(find_next_action())
-
-@app.route("/undo", methods=["POST"])
-def undo_last():
-    """ 1つ前の状態に戻す """
-    stack = session.get("history_stack", [])
-    if not stack:
-        return jsonify(find_next_action()) # 戻れない場合は現状維持
-
-    prev_state = stack.pop() # 最新履歴を取り出す
-    session["candidates"] = prev_state["candidates"]
-    session["asked_keys"] = prev_state["asked_keys"]
-    session["steps"] = prev_state["steps"]
-    session["history_stack"] = stack # 更新したスタックを保存
-
-    # ★修正: 復元する質問キーがあれば、それを強制的に使う
-    restored_q_key = prev_state.get("question_key")
+    # 最初の質問を決める
+    # inf_learn の find_best_question を使用
+    question = logic.find_best_question(ds, qm, [])
     
-    # 統計情報作成
-    stats = {
-        "candidates_count": len(prev_state["candidates"]),
-        "steps": prev_state["steps"],
-        "dataset_id": session.get("dataset_id")
-    }
+    if not question:
+        return jsonify({"type": "error", "message": "有効な質問が見つかりませんでした。"}), 500
 
-    if restored_q_key:
-        print(f"[UNDO] 質問を復元します: {restored_q_key}")
-        # キーからテキストを探す
-        q_text = find_text_by_key(restored_q_key)
-        if q_text:
+    return jsonify({
+        "type": "question",
+        "question_text": question["text"],
+        "question_key": question["key"],
+        "session_data": {"steps": 0, "candidates_count": len(ds)}
+    })
+
+@app.route('/answer', methods=['POST'])
+def answer_question():
+    """回答処理"""
+    data = request.json or {}
+    answer = data.get('answer')       # yes, no, dont_know
+    question_key = data.get('question_key')
+
+    # セッションから復元
+    current_candidates = session.get('candidates', [])
+    asked_keys = session.get('asked_keys', [])
+    steps = session.get('steps', 0)
+    dataset_path = session.get('dataset_path')
+    
+    # キャッシュから質問マップを取得 (lambda関数が含まれるためセッションには保存できない)
+    if dataset_path in DATASET_CACHE:
+        qm = DATASET_CACHE[dataset_path]["qm"]
+    else:
+        # キャッシュ切れの場合は再ロード
+        _, _, qm = get_cached_dataset_and_qm(session.get('categories', []))
+
+    # ---------------------------
+    # 履歴保存 (Undo用)
+    # ---------------------------
+    session['history'].append({
+        'candidates': current_candidates,
+        'asked_keys': asked_keys,
+        'steps': steps
+    })
+
+    # ---------------------------
+    # 候補の絞り込み (inf_learnロジックの簡易再現)
+    # ---------------------------
+    # logic.py の find_best_question は "check" 関数を持っていますが、
+    # ここでは単純に features 辞書を見て判定します
+    
+    new_candidates = []
+    
+    if answer == "dont_know":
+        # 「わからない」場合は全員残す（inf_learnの仕様）
+        new_candidates = current_candidates
+    else:
+        target_val = 1 if answer == "yes" else 0
+        
+        for person in current_candidates:
+            # 特徴を持っているか (1 or None/0)
+            has_feature = person.get("features", {}).get(question_key) == 1
+            
+            # YESと答えた -> 特徴を持っている人を残す
+            if answer == "yes" and has_feature:
+                new_candidates.append(person)
+            # NOと答えた -> 特徴を持っていない人を残す
+            elif answer == "no" and not has_feature:
+                new_candidates.append(person)
+
+    # 状態更新
+    session['candidates'] = new_candidates
+    if question_key:
+        asked_keys.append(question_key)
+    session['asked_keys'] = asked_keys
+    session['steps'] = steps + 1
+    
+    # ---------------------------
+    # 次のアクション判定
+    # ---------------------------
+    
+    # 1. 候補が1人になった -> 推測
+    if len(new_candidates) == 1:
+        winner = new_candidates[0]
+        # 画像取得 (inf_learnの関数利用)
+        img_url = logic.get_wikipedia_main_image(winner['name'])
+        
+        return jsonify({
+            "type": "guess",
+            "name": winner['name'],
+            "image": img_url,
+            "confidence": 100,
+            "session_data": {"steps": session['steps'], "candidates_count": 1}
+        })
+
+    # 2. 候補が0人になった -> ギブアップ
+    elif len(new_candidates) == 0:
+        return jsonify({
+            "type": "guess",
+            "name": "該当なし（わかりませんでした）",
+            "image": None,
+            "confidence": 0,
+            "session_data": {"steps": session['steps'], "candidates_count": 0}
+        })
+
+    # 3. まだ候補がいる -> 次の質問
+    else:
+        # 次の質問を探す
+        next_q = logic.find_best_question(new_candidates, qm, asked_keys)
+        
+        # 質問切れのケース
+        if next_q is None:
+            # 最も可能性が高い人（リストの先頭）を推測
+            winner = new_candidates[0]
+            img_url = logic.get_wikipedia_main_image(winner['name'])
             return jsonify({
-                "type": "question",
-                "text": q_text,
-                "key": restored_q_key,
-                "stats": stats,
-                "is_undo": True
+                "type": "guess",
+                "name": winner['name'] + " (質問切れ)",
+                "image": img_url,
+                "confidence": int(100/len(new_candidates)),
+                "session_data": {"steps": session['steps'], "candidates_count": len(new_candidates)}
             })
 
-    # もしキー情報がない場合（初回など）は通常通り計算
-    res = find_next_action()
-    res["is_undo"] = True
-    return jsonify(res)
-
-# =======================
-# ロジック補助
-# =======================
-
-def save_state_for_undo(candidates, asked_keys, steps, current_q_key):
-    """ 現在のセッション状態を履歴スタックに積む """
-    stack = session.get("history_stack", [])
-    current = {
-        "candidates": list(candidates), # 明示的にリストコピー
-        "asked_keys": list(asked_keys),
-        "steps": steps,
-        "question_key": current_q_key  # ★保存項目に追加
-    }
-    stack.append(current)
-    # メモリ節約のため履歴は最大20件まで
-    if len(stack) > 20: stack.pop(0)
-    session["history_stack"] = stack
-
-def find_text_by_key(key):
-    """ QM_DICTからキーに対応する質問文を探す """
-    # QM_DICT = { "occupation": [q1, q2...], "activity": [...] }
-    for cat_list in QM_DICT.values():
-        for q in cat_list:
-            if q["key"] == key:
-                return q["text"]
-    return None
-
-def find_next_action():
-    """ 次の質問 または 推測結果 を返す """
-    candidates = session.get("candidates", [])
-    asked_keys = session.get("asked_keys", [])
-    
-    dataset_id = session.get("dataset_id")
-    
-    # 統計情報
-    stats = {
-        "candidates_count": len(candidates),
-        "steps": session.get("steps", 0),
-        "dataset_id": dataset_id
-    }
-
-    # 1. 候補が1人 → 推測 (画像取得)
-    if len(candidates) == 1:
-        person = candidates[0]
-        name = person["name"]
-        
-        print(f"[GUESS] 確定: {name} (画像取得中...)")
-        
-        # 画像取得ロジック
-        image_url = None
-        try:
-            image_url = logic.get_wikipedia_main_image(name)
-        except Exception as e:
-            print(f"画像取得エラー: {e}")
-
-        return {
-            "type": "guess",
-            "name": name,
-            "image_url": image_url,
-            "confidence": 100,
-            "stats": stats
-        }
-
-    # 2. 候補が0人
-    if len(candidates) == 0:
-        return {
-            "type": "guess",
-            "name": "該当する人物が見つかりませんでした",
-            "image_url": None,
-            "confidence": 0,
-            "stats": stats
-        }
-
-    # 3. 質問を探す
-    asked_set = set(asked_keys)
-    question = logic.find_best_question(candidates, QM_DICT, asked_set)
-
-    if question:
-        return {
+        return jsonify({
             "type": "question",
-            "text": question["text"],
-            "key": question["key"],
-            "stats": stats
-        }
+            "question_text": next_q["text"],
+            "question_key": next_q["key"],
+            "session_data": {"steps": session['steps'], "candidates_count": len(new_candidates)}
+        })
+
+@app.route('/undo', methods=['POST'])
+def undo_last():
+    """1つ戻る"""
+    history = session.get('history', [])
+    if not history:
+        return jsonify({"undo": False})
     
-    # 4. 質問が尽きたが複数人いる場合 → 最も可能性が高い人（先頭）を推測
-    top_person = candidates[0]
-    print(f"[GUESS] 暫定: {top_person['name']}")
+    # 履歴から復元
+    last_state = history.pop()
+    session['candidates'] = last_state['candidates']
+    session['asked_keys'] = last_state['asked_keys']
+    session['steps'] = last_state['steps']
+    session['history'] = history
     
-    image_url = None
+    # 次の質問を再計算（または直前の状態に戻す）
+    # 再計算するためにQMが必要
+    dataset_path = session.get('dataset_path')
+    if dataset_path in DATASET_CACHE:
+        qm = DATASET_CACHE[dataset_path]["qm"]
+    else:
+        _, _, qm = get_cached_dataset_and_qm(session.get('categories', []))
+        
+    next_q = logic.find_best_question(session['candidates'], qm, session['asked_keys'])
+    
+    return jsonify({
+        "undo": True,
+        "type": "question",
+        "question_text": next_q["text"] if next_q else "エラー",
+        "question_key": next_q["key"] if next_q else None,
+        "session_data": {"steps": session['steps'], "candidates_count": len(session['candidates'])}
+    })
+
+@app.route('/submit_correct_answer', methods=['POST'])
+def submit_correct_answer():
+    """
+    推測が外れた場合に、ユーザーから正解を受け取り、データセットに追加学習させる
+    """
+    data = request.json or {}
+    correct_name = data.get('name')
+    dataset_path = session.get('dataset_path')
+
+    if not correct_name or not dataset_path:
+        return jsonify({"success": False, "message": "名前またはデータセットが無効です"})
+
+    logger.info(f"学習リクエスト: {correct_name} を {dataset_path} に追加します")
+
+    # inf_learn の学習機能を使用
+    # この関数はスクレイピングを行い、JSONに追記保存する
     try:
-        image_url = logic.get_wikipedia_main_image(top_person['name'])
-    except: pass
+        logic.fetch_and_add_new_person_data(correct_name, dataset_path=dataset_path)
+        
+        # キャッシュをクリア（次回リロード時に新しいデータを読み込ませるため）
+        if dataset_path in DATASET_CACHE:
+            del DATASET_CACHE[dataset_path]
+            
+        return jsonify({"success": True, "message": f"『{correct_name}』を覚えました！次回から登場します。"})
+        
+    except Exception as e:
+        logger.error(f"学習エラー: {e}")
+        return jsonify({"success": False, "message": f"学習中にエラーが発生しました: {str(e)}"})
 
-    return {
-        "type": "guess",
-        "name": top_person["name"],
-        "image_url": image_url,
-        "confidence": int(100 / len(candidates)),
-        "stats": stats
-    }
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     if not os.path.exists("./flask_session"):
         os.makedirs("./flask_session")
     
-    print("=== Server Started ===")
-    app.run(debug=True, port=5000, use_reloader=False)
+    # 初回起動時に Janome などの準備ができるか確認
+    if logic.JANOME_TOKENIZER is None:
+        print("警告: Janomeがインストールされていないため、動的特徴抽出は動きません。")
+
+    print("=== Server Starting ===")
+    app.run(debug=True, port=5000)
