@@ -9,9 +9,9 @@ from flask_session import Session
 
 # ---- 本体ロジックをインポート ----
 try:
-    import test_matsumoto_namae as logic
+    import inf_learn as logic
 except ImportError:
-    print("エラー: 'test_matsumoto_namae.py' が見つかりません。")
+    print("エラー: 'inf_learn.py' が見つかりません。")
     exit()
 
 app = Flask(__name__)
