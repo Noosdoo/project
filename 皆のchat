@@ -4,12 +4,22 @@
 いつも通り柏駅で「幻のラーメン食い逃げチャレンジ」してぇなぁ
 
 
-これでファイル開ける
-.\people_list_日本の俳優.json
+（🔴これでファイル開ける
+code .\people_list_日本の俳優.json
+code .\people_dataset_日本の俳優.json
+                       ↑ここは各自名前変更）
 
-requestsをインストールするには
+ファイル保存は、同期してファイル開いてドラッグで移動
+
+🔴requestsをインストールするには
 pip install requests wikipedia-api janome
 
 pip install wikipedia-api requests janome
 
 pip install janome
+
+フロントエンド班の大島です。
+牛島さん。あなたの協力が必要です。SOS!!
+とりあえずサイト上の1つ戻るが機能していないです！
+多分test_matsumoto_gattaiとの結合も出来ていないと思います！！
+12/3,4,5日あたりで完璧にしちゃいましょう('Д')/!!!!!!!

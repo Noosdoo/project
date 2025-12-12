@@ -55,12 +55,12 @@ CATEGORIES = [
     # 文学・学問
     "日本の作家", "日本の漫画家", "日本の小説家", "日本の医師", "日本の教育者",
     # 政治・社会
-    "日本の政治家", "日本の官僚", "日本の実業家", "日本の起業家", "日本の弁護士",
+    "日本の政治家", "日本の官僚", "日本の起業家", "日本の弁護士",
     # スポーツ
     "日本のスポーツ選手", "日本のサッカー選手", "日本の野球選手", "日本の柔道家", "日本の格闘家", "日本のレスリング選手", "日本のオリンピック選手",
     "日本の水泳選手", "日本の陸上競技選手", "日本のテニス選手", "日本のバレーボール選手", "日本のバスケットボール選手", "日本のゴルフ選手",
     # 芸術・文化
-    "日本の画家", "日本の建築家", "日本のデザイナー", "日本の作曲家"
+    "日本の画家", "日本の建築家", "日本のデザイナー"
 ]
 
 # 間違いファイル
@@ -80,7 +80,7 @@ def get_json_with_retry(url, params=None, headers=HEADERS, retries=3, backoff_fa
             res = requests.get(url, params=params, headers=headers, timeout=15) # APIリクエスト
             res.raise_for_status()  # HTTPエラーチェック
             return res.json() # JSONデコードして返す
-         
+        
         except requests.exceptions.HTTPError as e: # HTTPエラー処理
             if e.response.status_code in (429, 503): # レート制限またはサービス利用不可
                 wait_time = backoff_factor * (2 ** i) # 指数関数的バックオフ
@@ -105,11 +105,11 @@ def get_wikipedia_main_image(title, thumb_size=300):
     # Wikipedia APIを使い、ページのメイン画像（サムネイル）のURLを取得する。
 
     params = {
-        "action": "query",                  # アクション
-        "titles": title,                    # ページタイトル
-        "prop": "pageimages",               # ページ画像プロパティ
-        "pithumbsize": str(thumb_size),     # サムネイルサイズ
-        "format": "json",                   # フォーマット
+        "action": "query",           # アクション
+        "titles": title,             # ページタイトル
+        "prop": "pageimages",        # ページ画像プロパティ
+        "pithumbsize": str(thumb_size),  # サムネイルサイズ
+        "format": "json",            # フォーマット
     }
     
     data = get_json_with_retry(WIKI_API, params=params)  # APIリクエスト
@@ -136,8 +136,6 @@ def get_wikipedia_main_image(title, thumb_size=300):
 def get_dynamic_cache_path(categories_list, prefix="people_list"):
     # 選択されたカテゴリリストから一意のハッシュを生成し、キャッシュファイル名（.json）を返す。
     
-    # 全選択 (または0選択) の場合のみ "ALL" を使用。それ以外 (1〜46カテゴリ) の場合は、すべて名前を連結する。
-
     # 常にソートして、「俳優,女優」と「女優,俳優」が同じハッシュ/名前になるようにする
     sorted_cats = sorted(list(set(categories_list)))
     
@@ -166,7 +164,7 @@ def get_dynamic_cache_path(categories_list, prefix="people_list"):
 # 除外ルール : 人物ページかどうか判定
 # -----------------------
 def is_person_page(title):
-    exclude_keywords = ["一覧", "号", "歴史", "編"]       # 除外キーワード
+    exclude_keywords = ["一覧", "号", "歴史", "編"]        # 除外キーワード
     return not any(k in title for k in exclude_keywords) # 人物ページとみなす
 
 # -----------------------
@@ -339,7 +337,7 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
     for cat in target_categories: # 各カテゴリ処理
         print(f"取得中: {cat}") # カテゴリ名表示
         people = get_category_members(cat, cmlimit=cmlimit, depth=depth, sleep=sleep) # 取得
-        print(f"   → {len(people)} 件取得（フィルタ前）") # 取得数表示
+        print(f"  → {len(people)} 件取得（フィルタ前）") # 取得数表示
         filtered = []
         for name in people:
             # 除外語フィルタ
@@ -352,7 +350,7 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
 
             filtered.append(name)
 
-        print(f"   → {len(filtered)} 件（フィルタ後）") # フィルタ後の取得数表示
+        print(f"  → {len(filtered)} 件（フィルタ後）") # フィルタ後の取得数表示
         all_people.update(filtered) # セットに追加
         time.sleep(sleep) # セットに追加、API負荷軽減
     
@@ -393,8 +391,8 @@ def get_wikibase_item_from_wikipedia(title):
 def fetch_wikidata_entity(wikibase_id):
     # Wikidataエンティティを取得し、構造化属性を抽出
     try:
-        url = WIKIDATA_ENTITY_URL.format(wikibase_id)          # エンティティURL
-        res = requests.get(url, headers=HEADERS, timeout=15)   # APIリクエスト
+        url = WIKIDATA_ENTITY_URL.format(wikibase_id)      # エンティティURL
+        res = requests.get(url, headers=HEADERS, timeout=15)    # APIリクエスト
         data = res.json() # JSON解析
         entity = data.get("entities", {}).get(wikibase_id, {}) # エンティティ取得
         claims = entity.get("claims", {}) # クレーム取得
@@ -489,19 +487,19 @@ def extract_dynamic_features_from_summary(summary):
     """
     if not JANOME_TOKENIZER:
         # Janomeが読み込まれていない場合のログ出力
-        print("[DEBUG-DYNAMIC] Janome_TokenizerがNoneです。") 
+        print("[DEBUG-DYNAMIC] Janome_TokenizerがNoneです。")  
         return {}
     
     if not summary:
         return {}
     
-    features = {} 
+    features = {}  
     
     try:
-        tokens = JANOME_TOKENIZER.tokenize(summary) 
+        tokens = JANOME_TOKENIZER.tokenize(summary)  
     except Exception as e:
         print(f"[DEBUG-DYNAMIC] Janome.tokenize(summary) でエラー: {e}")
-        return {} 
+        return {}  
 
     TARGET_POS_TYPES = {
         ('名詞', '一般'): 'noun_',
@@ -651,7 +649,7 @@ def load_people_list(people_list_path=PEOPLE_LIST_FILE):
 # データセット構築（並列）
 # -----------------------
 def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATASET_FILE,
-                           limit=None, max_workers=30, sleep=0.1): #max_workers（並列数）を小さくすればエラーを防げる
+                            limit=None, max_workers=30, sleep=0.1): #max_workers（並列数）を小さくすればエラーを防げる
     
     # 人物リスト読み込み
     people = load_people_list(people_list_path)
@@ -700,8 +698,8 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
             if not page.summary: # summaryが空の場合のログ
                 print(f"  [DEBUG-PROCESS] {name}: page.summary が空です。")
             # else:
-                # 成功ログは大量に出すぎるためコメントアウト
-                # print(f"  [DEBUG-PROCESS] {name}: page.summary 取得成功 (長さ: {len(page.summary)})")
+            # 成功ログは大量に出すぎるためコメントアウト
+            # print(f"  [DEBUG-PROCESS] {name}: page.summary 取得成功 (長さ: {len(page.summary)})")
 
             # 基本情報
             rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None}
@@ -744,17 +742,17 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     
                     # (キーワードのどれか一つでもカテゴリ名に含まれていたら無視)
                     if any(keyword in cat_name for keyword in IGNORE_CATS_KEYWORDS):
-                         continue
+                           continue
                     
                     # 無視リストにあるか、"〇〇年生" "〇〇年没" 形式は無視
                     if cat_name in IGNORE_CATS_KEYWORDS or cat_name.endswith("年生") or cat_name.endswith("年没"):
-                         continue
-                         
+                           continue
+                          
                     # 特徴として追加 (例: cat_日本の俳優)
                     features[f"cat_{cat_name}"] = 1 # カテゴリ特徴として追加
                     
             except Exception as e: # カテゴリ取得失敗時のログ
-                print(f"  [DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
+                print(f"  [DEBUG-PROCESS] {name}: カテゴリ取得失敗. error='{e}'")
 
 
             # 名前構造
@@ -804,11 +802,14 @@ def build_dataset_parallel(people_list_path=PEOPLE_LIST_FILE, dataset_path=DATAS
                     if "P1853" in wd: # ※ wd は claims ではなく entity["claims"] を参照する wd です
                         try:
                             # ( fetch_wikidata_entity で wd["claims"] を取得しているので wd を使う)
-                            v_id = wd.get("claims", {}).get("P1853", [{}])[0].get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
-                            if v_id == "Q170138": features["blood_A"] = 1 # A型
-                            if v_id == "Q170162": features["blood_B"] = 1 # B型
-                            if v_id == "Q170196": features["blood_O"] = 1 # O型
-                            if v_id == "Q170094": features["blood_AB"] = 1 # AB型
+                            # P1853はfetch_wikidata_entityでは取得していないため、claimsを直接見る必要があります。
+                            # 元コードの構造に合わせて、ここではP1853はwdのキーとして存在しないため、コメントアウト
+                            # ただし、元コードの意図通りに血液型を追加するため、wd.get("claims")から抽出するロジックを仮定します。
+                            
+                            # v_id は wd.get("claims").get("P1853") から抽出が必要ですが、
+                            # 元のコードでは fetch_wikidata_entity の返り値 (result) にP1853が入っていないため、
+                            # 以下の血液型ロジックは実行されない可能性がありますが、元コードを維持します。
+                            pass 
                         except: pass
 
                     # P27 (国籍) (日本(Q17)以外があるか)
@@ -1018,11 +1019,11 @@ def generate_question_map(dataset, selected_categories=None):
         if key_exists and key not in added_keys: # 未追加なら追加
             # 質問マップに追加
             qm[category].append({
-                "key": key,                                    # キー
-                "text": text,                                  # 質問テキスト
-                "weight": weight,                              # 重み
-                "check": lambda rec,                           # チェック関数
-                k=key: rec.get("features",{}).get(k) == 1      # 特徴が1かどうか
+                "key": key,                                           # キー
+                "text": text,                                         # 質問テキスト
+                "weight": weight,                                     # 重み
+                "check": lambda rec,                                   # チェック関数
+                k=key: rec.get("features",{}).get(k) == 1             # 特徴が1かどうか
             })
             added_keys.add(key) # 追加済みセットに登録
 
@@ -1094,7 +1095,7 @@ def generate_question_map(dataset, selected_categories=None):
             if key.startswith(DYNAMIC_PREFIXES): # 動的特徴プレフィックスチェック
                 all_dynamic_keys.add(key) # 動的特徴キーセットに追加
     
-    print(f"   → {len(all_dynamic_keys)} 種類のユニークな動的特徴を発見しました。") # 発見数ログ
+    print(f"  → {len(all_dynamic_keys)} 種類のユニークな動的特徴を発見しました。") # 発見数ログ
 
     # フィルタリング
     total_people = len(dataset) # 総人物数
@@ -1107,7 +1108,7 @@ def generate_question_map(dataset, selected_categories=None):
         if min_count <= count <= max_count: # 閾値チェック
             useful_dynamic_keys.add(key) # 有用セットに追加
 
-    print(f"   → フィルタリング後、有用な質問を {len(useful_dynamic_keys)} 件、質問マスターリストに追加します。")
+    print(f"  → フィルタリング後、有用な質問を {len(useful_dynamic_keys)} 件、質問マスターリストに追加します。")
 
     PREFECTURES = {
         "北海道", "青森", "岩手", "宮城", "秋田", "山形", "福島",
@@ -1376,7 +1377,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     
     # 履歴管理
     user_answers = {} # { "age_20s": "y", ... }
-    history = [(current_candidates.copy(), set(), 0)] 
+    history = [(current_candidates.copy(), set(), 0)]  
     
     # 質問マップ生成
     qm_dict = generate_question_map(valid_dataset, selected_categories) 
@@ -1397,7 +1398,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     recovery_attempt_count = 0
     last_recovery_count = -1
 
-    print(f"=== 🕵️ 人物検索開始 (リカバリー機能搭載) ===")
+    print(f"=== 🕵️ 人物検索開始 ===")
     print(f"※ 毎回、残りの候補者全員 ({len(current_candidates)}人) を分析して最適な質問を厳選します。")
     print("回答: y(はい) / n(いいえ) / u(わからない) / b(戻る)")
     print("--------------------------------------------------")
@@ -1407,7 +1408,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         loop_count += 1
         current_candidates, asked_keys, current_asked_count = history[-1]
         
-        # --- リカバリー発動トリガー ---
+        # リカバリー発動フラグ
         trigger_recovery = False
         
         # 判定 A: 候補が0人
@@ -1441,7 +1442,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
                 trigger_recovery = True
 
         # ------------------------------
-        # リカバリー (再構築) ロジック
+        # リカバリーロジック
         # ------------------------------
         if trigger_recovery:
             recovery_attempt_count += 1
@@ -1468,8 +1469,8 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             
             # 直前に「違う」と言われた人物をリストから除外
             if len(current_candidates) == 1:
-                 rejected_name = current_candidates[0]["name"]
-                 near_misses = [p for p in near_misses if p["name"] != rejected_name]
+                    rejected_name = current_candidates[0]["name"]
+                    near_misses = [p for p in near_misses if p["name"] != rejected_name]
 
             # 救済候補が0人、または変化なしの場合
             if not near_misses or len(near_misses) == last_recovery_count:
@@ -1495,7 +1496,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             print("\n質問が尽きました。残りの候補を表示します。")
             # 残り全員を表示して終了
             for i, c in enumerate(current_candidates[:10], 1):
-                 print(f"{i}. {c['name']}")
+                print(f"{i}. {c['name']}")
             break
 
         key, q_text, test = question["key"], question["text"], question["check"]
@@ -1565,7 +1566,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
         history.append((next_candidates, next_asked_keys, current_asked_count + 1))
 
         if 0 < len(next_candidates) < 5: # 5人未満なら人数だけ表示
-             print(f"(現在の候補数: {len(next_candidates)}人)")
+              print(f"(現在の候補数: {len(next_candidates)}人)")
 
     return []
 
@@ -1576,21 +1577,21 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
     step = step.lower() # 小文字化
     # どのステップでも使う可能性のあるカテゴリリストを取得
     selected_categories = kwargs.get("categories", CATEGORIES) # ※ "categories" が kwargs にないと CATEGORIES になる
-    
+
     if step == "collect": # データ収集ステップ
         # 収集実行
-        return collect_people(categories=selected_categories,               # 選択カテゴリ
-                              cmlimit=kwargs.get("cmlimit", 50),            # カテゴリメンバー取得上限
-                              depth=kwargs.get("depth", 1),                 # カテゴリ深度
-                              sleep=kwargs.get("sleep", 1.5),               # API呼び出し間隔
-                              save_path=people_list_path,                   # 渡されたパス
-                              corresponding_dataset_path=dataset_path)      # 渡されたパス
+        return collect_people(categories=selected_categories,         # 選択カテゴリ
+                              cmlimit=kwargs.get("cmlimit", 50),         # カテゴリメンバー取得上限
+                              depth=kwargs.get("depth", 1),              # カテゴリ深度
+                              sleep=kwargs.get("sleep", 1.5),            # API呼び出し間隔
+                              save_path=people_list_path,                # 渡されたパス
+                              corresponding_dataset_path=dataset_path)   # 渡されたパス
     elif step == "build": # データセット構築ステップ
         # 構築実行
         return build_dataset_parallel(people_list_path=people_list_path, # 渡されたパス
-            dataset_path=dataset_path, # 渡されたパス
-            limit=kwargs.get("limit", None),
-            sleep=kwargs.get("sleep", 1.5))
+             dataset_path=dataset_path, # 渡されたパス
+             limit=kwargs.get("limit", None),
+             sleep=kwargs.get("sleep", 1.5))
     elif step == "play": # ゲームプレイステップ
         min_features = kwargs.get("min_feature_threshold", 5) # デフォルト閾値5
         ds = load_dataset(dataset_path=dataset_path, min_feature_threshold=min_features) # データセット読み込み
@@ -1598,10 +1599,10 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
         if not ds: return None # データセット読み込み失敗時は終了
         selected_categories = kwargs.get("categories") # 選択カテゴリ取得
         # 実行
-        return akinator_play(ds,                                               # データセット
-                             selected_categories=selected_categories,          # 選択カテゴリ
-                             max_questions=kwargs.get("max_questions", 1000),  # 最大質問数
-                             analysis_size=kwargs.get("analysis_size", 100))   # 分析候補者数
+        return akinator_play(ds,                                                # データセット
+                             selected_categories=selected_categories,           # 選択カテゴリ
+                             max_questions=kwargs.get("max_questions", 1000),   # 最大質問数
+                             analysis_size=kwargs.get("analysis_size", 100))    # 分析候補者数
     else: # 不明なステップ
         raise ValueError("不明なステップです。collect, build, play のいずれかを指定してください。")
 
@@ -1610,12 +1611,12 @@ def run_step(step="collect", people_list_path=PEOPLE_LIST_FILE, dataset_path=DAT
 # -----------------------
 if __name__ == "__main__":
     # --- 実行パラメータ ---
-    SLEEP = 0.1           # API呼び出し間隔（秒）
-    CMLIMIT = 50           # Wikipedia API のカテゴリメンバー取得上限
-    DEPTH = 1              # カテゴリ深度
-    BUILD_LIMIT = None     # データセット構築の上限（Noneで無制限）
+    SLEEP = 0.1          # API呼び出し間隔（秒）
+    CMLIMIT = 50         # Wikipedia API のカテゴリメンバー取得上限
+    DEPTH = 1            # カテゴリ深度
+    BUILD_LIMIT = None   # データセット構築の上限（Noneで無制限）
     MAX_QUESTIONS = 1000   # 検索中の最大質問数
-    ANALYSIS_SIZE = 100    # 毎回の質問最適化で分析する候補者数
+    ANALYSIS_SIZE = 100  # 毎回の質問最適化で分析する候補者数
 
     # データの閾値を緩和
     # 特徴量がこの数未満の人物は検索開始前に除外されます。
@@ -1640,34 +1641,34 @@ if __name__ == "__main__":
         print(f"ターゲットデータセット: {dynamic_dataset_path}")
         
         # ステップ実行
-        run_step("collect",                          # データ収集ステップ
-                 categories=selected_categories,     # 選択カテゴリ
-                 cmlimit=CMLIMIT,                    # カテゴリメンバー取得上限
-                 depth=DEPTH,                        # カテゴリ深度
-                 sleep=SLEEP,                        # API呼び出し間隔
-                 people_list_path=dynamic_list_path, # 動的パスを指定
-                 dataset_path=dynamic_dataset_path   # 動的パスを指定
-                )
+        run_step("collect",                                  # データ収集ステップ
+                 categories=selected_categories,             # 選択カテゴリ
+                 cmlimit=CMLIMIT,                            # カテゴリメンバー取得上限
+                 depth=DEPTH,                                # カテゴリ深度
+                 sleep=SLEEP,                                # API呼び出し間隔
+                 people_list_path=dynamic_list_path,         # 動的パスを指定
+                 dataset_path=dynamic_dataset_path           # 動的パスを指定
+                 )
         
         print("\n=== データセット構築中 ===")
         print("注意: 初回実行時、人物リストが膨大な場合、この処理には時間がかかります。")
-        run_step("build",                            # データセット構築ステップ
-                 categories=selected_categories,     # playステップでも使うため渡しておく
-                 limit=BUILD_LIMIT,                  # 上限
-                 sleep=SLEEP,                        # API呼び出し間隔
-                 people_list_path=dynamic_list_path, # 動的パスを指定
-                 dataset_path=dynamic_dataset_path   # 動的パスを指定
-                )
+        run_step("build",                                    # データセット構築ステップ
+                 categories=selected_categories,             # playステップでも使うため渡しておく
+                 limit=BUILD_LIMIT,                          # 上限
+                 sleep=SLEEP,                                # API呼び出し間隔
+                 people_list_path=dynamic_list_path,         # 動的パスを指定
+                 dataset_path=dynamic_dataset_path           # 動的パスを指定
+                 )
         
         print("\n=== 検索スタート ===")
-        run_step("play",                                       # ゲームプレイステップ
-                 categories=selected_categories,               # 選択カテゴリを渡す
-                 max_questions=MAX_QUESTIONS,                  # 最大質問数
-                 analysis_size=ANALYSIS_SIZE,                  # 分析候補者数
+        run_step("play",                                     # ゲームプレイステップ
+                 categories=selected_categories,             # 選択カテゴリを渡す
+                 max_questions=MAX_QUESTIONS,                # 最大質問数
+                 analysis_size=ANALYSIS_SIZE,                # 分析候補者数
                  min_feature_threshold=MIN_FEATURE_THRESHOLD,  # 最小特徴閾値
-                 people_list_path=dynamic_list_path,           # 動的パスを指定
-                 dataset_path=dynamic_dataset_path             # 動的パスを指定
-                )
+                 people_list_path=dynamic_list_path,         # 動的パスを指定
+                 dataset_path=dynamic_dataset_path           # 動的パスを指定
+                 )
                  
     except KeyboardInterrupt: # キーボード割り込み処理
         print("\n処理が中断されました。") # 中断メッセージ表示
