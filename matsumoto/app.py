@@ -39,6 +39,7 @@ def scan_dataset_files():
     """
     base_dir = os.path.dirname(os.path.abspath(__file__))
     cwd = os.getcwd()
+    parent_dir = os.path.dirname(base_dir)
     
     # 探索対象ディレクトリ
     search_dirs = [
@@ -46,6 +47,7 @@ def scan_dataset_files():
         os.path.join(base_dir, "datasets"),
         cwd,
         os.path.join(cwd, "datasets"),
+        os.path.join(parent_dir, "datasets"),
     ]
     
     found_files = set()
