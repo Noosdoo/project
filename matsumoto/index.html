@@ -476,8 +476,12 @@ function renderCandidatesList(list) {
     header.style.display = "block";
     header.innerText = `この中に思い浮かべた人物はいますか？（${list.length}名）`;
 
-    // YES/NO/??? を無効化
-    toggleControls(false);
+    // リスト画面でNOボタンを押せるようにする
+    toggleControls(false); // 一旦全無効
+    const btnNo = document.getElementById('btn-no');
+    btnNo.disabled = false;
+    btnNo.style.opacity = '1';
+    btnNo.style.cursor = 'pointer';
 
     // 推測カードと質問を隠す
     document.getElementById('guess-card').style.display = 'none';
@@ -621,8 +625,8 @@ function render(data) {
 
     // === 候補一覧 ===
     if (data.type === "candidates_list") {
+        currentQuestionKey = null;
         renderCandidatesList(data.candidates);
-        toggleControls(false);
         return;
     }
 }
