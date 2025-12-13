@@ -398,6 +398,36 @@ def find_next_action():
         "stats": stats
     }
 
+@app.route("/add_person", methods=["POST"])
+def add_new_person():
+    """ 新しい人物を学習させるAPI """
+    data = request.json or {}
+    name = data.get("name")
+    dataset_id = session.get("dataset_id")
+
+    if not name:
+        return jsonify({"error": "名前が空です"}), 400
+
+    # 現在使っているデータセットのパスを特定
+    info = next((f for f in DATASET_FILES if f["id"] == dataset_id), None)
+    if not info:
+        return jsonify({"error": "データセットが見つかりません"}), 500
+
+    path = info["path"]
+    print(f"[LEARN] 新規学習開始: {name} -> {path}")
+
+    # inf_learn.py の機能を使って追加
+    try:
+        logic.fetch_and_add_new_person_data(name, dataset_path=path)
+        
+        # メモリ上のデータセットもリロードして即反映させる
+        load_dataset_by_id(dataset_id) 
+        
+        return jsonify({"success": True, "message": f"『{name}』をデータセットに追加しました！"})
+    except Exception as e:
+        print(f"[ERROR] 学習失敗: {e}")
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     if not os.path.exists("./flask_session"):
         os.makedirs("./flask_session")

@@ -560,13 +560,20 @@ function render(data) {
         
         // メッセージを表示
         qText.innerHTML = `
-        <div style="font-size:3rem; margin-bottom:15px;">🙇</div>
-        <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">申し訳ありません。</div>
-        <div style="font-size:0.95rem; color:#94a3b8; line-height:1.6;">
-            条件を緩和して再探索しましたが、特定に至りませんでした。<br>
-            私の知識不足か、回答に誤りがあった可能性があります。<br>
-            <span style="display:inline-block; margin-top:10px; color:#10b981;">またデータセットを更新して再挑戦させてください。</span>
+        <div style="font-size:3rem; margin-bottom:10px;">🙇</div>
+        <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">降参です...</div>
+        <div style="font-size:0.95rem; color:#94a3b8; margin-bottom:20px;">
+            正解の人物名を教えていただければ、<br>今すぐ学習して次から当てられるようにします。
         </div>
+        
+        <div style="display:flex; gap:10px; max-width:400px; margin:0 auto;">
+            <input type="text" id="learn-name" placeholder="人物名 (例: 織田信長)" 
+                   style="padding:12px; border-radius:8px; border:1px solid #334155; background:#0f1724; color:white; flex:1;">
+            <button onclick="learnPerson()" style="padding:12px 20px; border-radius:8px; border:none; background:#10b981; color:#022c22; font-weight:bold; cursor:pointer;">
+                学習させる
+            </button>
+        </div>
+        <div id="learn-msg" style="margin-top:15px; font-size:0.9rem; min-height:1.2em;"></div>
         `;
         
         toggleControls(false); // ボタンは押せないようにする
@@ -650,8 +657,47 @@ function toggleControls(enabled){
   window.addEventListener('load', ()=>{ loadDatasets(); toggleControls(false); });
 
   const memoryBtn = document.getElementById('memory-btn');
-const memoryScreen = document.getElementById('memory-screen');
-const memoryClose = document.getElementById('memory-close');
+  const memoryScreen = document.getElementById('memory-screen');
+  const memoryClose = document.getElementById('memory-close');
+
+  // 人物を追加学習させる関数
+  async function learnPerson() {
+    const nameInput = document.getElementById('learn-name');
+    const msgBox = document.getElementById('learn-msg');
+    const name = nameInput.value.trim();
+
+    if (!name) {
+        alert("名前を入力してください");
+        return;
+    }
+
+    msgBox.style.color = "#94a3b8";
+    msgBox.innerText = "学習中...（Wikipediaを検索しています）";
+    nameInput.disabled = true;
+
+    try {
+        const res = await fetch(`${API}/add_person`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: name})
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            msgBox.style.color = "#10b981";
+            msgBox.innerText = "✅ " + data.message;
+            setTimeout(() => { alert("学習完了！最初の画面に戻ります。"); location.reload(); }, 2000);
+        } else {
+            msgBox.style.color = "#ef4444";
+            msgBox.innerText = "エラー: " + (data.error || "失敗しました");
+            nameInput.disabled = false;
+        }
+    } catch (e) {
+        msgBox.style.color = "#ef4444";
+        msgBox.innerText = "通信エラーが発生しました";
+        nameInput.disabled = false;
+    }
+  }
 
 if (memoryBtn && memoryScreen && memoryClose) {
   memoryBtn.addEventListener('click', () => {
