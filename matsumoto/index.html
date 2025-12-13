@@ -3,366 +3,635 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>著名人検索システム（ローカル実行）</title>
+<title>著名人検索システム — Sidebar App</title>
 <style>
-  :root { --bg:#0b1020; --fg:#e8ecff; --muted:#9aa3c7; }
+  :root{
+    --bg: #0f1724;       /* 深めの夜色 */
+    --panel: #0b1220;    /* サイド/パネル */
+    --card: #0f1724;
+    --muted: #9aa4b2;
+    --accent: #12b981;   /* 緑で差別化 */
+    --danger: #ff5c5c;
+    --glass: rgba(255,255,255,0.03);
+    --radius: 10px;
+    --gap: 14px;
+    color-scheme: dark;
+  }
   *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family:system-ui,Segoe UI,Roboto,sans-serif;
-    background:radial-gradient(1200px 800px at 50% -200px,#1a2448 0,var(--bg) 55%);
-    color:var(--fg);
-  }
-  .wrap{max-width:720px;margin:48px auto;padding:0 16px}
-  .card{
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.1);
-    backdrop-filter: blur(6px);
-    border-radius:20px;
-    padding:20px;
-    box-shadow:0 8px 24px rgba(0,0,0,.25)
-  }
-  h1{margin:0 0 6px;font-size:28px}
-  .muted{color:var(--muted);font-size:13px}
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-  button{
-    appearance:none;
-    border:1px solid rgba(255,255,255,.2);
-    background:rgba(255,255,255,.08);
-    color:var(--fg);
-    padding:10px 14px;
-    border-radius:14px;
-    cursor:pointer;
-    font-weight:600;
-    font-size:14px;
-    transition:.15s;
-    white-space:nowrap;
-  }
-  button:hover{
-    transform:translateY(-1px);
-    background:rgba(255,255,255,.14)
-  }
-  button:disabled{
-    opacity:0.4;
-    cursor:not-allowed;
-    transform:none
-  }
-  .choice{
-    flex:1;
-    min-width:120px;
-    font-size:18px
-  }
-  .score{
+  html,body{height:100%;margin:0;background:var(--bg);font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;color:#e6eef3}
+
+  /* Layout */
+  .app {
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:8px;
-    text-align:center;
-    margin-top:12px
+    grid-template-columns: 260px 1fr;
+    gap:20px;
+    padding:20px;
+    max-width:1200px;
+    margin:24px auto;
+    align-items:start;
   }
-  .score div{
-    padding:10px;
-    border:1px dashed rgba(255,255,255,.2);
-    border-radius:12px
-  }
-  .result{
-    font-size:22px;
-    font-weight:700;
-    margin:14px 0;
-    color:#b5d1ff;
-    min-height:2em
-  }
-  .log{
-    max-height:180px;
+
+  /* Sidebar */
+  .sidebar{
+    background:var(--panel);
+    border-radius:12px;
+    padding:16px;
+    height: calc(100vh - 64px);
     overflow:auto;
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:12px;
-    padding:10px;
-    font-family:ui-monospace,monospace;
-    background:rgba(0,0,0,.25)
+    border:1px solid rgba(255,255,255,0.03);
   }
-  img.guess{
-    display:block;
-    margin:12px auto;
-    max-width:320px;
-    border-radius:12px;
-    border:1px solid rgba(255,255,255,.15)
+
+  /* スライドパネル共通 */
+.slide-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100%;
+  background: var(--panel);
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+/* 表示状態 */
+.slide-panel.open {
+  transform: translateX(0);
+}
+
+.slide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+#slide-title {
+  white-space: nowrap;
+}
+
+#memory-close {
+background: transparent;
+border: none;
+color: var(--muted);
+font-size: 0.9rem;
+cursor: pointer;
+}
+
+#memory-close:hover {
+color: var(--accent);
+}
+
+
+/* 中身 */
+.memory-screen-list {
+padding: 16px 20px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+overflow-y: auto;
+}
+
+  .brand{font-weight:700;font-size:1.05rem;margin-bottom:12px;color:var(--accent)}
+  .section{margin-bottom:18px}
+  label{display:block;font-size:0.8rem;color:var(--muted);margin-bottom:8px}
+  select,input{width:100%;padding:10px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit}
+  button.primary{width:100%;padding:10px;border-radius:8px;border:none;background:var(--accent);color:#02211a;font-weight:700;cursor:pointer}
+  .small-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
+  .small2-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--accent);color:#02211a;font-weight:700;cursor:pointer}
+  .blue-btn{background: #007bff;}
+
+  /* history list */
+  .history-list{display:flex;flex-direction:column;gap:8px}
+  .history-item{padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);font-size:0.9rem;color:var(--muted);display:flex;align-items:center;}
+  .history-item .tag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:0.75rem;margin-right:8px;white-space:nowrap;}
+  .tag-yes{background:rgba(18,185,129,0.12);color:var(--accent)}
+  .tag-no{background:rgba(255,92,92,0.08);color:var(--danger)}
+  .tag-dk{background:rgba(255,255,255,0.02);color:var(--muted)}
+
+  /* Main */
+  .main{
+    padding:22px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);min-height:70vh;border:1px solid rgba(255,255,255,0.03)
   }
-  .pill{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:6px 12px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.2);
-    font-size:12px;
-    color:var(--muted);
-    background:rgba(0,0,0,.24);
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .title{font-size:1.15rem;font-weight:700}
+  .meta{font-size:0.85rem;color:var(--muted)}
+
+  .question-area{display:flex;gap:18px;align-items:center}
+  .question-box{flex:1;padding:18px;border-radius:10px;background:rgba(255,255,255,0.02);min-height:160px;display:flex;align-items:center}
+  .question-text{font-size:1.25rem;line-height:1.45;color:#eaf6ef}
+
+  .guess-card{width:320px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.01);display:flex;flex-direction:column;align-items:center;gap:10px}
+  .guess-card img{width:100%;height:180px;object-fit:cover;border-radius:8px}
+  .guess-name{font-weight:700;color:var(--accent);font-size:1.15rem}
+  .guess-sub{font-size:0.9rem;color:var(--muted)}
+
+  /* Controls */
+  .controls{display:flex;gap:12px;margin-top:18px}
+  .btn-large{flex:1;padding:18px;border-radius:12px;border:none;font-weight:800;font-size:1.05rem;cursor:pointer}
+  .btn-yes{background:var(--accent);color:#052018}
+  .btn-dk{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  .btn-no{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--danger)}
+
+  /* Footer stats */
+  .footer-stats{display:flex;gap:12px;margin-top:18px;font-size:0.9rem;color:var(--muted)}
+
+  /* Loader (subtle) */
+  .loader{height:6px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden}
+  .loader > .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#2dd4bf);transition:width 240ms ease}
+
+  /* Responsive */
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr;padding:12px}
+    .sidebar{height:auto;order:2}
+    .main{order:1}
+    .guess-card{width:100%}
+    .question-area{flex-direction:column}
+    .controls{flex-direction:column}
   }
-  .ok{
-    border-color:#79ffb2;
-    color:#c2ffd8;
-    background:rgba(0,0,0,.3);
+
+  /* Candidates list */
+  #candidates-list {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
   }
-  select{
-    background:transparent;
-    border:none;
-    color:inherit;
-    font:inherit;
-    padding:2px 0;
-    outline:none;
+
+  .candidate-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #2b1b3a;   /* ダークなカードに変更（テーマに合わせる） */
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.12s ease;
   }
-  select option{
-    color:#000;
+  .candidate-card:hover{ transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+
+  .candidate-card img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #111;
   }
+
+  .candidate-name {
+    color: #f7f7f9;           
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .section-button {
+      all: unset;               
+  display: block;
+  width: 100%;
+  cursor: pointer;
+
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+
+  transition: color 0.15s ease;
+}
+
+.section-button:hover {
+  color: var(--accent);
+
+  }
+
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>著名人検索システム（ローカル実行）</h1>
-      <div class="muted">YES / UNKNOWN / NO で回答。Pythonサーバーと通信します。</div>
 
-      <!-- データセット選択 -->
-      <div class="row" style="margin-top:12px">
-        <span class="pill">
-          データセット:
-          <select id="dataset"></select>
-        </span>
-      </div>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" aria-label="サイドバー">
+    <div class="brand">著名人検索システム</div>
 
-      <!-- セッション情報 & 操作 -->
-      <div class="row" style="margin-top:12px">
-        <span class="pill">セッション: <span id="sid">-</span></span>
-        <span style="flex:1"></span>
-        <button id="undo">1つ戻る</button>
-        <button id="reset" class="ok">新規開始</button>
-      </div>
-
-      <div class="score">
-        <div>YES<br><b id="ps">0</b></div>
-        <div>ステップ<br><b id="rd">0</b></div>
-        <div>NO<br><b id="cs">0</b></div>
-      </div>
-
-      <div class="result" id="result">「新規開始」を押して質問を取得します。</div>
-      <img id="image_place" class="guess" src="" alt="" style="display:none">
-
-      <div class="row">
-        <button class="choice" data-a="yes">YES</button>
-        <button class="choice" data-a="dont_know">UNKNOWN</button>
-        <button class="choice" data-a="no">NO</button>
-      </div>
-
-      <div style="margin-top:12px" class="log" id="log" aria-live="polite"></div>
+    <div class="section">
+      <label for="dataset">データセット</label>
+      <select id="dataset-select" disabled>
+        <option>読み込み中...</option>
+      </select>
+      <div style="height:10px"></div>
+      <button class="primary" id="start-btn">最初から</button>
+      <div style="height:8px"></div>
+      <button class="small-btn" id="undo-btn">↩ 戻る</button>
+      <button class="small2-btn blue-btn" id="memory-btn">記憶</button>
     </div>
+
+    <div id="saved-people-container" style="background:#eef3ff;padding:12px;margin-top:10px;border-radius:8px;display:none;">
+    <h3>記憶に保存した人物</h3>
+    <div id="saved-list"></div>
+</div>
+
+
+    <div class="section">
+      <label>回答ログ</label>
+      <div class="history-list" id="history-list"></div>
+    </div>
+
+    <div style="margin-top:20px;color:var(--muted);font-size:0.8rem">API: <span id="api-host">--</span></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="title">著名人検索システム</div>
+        <div class="meta">思い浮かべた人物を当てます</div>
+      </div>
+      <div class="meta" id="stat-text">候補: - 人 · Step: 0</div>
+    </div>
+
+    <div class="loader" id="loader" style="display:none"><div class="bar" id="loader-bar"></div></div>
+
+    <div class="question-area">
+      <div class="question-box" id="question-box">
+        <div class="question-text" id="question-text">データセットを選んで「最初から」を押してください。</div>
+      </div>
+
+      <div class="guess-card" id="guess-card" style="display:none">
+        <img id="guess-img" src="" alt="人物画像" />
+        <div class="guess-name" id="guess-name">--</div>
+        <div class="guess-sub" id="guess-sub">この人ですか？</div>
+      </div>
+    </div>
+
+    <div id="candidates-header" style="display:none;font-size:1.2rem;font-weight:700;margin:16px 0;color:#e6eef3">この中に思い浮かべた人物はいますか？</div>
+    <div id="candidates-list">
+      <div id="candidates-header" style="font-size:1.1rem;font-weight:700;margin-bottom:10px;color:#e6eef3;display:none;">この中に思い浮かべた人物はいますか？</div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-large btn-yes" id="btn-yes">YES</button>
+      <button class="btn-large btn-dk" id="btn-dk">???</button>
+      <button class="btn-large btn-no" id="btn-no">NO</button>
+    </div>
+
+    <div class="footer-stats" id="footer-stats">
+      <div id="stat-candidates">候補: -</div>
+      <div id="stat-steps">Step: 0</div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 記憶スライド画面 -->
+<div id="memory-screen" class="slide-panel">
+  <div class="slide-header">
+    <span id="slide-title">思い出した人物</span>
+    <button id="memory-close" class="small2-btn">閉じる</button>
   </div>
 
+  <div id="memory-screen-list" class="memory-list"></div>
+</div>
+
+
 <script>
-(() => {
-  // ========= APIエンドポイント =========
-  const API_BASE   = "http://127.0.0.1:5000";
-  const API_START  = `${API_BASE}/start`;
-  const API_ANSWER = `${API_BASE}/answer`;
-  const API_UNDO   = `${API_BASE}/undo`;
-  const API_DATASETS = `${API_BASE}/datasets`;
+  const API = 'http://127.0.0.1:5000';
+  document.getElementById('api-host').innerText = API;
 
-  // ========= 状態 =========
   let currentQuestionKey = null;
-  let gameActive = false;
+  let isGuessing = false;
+  let historyLog = [];
+  const rememberedPeople = [];
 
-  // ========= 要素 =========
-  const el = {
-    dataset: document.querySelector("#dataset"),
-    sid:     document.querySelector("#sid"),
-    yes:     document.querySelector("#ps"),
-    no:      document.querySelector("#cs"),
-    step:    document.querySelector("#rd"),
-    res:     document.querySelector("#result"),
-    img:     document.querySelector("#image_place"),
-    log:     document.querySelector("#log"),
-    reset:   document.querySelector("#reset"),
-    undo:    document.querySelector("#undo"),
-    choices: Array.from(document.querySelectorAll(".choice")),
-  };
-
-  function esc(s){
-    return String(s ?? "").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-  function logLine(t){
-    const time = new Date().toLocaleTimeString();
-    el.log.innerHTML = `<div>[${time}] ${esc(t)}</div>` + el.log.innerHTML;
+  function startLoading(){
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('loader-bar').style.width = '10%';
+    clearInterval(window._loadInt);
+    let p = 10;
+    window._loadInt = setInterval(()=>{ p = Math.min(90, p + Math.random()*6); document.getElementById('loader-bar').style.width = p + '%'; if(p>=90) clearInterval(window._loadInt); }, 160);
   }
 
-  function setLoading(loading) {
-    el.reset.disabled = loading;
-    el.undo.disabled  = loading || !gameActive;
-    el.choices.forEach(b => b.disabled = loading || !gameActive);
-    el.dataset.disabled = loading || gameActive; // ゲーム中はデータセット固定
+  function stopLoading(){
+    clearInterval(window._loadInt);
+    document.getElementById('loader-bar').style.width = '100%';
+    setTimeout(()=>{ document.getElementById('loader').style.display = 'none'; }, 220);
   }
 
-  // ========= API通信ラッパ =========
-  async function apiRequest(url, payload, method = "POST") {
-    setLoading(true);
-    try {
-      const options = {
-        method,
-        credentials: "include",
-        headers: {}
-      };
-      if (method !== "GET") {
-        options.headers["Content-Type"] = "application/json";
-        options.body = JSON.stringify(payload || {});
+  async function loadDatasets(){
+    startLoading();
+    try{
+      const res = await fetch(`${API}/datasets`);
+      const data = await res.json();
+      const sel = document.getElementById('dataset-select');
+      sel.innerHTML='';
+      if(!data || !Array.isArray(data.datasets) || data.datasets.length===0){
+        const opt = document.createElement('option'); opt.text = 'データセットが見つかりません'; sel.add(opt); sel.disabled=true; return;
       }
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        throw new Error(`APIエラー: ${response.status} ${response.statusText}`);
+      data.datasets.forEach(d=>{
+        const opt = document.createElement('option'); opt.value=d.id; opt.text = `${d.label} (${new Date(d.mtime*1000).toLocaleDateString()})`; if(d.is_default) opt.selected=true; sel.add(opt);
+      });
+      sel.disabled=false;
+    }catch(e){ console.error(e); alert('データセットの読み込みに失敗しました'); }
+    finally{ stopLoading(); }
+  }
+
+  function pushHistory(text, ans){
+    historyLog.push({question:text, answer:ans});
+    renderHistory();
+  }
+
+  function renderHistory(){
+    const list = document.getElementById('history-list'); list.innerHTML='';
+    historyLog.slice().reverse().forEach(h=>{
+      const div = document.createElement('div'); div.className='history-item';
+      const tag = document.createElement('span');
+      tag.className = 'tag ' + (h.answer==='yes'? 'tag-yes': h.answer==='no' ? 'tag-no' : 'tag-dk');
+      tag.textContent = h.answer==='yes'? 'YES' : h.answer==='no' ? 'NO' : '???';
+      div.appendChild(tag);
+      const t = document.createElement('span'); t.textContent = ' ' + h.question; div.appendChild(t);
+      list.appendChild(div);
+    });
+  }
+
+  async function startGame(){
+    historyLog = []; renderHistory();
+    const dsId = document.getElementById('dataset-select').value;
+    startLoading();
+    try{
+      const res = await fetch(`${API}/start`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({dataset_id: dsId})});
+      const data = await res.json(); render(data);
+    }catch(e){ console.error(e); alert('エラーが発生しました'); }
+    finally{ stopLoading(); }
+  }
+
+  function showSavedMessage(name) {
+    const qBox = document.getElementById('question-box');
+    const guessCard = document.getElementById('guess-card')
+
+    guessCard.style.display = 'none';
+    qBox.style.display = 'flex';
+    document.getElementById('question-text').innerText = `${lastGuessData.name} を記憶の中に格納しました。`;
+  }
+
+  function addSavedPerson(name) {
+    const area = document.getElementById('saved-list');
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerText = name;
+    area.appendChild(div);
+}
+
+  function renderMemoryScreen() {
+  const area = document.getElementById('memory-screen-list');
+  area.innerHTML = '';
+
+  rememberedPeople.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'candidate-card'; // 既存デザイン流用
+
+     //クリックで参照元へ
+    card.addEventListener('click', () => {
+        console.log('clicked:', p);
+      if (p.source_url) {
+        window.open(p.source_url, '_blank');
       }
-      return await response.json();
-    } catch (err) {
-      console.error("通信エラー:", err);
-      el.res.innerHTML =
-        `エラー: サーバー(${API_BASE})に接続できません。<br>` +
-        `Flaskサーバー(app.py)が起動しているか確認してください。`;
-      gameActive = false;
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }
+    });
 
-  // ========= データセット一覧取得 =========
-  async function loadDatasets() {
-    const data = await apiRequest(API_DATASETS, null, "GET");
-    if (!data || !data.datasets) {
-      el.dataset.innerHTML = `<option value="">(データセットなし)</option>`;
-      el.dataset.disabled = true;
-      logLine("データセット候補が見つかりません。");
-      return;
-    }
-    if (data.datasets.length === 0) {
-      el.dataset.innerHTML = `<option value="">(データセットなし)</option>`;
-      el.dataset.disabled = true;
-      logLine("データセット候補が見つかりません。");
-      return;
+    if (p.image_url) {
+      const img = document.createElement('img');
+      img.src = p.image_url;
+      card.appendChild(img);
     }
 
-    el.dataset.innerHTML = "";
-    let defaultId = null;
-    for (const d of data.datasets) {
-      const opt = document.createElement("option");
-      opt.value = d.id;
-      opt.textContent = d.label + (d.is_default ? "（最新）" : "");
-      el.dataset.appendChild(opt);
-      if (d.is_default) defaultId = d.id;
-    }
-    if (defaultId) el.dataset.value = defaultId;
-    logLine(`データセット候補を読み込みました (${data.datasets.length}件)。`);
-  }
+    const name = document.createElement('div');
+    name.className = 'candidate-name';
+    name.innerText = p.name;
 
-  // ========= セッション開始 =========
-  async function startSession() {
-    if (!el.dataset.value) {
-      logLine("データセットが選択されていません。");
-      return;
-    }
-    el.log.innerHTML = "";
-    logLine(`新規セッション開始（dataset=${el.dataset.value}）...`);
-    gameActive = true;
-    currentQuestionKey = null;
-    el.img.style.display = "none";
+    card.appendChild(name);
+    area.appendChild(card);
+  });
+}
 
-    const payload = { dataset_id: el.dataset.value };
-    const data = await apiRequest(API_START, payload);
-    if (data) {
-      updateUI(data);
-    }
-  }
 
-  // ========= 回答適用 =========
-  async function applyAnswer(answer) {
-    if (!gameActive) return;
+  async function sendAnswer(ans){
+    console.log("sendAnswer", ans, "isGuessing:", isGuessing);
 
-    if (!currentQuestionKey && answer !== "dont_know") {
-      logLine("ゲームが終了しています。「新規開始」を押してください。");
+    if(isGuessing && ans==='yes'){
+
+      rememberedPeople.push({
+        name: lastGuessData.name,
+        image_url: lastGuessData.image_url,
+        source_url: lastGuessData.source_url
+      });
+      renderMemoryScreen();
+      // 記憶エリアの表示&追加
+      addSavedPerson(name);
+      //メイン画面を切り替える
+      showSavedMessage(name);
+      toggleControls(false);
       return;
     }
 
-    logLine(`回答 (${answer}) → ${el.res.textContent.substring(0, 20)}...`);
-
-    const payload = {
-      answer: answer,
-      question_key: currentQuestionKey,
-    };
-
-    const data = await apiRequest(API_ANSWER, payload);
-    if (data) {
-      updateUI(data);
+    if(!isGuessing && currentQuestionKey){
+      const qText = document.getElementById('question-text').innerText;
+      pushHistory(qText, ans);
     }
+
+    try{
+      startLoading();
+      const res = await fetch(`${API}/answer`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({answer:ans, question_key: currentQuestionKey})});
+      const data = await res.json();
+      stopLoading();
+      render(data);
+    }catch(e){ console.error(e); stopLoading(); }
   }
 
-  // ========= 1つ戻る =========
-  async function undoLast() {
-    if (!gameActive) return;
-    logLine("1つ前の状態に戻ります...");
-    const data = await apiRequest(API_UNDO, {});
-    if (data) {
-      if (data.undo) {
-        logLine("直前の回答を取り消しました。");
-      } else {
-        logLine("戻れる履歴がありません。");
-      }
-      updateUI(data);
-    }
+  async function undo(){
+    try{
+      const res = await fetch(`${API}/undo`, {method:'POST'});
+      const data = await res.json();
+      if(historyLog.length) historyLog.pop(); renderHistory();
+      render(data);
+    }catch(e){ console.error(e); }
   }
 
-  // ========= 描画更新 =========
-  function updateUI(data) {
+  // 候補一覧を描画する関数
+// 候補一覧を描画する関数
+function renderCandidatesList(list) {
+    const area = document.getElementById("candidates-list");
+    const header = document.getElementById("candidates-header");
+
+    // 初期化
+    area.innerHTML = "";
+    area.style.display = "flex";
+
+    // ヘッダー表示
+    header.style.display = "block";
+    header.innerText = `この中に思い浮かべた人物はいますか？（${list.length}名）`;
+
+    // YES/NO/??? を無効化
+    toggleControls(false);
+
+    // 推測カードと質問を隠す
+    document.getElementById('guess-card').style.display = 'none';
+    document.getElementById('question-box').style.display = 'none';
+
+    // 候補カード生成
+    list.forEach(c => {
+        const card = document.createElement("div");
+        card.className = "candidate-card";
+
+        // クリックしたら候補選択
+        card.addEventListener("click", () => {
+            chooseCandidate(c.name);
+        });
+
+        // 名前
+        const name = document.createElement("div");
+        name.className = "candidate-name";
+        name.innerText = c.name;
+
+        card.appendChild(name);
+        area.appendChild(card);
+    });
+}
+
+function chooseCandidate(name) {
+  // 候補一覧を閉じる
+  document.getElementById("candidates-list").style.display = "none";
+
+  // ローディング開始
+  startLoading();
+
+  fetch(API + "/answer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answer: "force_choose", person_name: name })
+  })
+  .then(res => res.json())
+  .then(data => {
+    stopLoading();
+    // ensure guess card is visible via render
+    render(data);
+  })
+  .catch(err => {
+    stopLoading();
+    console.error(err);
+  });
+}
+
+function render(data) {
     if (!data) return;
 
-    // 統計
-    if (data.session_data) {
-      el.sid.textContent  = data.session_data.sid;
-      el.yes.textContent  = data.session_data.yes;
-      el.no.textContent   = data.session_data.no;
-      el.step.textContent = data.session_data.steps;
+    // === Stats 更新 ===
+    if (data.stats) {
+        document.getElementById('stat-text').innerText =
+            `候補: ${data.stats.candidates_count}人 · Step: ${data.stats.steps}`;
+        document.getElementById('stat-candidates').innerText =
+            `候補: ${data.stats.candidates_count}`;
+        document.getElementById('stat-steps').innerText =
+            `Step: ${data.stats.steps}`;
     }
 
-    // データセットIDが返ってきていたらセレクトを同期（他タブ対策）
-    if (data.dataset_id && el.dataset.value !== data.dataset_id) {
-      el.dataset.value = data.dataset_id;
-    }
+    const qBox = document.getElementById('question-box');
+    const qText = document.getElementById('question-text');
+    const guessCard = document.getElementById('guess-card');
 
+    // === 通常の質問 ===
     if (data.type === "question") {
-      el.res.innerHTML = `Q${(data.session_data.steps || 0) + 1}: ${esc(data.question_text)}`;
-      currentQuestionKey = data.question_key;
-      gameActive = true;
-      logLine(`質問 → ${data.question_text}`);
-    } else if (data.type === "guess") {
-      const conf = parseFloat(data.confidence || 0).toFixed(0);
-      el.res.innerHTML =
-        `推測：<b>${esc(data.name)}</b><br>` +
-        `（候補 ${data.candidates_count}人, 確信度 ${conf}%）`;
-      currentQuestionKey = null;
-      // 推測後でも「1つ戻る」でやり直せるように一旦 true のままにする
-      gameActive = true;
-      logLine(`推測 → ${data.name} (確信度 ${conf}%)`);
+        isGuessing = false;
+        currentQuestionKey = data.key;
+
+        // 候補リストとヘッダーを閉じる
+        document.getElementById("candidates-list").style.display = "none";
+        document.getElementById("candidates-header").style.display = "none";
+
+        qBox.style.display = "flex";
+        guessCard.style.display = "none";
+
+        qText.innerText = data.text;
+
+        toggleControls(true);
+        return;
     }
 
-    setLoading(false);
+    // === 推測（1人の時） ===
+    if (data.type === "guess") {
+        isGuessing = true;
+        currentQuestionKey = null;
+
+        lastGuessData = {
+          name: data.name,
+          image_url: data.image_url,
+          source_url: data.source_url
+        };
+
+        // 候補リストを非表示
+        document.getElementById("candidates-list").style.display = "none";
+        document.getElementById("candidates-header").style.display = "none";
+
+        qBox.style.display = "none";
+        guessCard.style.display = "flex";
+
+        document.getElementById('guess-name').innerText = data.name || "—";
+
+        const img = document.getElementById("guess-img");
+        if (data.image_url) {
+            img.src = data.image_url;
+            img.style.display = "block";
+        } else {
+            img.style.display = "none";
+        }
+
+        toggleControls(true);
+        return;
+    }
+
+    // === 候補一覧 ===
+    if (data.type === "candidates_list") {
+        renderCandidatesList(data.candidates);
+        toggleControls(false);
+        return;
+    }
+}
+
+function toggleControls(enabled){
+    document.getElementById('btn-yes').disabled = !enabled;
+    document.getElementById('btn-dk').disabled = !enabled;
+    document.getElementById('btn-no').disabled = !enabled;
+    const c = enabled? '1':'0.5';
+    document.querySelectorAll('.btn-large').forEach(b=> b.style.opacity = c);
   }
 
-  // ========= イベント =========
-  el.reset.addEventListener("click", startSession);
-  el.undo.addEventListener("click", undoLast);
-  el.choices.forEach(b => b.addEventListener("click", () => applyAnswer(b.dataset.a)));
+  // Bind UI
+  document.getElementById('start-btn').addEventListener('click', startGame);
+  document.getElementById('undo-btn').addEventListener('click', undo);
+  document.getElementById('btn-yes').addEventListener('click', ()=> sendAnswer('yes'));
+  document.getElementById('btn-no').addEventListener('click', ()=> sendAnswer('no'));
+  document.getElementById('btn-dk').addEventListener('click', ()=> sendAnswer('dont_know'));
 
-  // 初期状態
-  gameActive = false;
-  setLoading(false);
-  loadDatasets(); // 起動時にデータセット候補を取得
-})();
+  // init
+  window.addEventListener('load', ()=>{ loadDatasets(); toggleControls(false); });
+
+  const memoryBtn = document.getElementById('memory-btn');
+const memoryScreen = document.getElementById('memory-screen');
+const memoryClose = document.getElementById('memory-close');
+
+if (memoryBtn && memoryScreen && memoryClose) {
+  memoryBtn.addEventListener('click', () => {
+    const src = document.getElementById('memory-list');
+    const dst = document.getElementById('memory-screen-list');
+    if (src && dst) {
+      dst.innerHTML = src.innerHTML;
+    }
+    memoryScreen.classList.add('open');
+  });
+
+  memoryClose.addEventListener('click', () => {
+    memoryScreen.classList.remove('open');
+  });
+}
+
 </script>
+
 </body>
 </html>
-
-
