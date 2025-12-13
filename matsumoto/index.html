@@ -303,6 +303,7 @@ overflow-y: auto;
 
   let currentQuestionKey = null;
   let isGuessing = false;
+  let isCandidatesMode = false;
   let historyLog = [];
   const rememberedPeople = [];
 
@@ -418,6 +419,12 @@ overflow-y: auto;
 
   async function sendAnswer(ans){
     console.log("sendAnswer", ans, "isGuessing:", isGuessing);
+    
+    // 候補一覧モードでNOが押されたら、降参画面へ強制移動
+    if (ans === 'no' && isCandidatesMode) {
+        showGiveUpScreen();
+        return; // サーバーには送信せずここで終了
+    }
 
     if(isGuessing && ans==='yes'){
 
@@ -531,8 +538,44 @@ function chooseCandidate(name) {
   });
 }
 
+// 降参画面を表示する関数
+function showGiveUpScreen() {
+    const qBox = document.getElementById('question-box');
+    const guessCard = document.getElementById('guess-card');
+    const qText = document.getElementById('question-text');
+
+    // 候補リストや推測カードを隠して、質問ボックスを表示
+    document.getElementById("candidates-list").style.display = "none";
+    document.getElementById("candidates-header").style.display = "none";
+    qBox.style.display = "flex";
+    guessCard.style.display = "none";
+
+    // 降参画面のHTMLをセット
+    qText.innerHTML = `
+        <div style="font-size:3rem; margin-bottom:10px;">🙇</div>
+        <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">降参です...</div>
+        <div style="font-size:0.95rem; color:#94a3b8; margin-bottom:20px;">
+            正解の人物名を教えていただければ、<br>今すぐ学習して次から当てられるようにします。
+        </div>
+        
+        <div style="display:flex; gap:10px; max-width:400px; margin:0 auto;">
+            <input type="text" id="learn-name" placeholder="人物名を入力" 
+                   style="padding:12px; border-radius:8px; border:1px solid #334155; background:#0f1724; color:white; flex:1;">
+            <button onclick="learnPerson()" style="padding:12px 20px; border-radius:8px; border:none; background:#10b981; color:#022c22; font-weight:bold; cursor:pointer;">
+                学習させる
+            </button>
+        </div>
+        <div id="learn-msg" style="margin-top:15px; font-size:0.9rem; min-height:1.2em;"></div>
+    `;
+
+    toggleControls(false); // ボタンを押せないようにする
+}
+
 function render(data) {
     if (!data) return;
+
+    // モードを一旦リセット（毎回 false に戻す）
+    isCandidatesMode = false;
 
     // === Stats 更新 ===
     if (data.stats) {
@@ -555,28 +598,7 @@ function render(data) {
     // ゲームオーバー（降参）画面の表示ロジック
     // confidenceが0なら諦めたとみなす
     if (data.type === "guess" && data.confidence === 0) {
-        qBox.style.display = "flex";
-        guessCard.style.display = "none";
-        
-        // メッセージと学習フォームを表示
-        qText.innerHTML = `
-        <div style="font-size:3rem; margin-bottom:10px;">🙇</div>
-        <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">降参です...</div>
-        <div style="font-size:0.95rem; color:#94a3b8; margin-bottom:20px;">
-            正解の人物名を教えていただければ、<br>今すぐ学習して次から当てられるようにします。
-        </div>
-        
-        <div style="display:flex; gap:10px; max-width:400px; margin:0 auto;">
-            <input type="text" id="learn-name" placeholder="人物名を入力" 
-                   style="padding:12px; border-radius:8px; border:1px solid #334155; background:#0f1724; color:white; flex:1;">
-            <button onclick="learnPerson()" style="padding:12px 20px; border-radius:8px; border:none; background:#10b981; color:#022c22; font-weight:bold; cursor:pointer;">
-                学習させる
-            </button>
-        </div>
-        <div id="learn-msg" style="margin-top:15px; font-size:0.9rem; min-height:1.2em;"></div>
-        `;
-        
-        toggleControls(false); // ボタンは押せないようにする
+        showGiveUpScreen();
         return;
     }
 
@@ -632,7 +654,8 @@ function render(data) {
 
     // === 候補一覧 ===
     if (data.type === "candidates_list") {
-        currentQuestionKey = null;
+        currentQuestionKey = data.key; // 必要に応じてセット
+        isCandidatesMode = true; // 候補一覧モードに切り替え
         renderCandidatesList(data.candidates);
         return;
     }
