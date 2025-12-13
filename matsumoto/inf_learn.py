@@ -976,17 +976,18 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
             print(f"[警告] 既存データセットの読み込みに失敗しました ({e})。新しいデータのみで再作成を試みます。")
             existing_dataset = []
             
-    # ★重複チェック★
-    # 「手動(manual)で登録済みのデータ」は上書きせず保護する。
-    # 「自動(auto)で登録済みのデータ」なら、今回の手動登録で上書き更新する。
-    existing_manual_names = {
-        rec.get("name") for rec in existing_dataset 
-        if isinstance(rec, dict) and rec.get("source") == "manual"
-    }
-    
-    if new_person_name in existing_manual_names:
-        print(f"⚠️ 『{new_person_name}』は既に手動データとして存在しています。データは上書きされず、スキップされます。")
-        return 
+    # 重複チェック
+    # 既存データの中に同じ名前があれば、ユーザーに通知して削除準備をする
+    is_duplicate = False
+    for item in existing_dataset:
+        if item.get("name") == new_person_name:
+            is_duplicate = True
+            break
+
+    if is_duplicate:
+        print(f"♻️ 『{new_person_name}』は既に存在するため、古いデータを削除して再学習（上書き）します。")
+        # 既存リストから該当人物を削除
+        existing_dataset = [d for d in existing_dataset if d.get("name") != new_person_name]
 
     
     print(f"\n💡 新規データとして『{new_person_name}』の情報を構築します...")
