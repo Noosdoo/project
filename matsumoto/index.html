@@ -558,7 +558,7 @@ function render(data) {
         qBox.style.display = "flex";
         guessCard.style.display = "none";
         
-        // メッセージを表示
+        // メッセージと学習フォームを表示
         qText.innerHTML = `
         <div style="font-size:3rem; margin-bottom:10px;">🙇</div>
         <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">降参です...</div>
@@ -567,7 +567,7 @@ function render(data) {
         </div>
         
         <div style="display:flex; gap:10px; max-width:400px; margin:0 auto;">
-            <input type="text" id="learn-name" placeholder="人物名 (例: 織田信長)" 
+            <input type="text" id="learn-name" placeholder="人物名を入力" 
                    style="padding:12px; border-radius:8px; border:1px solid #334155; background:#0f1724; color:white; flex:1;">
             <button onclick="learnPerson()" style="padding:12px 20px; border-radius:8px; border:none; background:#10b981; color:#022c22; font-weight:bold; cursor:pointer;">
                 学習させる
