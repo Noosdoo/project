@@ -43,9 +43,9 @@ def scan_dataset_files():
     # 探索対象ディレクトリ
     search_dirs = [
         base_dir,
-        os.path.join(base_dir, "matsumoto"),
+        os.path.join(base_dir, "datasets"),
         cwd,
-        os.path.join(cwd, "matsumoto"),
+        os.path.join(cwd, "datasets"),
     ]
     
     found_files = set()
