@@ -331,7 +331,7 @@ overflow-y: auto;
         const opt = document.createElement('option'); opt.text = 'データセットが見つかりません'; sel.add(opt); sel.disabled=true; return;
       }
       data.datasets.forEach(d=>{
-        const opt = document.createElement('option'); opt.value=d.id; opt.text = `${d.label} (${new Date(d.mtime*1000).toLocaleDateString()})`; if(d.is_default) opt.selected=true; sel.add(opt);
+        const opt = document.createElement('option'); opt.value=d.id; opt.text = d.label; if(d.is_default) opt.selected=true; sel.add(opt);
       });
       sel.disabled=false;
     }catch(e){ console.error(e); alert('データセットの読み込みに失敗しました'); }
@@ -432,6 +432,10 @@ overflow-y: auto;
       //メイン画面を切り替える
       showSavedMessage(name);
       toggleControls(false);
+      const btnNo = document.getElementById('btn-no');
+      btnNo.disabled = false;
+      btnNo.style.opacity = '1';
+      btnNo.style.cursor = 'pointer';
       return;
     }
 
@@ -539,6 +543,31 @@ function render(data) {
     const qBox = document.getElementById('question-box');
     const qText = document.getElementById('question-text');
     const guessCard = document.getElementById('guess-card');
+
+    // 候補リスト系は一旦隠す
+    document.getElementById("candidates-list").style.display = "none";
+    document.getElementById("candidates-header").style.display = "none";
+
+    // ゲームオーバー（降参）画面の表示ロジック
+    // confidenceが0なら諦めたとみなす
+    if (data.type === "guess" && data.confidence === 0) {
+        qBox.style.display = "flex";
+        guessCard.style.display = "none";
+        
+        // メッセージを表示
+        qText.innerHTML = `
+        <div style="font-size:3rem; margin-bottom:15px;">🙇</div>
+        <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">申し訳ありません。</div>
+        <div style="font-size:0.95rem; color:#94a3b8; line-height:1.6;">
+            条件を緩和して再探索しましたが、特定に至りませんでした。<br>
+            私の知識不足か、回答に誤りがあった可能性があります。<br>
+            <span style="display:inline-block; margin-top:10px; color:#10b981;">またデータセットを更新して再挑戦させてください。</span>
+        </div>
+        `;
+        
+        toggleControls(false); // ボタンは押せないようにする
+        return;
+    }
 
     // === 通常の質問 ===
     if (data.type === "question") {

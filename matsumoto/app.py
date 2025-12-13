@@ -208,6 +208,10 @@ def handle_answer():
     save_state_for_undo(candidates[:], asked_keys[:], steps, current_q_key=q_key)
 
     # --- 2) 絞り込みロジック ---
+    if answer == "no" and not q_key:
+        candidates = []
+
+    # yes / no による絞り込み
     if answer in ("yes", "no") and q_key:
         new_candidates = []
         for person in candidates:
