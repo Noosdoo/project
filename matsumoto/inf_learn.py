@@ -984,7 +984,7 @@ def load_dataset(dataset_path=DATASET_FILE, min_feature_threshold=10):
 # -----------------------
 # 新規人物データの取得と追記
 # -----------------------
-def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
+def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE, user_feedback=None):
     """
     ユーザーが入力した人物名に基づき、Wikipedia/Wikidataからデータを取得し、
     既存のデータセットファイルに追記する。

@@ -436,8 +436,8 @@ def add_new_person():
 
     # inf_learn.py の機能を使って追加
     try:
-        logic.fetch_and_add_new_person_data(name, dataset_path=path, user_feedback=user_answers_log, user_feedback=None)
-        
+        logic.fetch_and_add_new_person_data(name, dataset_path=path, user_feedback=user_answers_log)
+
         # メモリ上のデータセットもリロードして即反映させる
         load_dataset_by_id(dataset_id) 
         
