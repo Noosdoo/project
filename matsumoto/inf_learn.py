@@ -652,20 +652,45 @@ def scrape_person_data(name, source_type="auto"):
     """
     try:
         wiki = wikipediaapi.Wikipedia(user_agent=USER_AGENT, language="ja")
+        
+        # --- 1. まずそのままの名前で検索 ---
         page = wiki.page(name)
 
-        # ページ存在チェック & 検索フォールバック
+        # --- 2. 存在しない場合、スペース（半角・全角）を削除して再トライ ---
+        # 例: ユーザー入力「羽鳥 慎一」 -> 変換「羽鳥慎一」 -> Wikiヒット
         if not page.exists():
+            clean_name = name.replace(" ", "").replace("　", "")
+            if clean_name != name:
+                print(f"debug: 空白を除去して再検索します -> {clean_name}")
+                page = wiki.page(clean_name)
+
+        # --- 3. それでも存在しない場合、Wikipedia検索機能で類似候補を探す ---
+        if not page.exists():
+            print(f"debug: ページが見つからないため検索APIを使用 -> {name}")
             search_results = wiki.search(name)
             if search_results:
-                page = wiki.page(search_results[0])
+                # 検索結果のトップを採用（例: 入力が微妙に間違っていてもトップヒットを採用）
+                # ただし、検索結果が全く関係ない場合のリスクはありますが、ユーザーの入力を信じます
+                top_result = search_results[0]
+                print(f"debug: 検索結果から候補を採用 -> {top_result}")
+                page = wiki.page(top_result)
             else:
-                return {"name": name, "error": "ページなし"}
+                # ★ここでエラーを返すと、呼び出し元の fetch_and_add_new_person_data が
+                #   raise ValueError を起こして、ファイルへの追加を完全に阻止します。
+                return {"name": name, "error": "ページなし（Wikipediaに存在しません）"}
 
+        # --- 4. ページはあるが、中身（Summary）が空の場合 ---
         if not page.summary:
-            return {"name": name, "error": "Summaryが空"}
+            return {"name": name, "error": "Summaryが空（詳細情報がありません）"}
 
-        # 基本情報
+        # ---------------------------------------------------------
+        # ここから下は、データ抽出ロジック（既存コードと同じ）
+        # ---------------------------------------------------------
+        
+        # ※ Wikiの正式タイトルではなく、学習時の管理名としてユーザー入力名(name)をキーにするか、
+        #    Wikiの正式名(page.title)に合わせるかですが、
+        #    呼び出し元で final_name に書き換えられるため、ここは一旦ユーザー入力名で作成します。
+        
         rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None, "source": source_type}
         
         # 1. キーワードベース（静的）の特徴抽出
@@ -710,7 +735,9 @@ def scrape_person_data(name, source_type="auto"):
         rec["features"] = features
 
         # 4. Wikidata取得 & 詳細解析
-        wikibase_id = get_wikibase_item_from_wikipedia(name)
+        # ★重要: Wikidata検索には、ユーザー入力名ではなく「Wikiの正式タイトル」を使うのが確実
+        wikibase_id = get_wikibase_item_from_wikipedia(page.title) 
+        
         if wikibase_id:
             wd = fetch_wikidata_entity(wikibase_id)
             rec["wikidata"] = wd
@@ -745,9 +772,8 @@ def scrape_person_data(name, source_type="auto"):
                     except: pass
 
                 # --- 血液型 (P1853) ---
-                if "P1853" in wd: # ※ wd は claims ではなく entity["claims"] を参照する wd です
+                if "P1853" in wd:
                     try:
-                        # fetch_wikidata_entity で wd["claims"] を取得しているので wd を使う
                         v_id = wd.get("claims", {}).get("P1853", [{}])[0].get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
                         if v_id == "Q170138": features["blood_A"] = 1
                         if v_id == "Q170162": features["blood_B"] = 1
@@ -777,15 +803,15 @@ def scrape_person_data(name, source_type="auto"):
                             v_id = c.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id")
                             field_qids.append(v_id)
                         except: pass
-                    if "Q11631" in field_qids: features["field_literature"] = 1 # 文学
-                    if "Q483" in field_qids: features["field_music"] = 1 # 音楽
-                    if "Q1104" in field_qids: features["field_science"] = 1 # 科学
+                    if "Q11631" in field_qids: features["field_literature"] = 1 
+                    if "Q483" in field_qids: features["field_music"] = 1 
+                    if "Q1104" in field_qids: features["field_science"] = 1 
                 
                 # --- 職業 ---
                 occ_qs = wd.get("occupation_qids", [])
-                if any(q in occ_qs for q in ["Q33999", "Q10800557", "Q947873"]): features["actor_wikidata"] = 1 # 俳優
-                if any(q in occ_qs for q in ["Q177220", "Q639669", "Q10800557"]): features["singer_wikidata"] = 1 # 歌手
-                if "Q82955" in occ_qs: features["politician_wikidata"] = 1 # 政治家
+                if any(q in occ_qs for q in ["Q33999", "Q10800557", "Q947873"]): features["actor_wikidata"] = 1 
+                if any(q in occ_qs for q in ["Q177220", "Q639669", "Q10800557"]): features["singer_wikidata"] = 1 
+                if "Q82955" in occ_qs: features["politician_wikidata"] = 1 
 
                 # --- 出身地 ---
                 place_qid = wd.get("birth_place_qid")
@@ -796,15 +822,15 @@ def scrape_person_data(name, source_type="auto"):
 
                 # --- 学歴 ---
                 edu_qids = wd.get("education_qids", [])
-                if "Q7981" in edu_qids: features["grad_todai"] = 1 # 東大
-                elif "Q174019" in edu_qids: features["grad_waseda"] = 1 # 早大
-                elif "Q302302" in edu_qids: features["grad_keio"] = 1 # 慶応
+                if "Q7981" in edu_qids: features["grad_todai"] = 1 
+                elif "Q174019" in edu_qids: features["grad_waseda"] = 1 
+                elif "Q302302" in edu_qids: features["grad_keio"] = 1 
 
                 # --- 受賞歴 (P166) ---
                 award_qids = wd.get("award_qids", []) 
-                if "Q1138032" in award_qids: features["award_shiju"] = 1 # 紫綬褒章
-                if "Q1085422" in award_qids: features["award_academy_jp"] = 1 # 日本アカデミー賞
-                if "Q192200" in award_qids: features["award_blue_ribbon"] = 1 # ブルーリボン賞
+                if "Q1138032" in award_qids: features["award_shiju"] = 1 
+                if "Q1085422" in award_qids: features["award_academy_jp"] = 1 
+                if "Q192200" in award_qids: features["award_blue_ribbon"] = 1 
 
         return rec
 
@@ -964,7 +990,7 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
     既存のデータセットファイルに追記する。
     ※ 手動追加データとして source="manual" ラベルを付与する。
     """
-    
+
     # 1. 既存データ読み込み
     existing_dataset = []
     if os.path.exists(dataset_path):
@@ -980,38 +1006,30 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
     # 2. Wikipediaからベース情報を取得
     new_record = scrape_person_data(new_person_name, source_type="manual")
 
-    if not new_record or "error" in new_record:
-        print("データ取得失敗")
-        return
+    # データが空、またはエラーが含まれている場合は、ここで処理を中断し、呼び出し元にエラーを通知する
+    if not new_record:
+        raise ValueError(f"Wikipediaで『{new_person_name}』が見つかりませんでした。")
 
-    # 2. Wikipediaからベース情報を取得
+    if "error" in new_record:
+        # エラー内容を含めて例外を発生させる
+        raise ValueError(f"Wikipediaデータ取得エラー: {new_record['error']}")
+
+    # ここまで来たらデータ取得成功
     new_record["name"] = final_name
 
-    if not new_record or "error" in new_record:
-        print("データ取得失敗")
-        return
-
-    # 名前をセット（入力された名前そのまま）
-    new_record["name"] = final_name
-
-    # ★変更点2: ユーザーの回答履歴を特徴量に強制反映（上書き）
+    # ユーザーの回答履歴を特徴量に強制反映
     if user_feedback:
         print(f"🔧 ユーザーの回答履歴 {len(user_feedback)}件 を特徴に反映します...")
         if "features" not in new_record or new_record["features"] is None:
             new_record["features"] = {}
             
         for key, ans in user_feedback.items():
-            # ユーザーが YES と答えた → 特徴を 1 (持っている) に強制
             if ans == "yes":
                 new_record["features"][key] = 1
-                print(f"  - {key}: 1 (YES)")
-                
-            # ユーザーが NO と答えた → 特徴を 0 (持っていない) に強制
             elif ans == "no":
                 new_record["features"][key] = 0
-                print(f"  - {key}: 0 (NO)")
 
-    # 3. 追加保存 (既存リストの末尾にそのまま追加)
+    # 3. 追加保存
     existing_dataset.append(new_record)
     
     try:
@@ -1019,7 +1037,8 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
             json.dump(existing_dataset, f, ensure_ascii=False, indent=2)
         print(f"✅ 『{final_name}』を追加しました。")
     except Exception as e:
-        print(f"保存エラー: {e}")
+        # 保存時のエラーも投げる
+        raise IOError(f"ファイルの保存に失敗しました: {e}")
 
 # -----------------------
 # 学習データの更新機能
