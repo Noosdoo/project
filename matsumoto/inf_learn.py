@@ -965,56 +965,61 @@ def fetch_and_add_new_person_data(new_person_name, dataset_path=DATASET_FILE):
     ※ 手動追加データとして source="manual" ラベルを付与する。
     """
     
-    # 既存のデータセットを読み込み
+    # 1. 既存データ読み込み
     existing_dataset = []
     if os.path.exists(dataset_path):
         try:
             with open(dataset_path, "r", encoding="utf-8") as f:
                 existing_dataset = json.load(f)
-        except Exception as e:
-            # 警告: 読み込み失敗時は空リストから再スタート
-            print(f"[警告] 既存データセットの読み込みに失敗しました ({e})。新しいデータのみで再作成を試みます。")
-            existing_dataset = []
+        except: existing_dataset = []
             
-    # 重複チェック
-    # 既存データの中に同じ名前があれば、ユーザーに通知して削除準備をする
-    is_duplicate = False
-    for item in existing_dataset:
-        if item.get("name") == new_person_name:
-            is_duplicate = True
-            break
+    # 重複チェック（名前を変えずにそのまま許可）
+    final_name = new_person_name
+    print(f"\n💡 新規データ構築: {final_name} (重複を許可して追加します)")
 
-    if is_duplicate:
-        print(f"♻️ 『{new_person_name}』は既に存在するため、古いデータを削除して再学習（上書き）します。")
-        # 既存リストから該当人物を削除
-        existing_dataset = [d for d in existing_dataset if d.get("name") != new_person_name]
-
-    
-    print(f"\n💡 新規データとして『{new_person_name}』の情報を構築します...")
-    
-    # 共通関数を使ってデータ取得（source_type="manual" を指定）
+    # 2. Wikipediaからベース情報を取得
     new_record = scrape_person_data(new_person_name, source_type="manual")
 
-    # エラーチェック
     if not new_record or "error" in new_record:
-        err_msg = new_record.get('error') if new_record else '不明なエラー'
-        print(f"データ取得に失敗したため、データセットへの追記をスキップします。（理由: {err_msg}）")
+        print("データ取得失敗")
         return
 
-    # 既存リストに同じ名前（autoデータなど）がある場合は削除してから追加（上書き）
-    existing_dataset = [d for d in existing_dataset if d["name"] != new_person_name]
-    
-    # 新しいレコードを追加
+    # 2. Wikipediaからベース情報を取得
+    new_record["name"] = final_name
+
+    if not new_record or "error" in new_record:
+        print("データ取得失敗")
+        return
+
+    # 名前をセット（入力された名前そのまま）
+    new_record["name"] = final_name
+
+    # ★変更点2: ユーザーの回答履歴を特徴量に強制反映（上書き）
+    if user_feedback:
+        print(f"🔧 ユーザーの回答履歴 {len(user_feedback)}件 を特徴に反映します...")
+        if "features" not in new_record or new_record["features"] is None:
+            new_record["features"] = {}
+            
+        for key, ans in user_feedback.items():
+            # ユーザーが YES と答えた → 特徴を 1 (持っている) に強制
+            if ans == "yes":
+                new_record["features"][key] = 1
+                print(f"  - {key}: 1 (YES)")
+                
+            # ユーザーが NO と答えた → 特徴を 0 (持っていない) に強制
+            elif ans == "no":
+                new_record["features"][key] = 0
+                print(f"  - {key}: 0 (NO)")
+
+    # 3. 追加保存 (既存リストの末尾にそのまま追加)
     existing_dataset.append(new_record)
     
-    # データセットを上書き保存
     try:
         with open(dataset_path, "w", encoding="utf-8") as f:
             json.dump(existing_dataset, f, ensure_ascii=False, indent=2)
-        print(f"✅ データセット {dataset_path} に『{new_person_name}』の情報を追記しました。")
-        print("次回ゲーム実行時から、この新しい情報が推測に使われます！")
+        print(f"✅ 『{final_name}』を追加しました。")
     except Exception as e:
-        print(f"[ERROR] データセットファイルへの追記に失敗しました: {e}")
+        print(f"保存エラー: {e}")
 
 # -----------------------
 # 学習データの更新機能

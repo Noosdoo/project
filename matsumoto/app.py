@@ -166,7 +166,13 @@ def handle_answer():
     steps = session.get("steps", 0)
     person_name = data.get("person_name")
 
-    # --- 特殊選択 (候補カードからの直接選択) ---
+    # 回答履歴を保存する
+    if q_key and answer in ("yes", "no"):
+        user_log = session.get("user_answers_log", {})
+        user_log[q_key] = answer  # "yes" or "no"
+        session["user_answers_log"] = user_log
+
+    # 特殊選択 (候補カードからの直接選択)
     if answer == "force_choose":
     # 対応する人を探す
         for p in candidates:
@@ -414,7 +420,19 @@ def add_new_person():
         return jsonify({"error": "データセットが見つかりません"}), 500
 
     path = info["path"]
-    print(f"[LEARN] 新規学習開始: {name} -> {path}")
+
+    # 直前のセッションでユーザーが答えた内容を取得する
+    # 「そのゲーム中にYESと答えた特徴」を学習に反映させるロジック
+    
+    # history_stackの一番新しいものから「YES」と答えた質問キーを抽出
+    stack = session.get("history_stack", [])
+    user_feedback_features = {}
+    
+    # スタックや現在の状態から、YES/NOの情報を集める
+
+    user_answers_log = session.get("user_answers_log", {})  # ★後述の修正でこれを作ります
+
+    print(f"[LEARN] 新規学習開始: {name} （ユーザー補正あり）-> {path}")
 
     # inf_learn.py の機能を使って追加
     try:
