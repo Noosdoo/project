@@ -30,7 +30,7 @@
     margin:24px auto;
     align-items:start;
   }
-  
+
   /* Sidebar */
   .sidebar{
     background:var(--panel);
@@ -98,10 +98,6 @@ overflow-y: auto;
   .section{margin-bottom:18px}
   label{display:block;font-size:0.8rem;color:var(--muted);margin-bottom:8px}
   select,input{width:100%;padding:10px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit}
-  select option {
-  color: black;
-  background: white;
-  }
   button.primary{width:100%;padding:10px;border-radius:8px;border:none;background:var(--accent);color:#02211a;font-weight:700;cursor:pointer}
   .small-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
   .small2-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--accent);color:#02211a;font-weight:700;cursor:pointer}
@@ -248,7 +244,7 @@ overflow-y: auto;
     <div class="topbar">
       <div>
         <div class="title">著名人検索システム</div>
-        <div class="meta">探している人物を当てます</div>
+        <div class="meta">思い浮かべた人物を当てます</div>
       </div>
       <div class="meta" id="stat-text">候補: - 人 · Step: 0</div>
     </div>
@@ -267,9 +263,9 @@ overflow-y: auto;
       </div>
     </div>
 
-    <div id="candidates-header" style="display:none;font-size:1.2rem;font-weight:700;margin:16px 0;color:#e6eef3">この中に探している人物はいますか？</div>
+    <div id="candidates-header" style="display:none;font-size:1.2rem;font-weight:700;margin:16px 0;color:#e6eef3">この中に思い浮かべた人物はいますか？</div>
     <div id="candidates-list">
-      <div id="candidates-header" style="font-size:1.1rem;font-weight:700;margin-bottom:10px;color:#e6eef3;display:none;">この中に探している人物はいますか？</div>
+      <div id="candidates-header" style="font-size:1.1rem;font-weight:700;margin-bottom:10px;color:#e6eef3;display:none;">この中に思い浮かべた人物はいますか？</div>
     </div>
 
     <div class="controls">
@@ -303,7 +299,6 @@ overflow-y: auto;
 
   let currentQuestionKey = null;
   let isGuessing = false;
-  let isCandidatesMode = false;
   let historyLog = [];
   const rememberedPeople = [];
 
@@ -332,7 +327,7 @@ overflow-y: auto;
         const opt = document.createElement('option'); opt.text = 'データセットが見つかりません'; sel.add(opt); sel.disabled=true; return;
       }
       data.datasets.forEach(d=>{
-        const opt = document.createElement('option'); opt.value=d.id; opt.text = d.label; if(d.is_default) opt.selected=true; sel.add(opt);
+        const opt = document.createElement('option'); opt.value=d.id; opt.text = `${d.label} (${new Date(d.mtime*1000).toLocaleDateString()})`; if(d.is_default) opt.selected=true; sel.add(opt);
       });
       sel.disabled=false;
     }catch(e){ console.error(e); alert('データセットの読み込みに失敗しました'); }
@@ -418,82 +413,36 @@ overflow-y: auto;
 
 
   async function sendAnswer(ans){
-    console.log("sendAnswer", ans, "isGuessing:", isGuessing, "isCandidatesMode:", isCandidatesMode);
+    console.log("sendAnswer", ans, "isGuessing:", isGuessing);
 
-    // 1. 【リカバリー】候補リスト画面で「NO」が押された場合
-    if (ans === 'no' && isCandidatesMode) {
-        // ローディング表示
-        startLoading();
-        
-        // サーバーへ特殊な回答 "reject_candidates" を送信
-        try {
-            const res = await fetch(`${API}/answer`, {
-                method: 'POST', 
-                headers: {'Content-Type':'application/json'}, 
-                body: JSON.stringify({
-                    answer: "reject_candidates", // 「リストにはいないからリカバリー頼む」という合図
-                    question_key: null 
-                })
-            });
-            const data = await res.json();
-            stopLoading();
-            render(data);
-        } catch(e) {
-            console.error(e);
-            stopLoading();
-        }
-        return; // ここで終了
-    }
-    
-    // 2. 【記憶】推測画面（一人）で「YES」が押された場合（正解！）
-    if (isGuessing && ans === 'yes') {
-        if (lastGuessData) {
-            // 記憶配列に追加
-            rememberedPeople.push({
-                name: lastGuessData.name,
-                image_url: lastGuessData.image_url,
-                source_url: lastGuessData.source_url
-            });
-            
-            // 画面右のスライドメニューなどを更新
-            renderMemoryScreen();
+    if(isGuessing && ans==='yes'){
 
-            // 左サイドバーのリストにも追加して表示
-            document.getElementById('saved-people-container').style.display = 'block';
-            addSavedPerson(lastGuessData.name);
-
-            // メイン画面を「格納しました」メッセージに切り替え
-            showSavedMessage(lastGuessData.name);
-        }
-        
-        // ボタン操作を無効化して、サーバー通信せずに終了
-        toggleControls(false);
-        return; 
+      rememberedPeople.push({
+        name: lastGuessData.name,
+        image_url: lastGuessData.image_url,
+        source_url: lastGuessData.source_url
+      });
+      renderMemoryScreen();
+      // 記憶エリアの表示&追加
+      addSavedPerson(name);
+      //メイン画面を切り替える
+      showSavedMessage(name);
+      toggleControls(false);
+      return;
     }
 
-    // 3. 通常の質問回答処理
     if(!isGuessing && currentQuestionKey){
       const qText = document.getElementById('question-text').innerText;
       pushHistory(qText, ans);
     }
-    
+
     try{
       startLoading();
-      const res = await fetch(`${API}/answer`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        answer:ans, 
-        question_key: currentQuestionKey
-        })
-      });
+      const res = await fetch(`${API}/answer`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({answer:ans, question_key: currentQuestionKey})});
       const data = await res.json();
       stopLoading();
       render(data);
-    }catch(e){
-      console.error(e);
-      stopLoading();
-    }
+    }catch(e){ console.error(e); stopLoading(); }
   }
 
   async function undo(){
@@ -517,14 +466,10 @@ function renderCandidatesList(list) {
 
     // ヘッダー表示
     header.style.display = "block";
-    header.innerText = `この中に探している人物はいますか？（${list.length}名）`;
+    header.innerText = `この中に思い浮かべた人物はいますか？（${list.length}名）`;
 
-    // リスト画面でNOボタンを押せるようにする
-    toggleControls(false); // 一旦全無効
-    const btnNo = document.getElementById('btn-no');
-    btnNo.disabled = false;
-    btnNo.style.opacity = '1';
-    btnNo.style.cursor = 'pointer';
+    // YES/NO/??? を無効化
+    toggleControls(false);
 
     // 推測カードと質問を隠す
     document.getElementById('guess-card').style.display = 'none';
@@ -574,49 +519,8 @@ function chooseCandidate(name) {
   });
 }
 
-// 降参画面を表示する関数
-function showGiveUpScreen() {
-    const qBox = document.getElementById('question-box');
-    const guessCard = document.getElementById('guess-card');
-    const qText = document.getElementById('question-text');
-
-    // 候補リストや推測カードを隠して、質問ボックスを表示
-    document.getElementById("candidates-list").style.display = "none";
-    document.getElementById("candidates-header").style.display = "none";
-    qBox.style.display = "flex";
-    guessCard.style.display = "none";
-
-    // 降参画面のHTMLをセット
-    qText.innerHTML = `
-        <div style="font-size:3rem; margin-bottom:10px;">🙇</div>
-        <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">降参です...</div>
-        <div style="font-size:0.95rem; color:#94a3b8; margin-bottom:20px;">
-            正解の人物名を教えていただければ、<br>今すぐ学習して次から当てられるようにします。
-        </div>
-        
-        <div style="display:flex; gap:10px; max-width:400px; margin:0 auto;">
-            <input type="text" id="learn-name" placeholder="人物名を入力" 
-                   style="padding:12px; border-radius:8px; border:1px solid #334155; background:#0f1724; color:white; flex:1;">
-            <button onclick="learnPerson()" style="padding:12px 20px; border-radius:8px; border:none; background:#10b981; color:#022c22; font-weight:bold; cursor:pointer;">
-                学習させる
-            </button>
-        </div>
-        <div id="learn-msg" style="margin-top:15px; font-size:0.9rem; min-height:1.2em;"></div>
-    `;
-
-    toggleControls(false); // ボタンを押せないようにする
-}
-
 function render(data) {
     if (!data) return;
-
-    // リカバリー発生時のメッセージ表示
-    if (data.recovery_message) {
-        alert("🔄 " + data.recovery_message);
-    }
-
-    // モードを一旦リセット（毎回 false に戻す）
-    isCandidatesMode = false;
 
     // === Stats 更新 ===
     if (data.stats) {
@@ -631,17 +535,6 @@ function render(data) {
     const qBox = document.getElementById('question-box');
     const qText = document.getElementById('question-text');
     const guessCard = document.getElementById('guess-card');
-
-    // 候補リスト系は一旦隠す
-    document.getElementById("candidates-list").style.display = "none";
-    document.getElementById("candidates-header").style.display = "none";
-
-    // ゲームオーバー（降参）画面の表示ロジック
-    // confidenceが0なら諦めたとみなす
-    if (data.type === "guess" && data.confidence === 0) {
-        showGiveUpScreen();
-        return;
-    }
 
     // === 通常の質問 ===
     if (data.type === "question") {
@@ -695,9 +588,8 @@ function render(data) {
 
     // === 候補一覧 ===
     if (data.type === "candidates_list") {
-        currentQuestionKey = data.key; // 必要に応じてセット
-        isCandidatesMode = true; // 候補一覧モードに切り替え
         renderCandidatesList(data.candidates);
+        toggleControls(false);
         return;
     }
 }
@@ -721,47 +613,8 @@ function toggleControls(enabled){
   window.addEventListener('load', ()=>{ loadDatasets(); toggleControls(false); });
 
   const memoryBtn = document.getElementById('memory-btn');
-  const memoryScreen = document.getElementById('memory-screen');
-  const memoryClose = document.getElementById('memory-close');
-
-  // 人物を追加学習させる関数
-  async function learnPerson() {
-    const nameInput = document.getElementById('learn-name');
-    const msgBox = document.getElementById('learn-msg');
-    const name = nameInput.value.trim();
-
-    if (!name) {
-        alert("名前を入力してください");
-        return;
-    }
-
-    msgBox.style.color = "#94a3b8";
-    msgBox.innerText = "学習中...（Wikipediaを検索しています）";
-    nameInput.disabled = true;
-
-    try {
-        const res = await fetch(`${API}/add_person`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: name})
-        });
-        const data = await res.json();
-
-        if (data.success) {
-            msgBox.style.color = "#10b981";
-            msgBox.innerText = "✅ " + data.message;
-            setTimeout(() => { alert("学習完了！最初の画面に戻ります。"); location.reload(); }, 2000);
-        } else {
-            msgBox.style.color = "#ef4444";
-            msgBox.innerText = "エラー: " + (data.error || "失敗しました");
-            nameInput.disabled = false;
-        }
-    } catch (e) {
-        msgBox.style.color = "#ef4444";
-        msgBox.innerText = "通信エラーが発生しました";
-        nameInput.disabled = false;
-    }
-  }
+const memoryScreen = document.getElementById('memory-screen');
+const memoryClose = document.getElementById('memory-close');
 
 if (memoryBtn && memoryScreen && memoryClose) {
   memoryBtn.addEventListener('click', () => {
