@@ -1208,11 +1208,11 @@ def generate_question_map(dataset, selected_categories=None):
     added_keys = set() # 追加済み特徴キーセット
 
     # --- 重みの定義 ---
-    WEIGHT_URGENT = 1000 # 生死
-    WEIGHT_HIGH   = 500  # 年代、大まかな職業
-    WEIGHT_MID    = 100  # 事務所、出身地、血液型
-    WEIGHT_LOW    = 50   # 具体的な作品名
-    WEIGHT_MIN    = 10   # 細かいキーワード
+    WEIGHT_URGENT = 1000 # 最優先（生存確認）
+    WEIGHT_HIGH   = 100  # 年齢、職業、活動分野
+    WEIGHT_MID    = 10   # 普通の特徴
+    WEIGHT_LOW    = 3    # あまり重要でない特徴
+    WEIGHT_MIN    = 1    # 最低限
 
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
@@ -1393,15 +1393,16 @@ def generate_question_map(dataset, selected_categories=None):
                     if place in PREFECTURES: continue # 都道府県名はスキップ（名詞質問で対応）
                     question_text = f"『{place}』の出身ですか？" # 出身地質問
                     category_type = "feature" # 特徴カテゴリに変更
-                    weight = 20 # 重み中
+                    weight = WEIGHT_MID # 重み中
                 elif cat_name.endswith("所属者"): # 所属カテゴリ
                     group = cat_name.replace("所属者", "") # グループ名部分抽出
                     question_text = f"『{group}』に所属していますか（しましたか）？" # 所属質問
                     category_type = "feature" # 特徴カテゴリに変更
-                    weight = WEIGHT_MID # 重み中
+                    weight = WEIGHT_LOW # 重み低
                 elif cat_name.endswith("関連の人物"): # 関連人物カテゴリ
                     topic = cat_name.replace("関連の人物", "") # トピック部分抽出
                     question_text = f"『{topic}』に関連する人物ですか？" # 関連質問
+                    weight = WEIGHT_LOW # 重み低
                 elif cat_name.endswith("の受賞者"): # 受賞者カテゴリ
                     award = cat_name.replace("の受賞者", "") # 賞名部分抽出
                     question_text = f"『{award}』を受賞していますか？" # 受賞質問
@@ -1409,6 +1410,7 @@ def generate_question_map(dataset, selected_categories=None):
                     weight = WEIGHT_LOW # 重み低
                 else: # その他のカテゴリ
                     question_text = f"「{cat_name}」というカテゴリに分類されますか？"
+                    weight = WEIGHT_LOW # 重み低
 
             # 名詞 (noun_) の質問生成
             if key.startswith("noun_"): # 名詞質問 
