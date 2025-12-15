@@ -680,9 +680,9 @@ def scrape_person_data(name, source_type="auto"):
                 return {"name": name, "error": "ページなし（Wikipediaに存在しません）"}
 
         # --- 4. ページはあるが、中身（Summary）が空の場合 ---
-        if not page.summary:
-            return {"name": name, "error": "Summaryが空（詳細情報がありません）"}
-
+        if not page.text:  # 全文チェックに変更
+            return {"name": name, "error": "本文が空（詳細情報がありません）"}
+        
         # ---------------------------------------------------------
         # ここから下は、データ抽出ロジック（既存コードと同じ）
         # ---------------------------------------------------------
@@ -691,14 +691,16 @@ def scrape_person_data(name, source_type="auto"):
         #    Wikiの正式名(page.title)に合わせるかですが、
         #    呼び出し元で final_name に書き換えられるため、ここは一旦ユーザー入力名で作成します。
         
-        rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None, "source": source_type}
+        full_text = page.text
+
+        rec = {"name": name, "summary": full_text, "features": None, "wikidata": None, "source": source_type}
         
         # 1. キーワードベース（静的）の特徴抽出
-        features = extract_features_from_summary(page.summary)
+        features = extract_features_from_summary(full_text)
 
         # 2. Janome（動的）の特徴抽出
         if JANOME_TOKENIZER:
-            dynamic_features = extract_dynamic_features_from_summary(page.summary)
+            dynamic_features = extract_dynamic_features_from_summary(full_text)
             if dynamic_features:
                 features.update(dynamic_features)
         
