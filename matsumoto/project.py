@@ -1220,20 +1220,19 @@ def generate_question_map(dataset, selected_categories=None):
         ("alive_text", "現在もご存命ですか？", "common", WEIGHT_URGENT),
 
         # [優先]
+        ("age_50s", "現在、10代ですか？", "common", WEIGHT_HIGH),
         ("age_20s", "現在、20代ですか？", "common", WEIGHT_HIGH), 
         ("age_30s", "現在、30代ですか？", "common", WEIGHT_HIGH),
         ("age_40s", "現在、40代ですか？", "common", WEIGHT_HIGH), 
         ("age_50s", "現在、50代ですか？", "common", WEIGHT_HIGH),
+        ("age_50s", "現在、60代ですか？", "common", WEIGHT_HIGH),
+        ("age_50s", "現在、70代ですか？", "common", WEIGHT_HIGH),
+        ("born_1980s", "1950年代生まれですか？", "common", WEIGHT_HIGH),
+        ("born_1980s", "1960年代生まれですか？", "common", WEIGHT_HIGH),
+        ("born_1980s", "1970年代生まれですか？", "common", WEIGHT_HIGH),
         ("born_1980s", "1980年代生まれですか？", "common", WEIGHT_HIGH), 
         ("born_1990s", "1990年代生まれですか？", "common", WEIGHT_HIGH),
         ("born_2000s", "2000年代生まれですか？", "common", WEIGHT_HIGH),
-        
-        ("actor_wikidata", "俳優ですか？", "occupation", WEIGHT_HIGH),
-        ("singer_wikidata", "歌手ですか？", "occupation", WEIGHT_HIGH),
-        ("politician_wikidata", "政治家ですか？", "occupation", WEIGHT_HIGH),
-        ("field_literature", "主な活動分野は「文学」ですか？", "occupation", WEIGHT_HIGH),
-        ("field_music", "主な活動分野は「音楽」ですか？", "occupation", WEIGHT_HIGH),
-        ("field_science", "主な活動分野は「科学」ですか？", "occupation", WEIGHT_HIGH),
 
         # [普通]
         ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common", WEIGHT_MID),
