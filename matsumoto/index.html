@@ -765,11 +765,7 @@ function toggleControls(enabled){
 
 if (memoryBtn && memoryScreen && memoryClose) {
   memoryBtn.addEventListener('click', () => {
-    const src = document.getElementById('memory-list');
-    const dst = document.getElementById('memory-screen-list');
-    if (src && dst) {
-      dst.innerHTML = src.innerHTML;
-    }
+    renderMemoryScreen();
     memoryScreen.classList.add('open');
   });
 
