@@ -248,7 +248,7 @@ overflow-y: auto;
     <div class="topbar">
       <div>
         <div class="title">著名人検索システム</div>
-        <div class="meta">思い浮かべた人物を当てます</div>
+        <div class="meta">探している人物を当てます</div>
       </div>
       <div class="meta" id="stat-text">候補: - 人 · Step: 0</div>
     </div>
@@ -267,9 +267,9 @@ overflow-y: auto;
       </div>
     </div>
 
-    <div id="candidates-header" style="display:none;font-size:1.2rem;font-weight:700;margin:16px 0;color:#e6eef3">この中に思い浮かべた人物はいますか？</div>
+    <div id="candidates-header" style="display:none;font-size:1.2rem;font-weight:700;margin:16px 0;color:#e6eef3">この中に探している人物はいますか？</div>
     <div id="candidates-list">
-      <div id="candidates-header" style="font-size:1.1rem;font-weight:700;margin-bottom:10px;color:#e6eef3;display:none;">この中に思い浮かべた人物はいますか？</div>
+      <div id="candidates-header" style="font-size:1.1rem;font-weight:700;margin-bottom:10px;color:#e6eef3;display:none;">この中に探している人物はいますか？</div>
     </div>
 
     <div class="controls">
@@ -418,32 +418,31 @@ overflow-y: auto;
 
 
   async function sendAnswer(ans){
-    console.log("sendAnswer", ans, "isGuessing:", isGuessing);
-    
-    // 候補一覧モードでNOが押されたら、降参画面へ強制移動
+    console.log("sendAnswer", ans, "isGuessing:", isGuessing, "isCandidatesMode:", isCandidatesMode);
+
+    // リスト画面で「NO」が押されたら、サーバーに「リスト全拒否＆リカバリー依頼」を送る
     if (ans === 'no' && isCandidatesMode) {
-        showGiveUpScreen();
-        return; // サーバーには送信せずここで終了
-    }
-
-    if(isGuessing && ans==='yes'){
-
-      rememberedPeople.push({
-        name: lastGuessData.name,
-        image_url: lastGuessData.image_url,
-        source_url: lastGuessData.source_url
-      });
-      renderMemoryScreen();
-      // 記憶エリアの表示&追加
-      addSavedPerson(name);
-      //メイン画面を切り替える
-      showSavedMessage(name);
-      toggleControls(false);
-      const btnNo = document.getElementById('btn-no');
-      btnNo.disabled = false;
-      btnNo.style.opacity = '1';
-      btnNo.style.cursor = 'pointer';
-      return;
+        // ローディング表示
+        startLoading();
+        
+        // サーバーへ特殊な回答 "reject_candidates" を送信
+        try {
+            const res = await fetch(`${API}/answer`, {
+                method: 'POST', 
+                headers: {'Content-Type':'application/json'}, 
+                body: JSON.stringify({
+                    answer: "reject_candidates", // 「リストにはいないからリカバリー頼む」という合図
+                    question_key: null 
+                })
+            });
+            const data = await res.json();
+            stopLoading();
+            render(data);
+        } catch(e) {
+            console.error(e);
+            stopLoading();
+        }
+        return; // ここで終了
     }
 
     if(!isGuessing && currentQuestionKey){
@@ -481,7 +480,7 @@ function renderCandidatesList(list) {
 
     // ヘッダー表示
     header.style.display = "block";
-    header.innerText = `この中に思い浮かべた人物はいますか？（${list.length}名）`;
+    header.innerText = `この中に探している人物はいますか？（${list.length}名）`;
 
     // リスト画面でNOボタンを押せるようにする
     toggleControls(false); // 一旦全無効

@@ -1699,7 +1699,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
             else:
                 print("📷 (画像は見つかりませんでした)")
 
-            ans = input(f"**あなたが思い浮かべたのは... 『{c['name']}』** ですか？ (y/n) > ").strip().lower()
+            ans = input(f"**あなたが探しているのは... 『{c['name']}』** ですか？ (y/n) > ").strip().lower()
 
             if ans in ("y", "yes", "はい"):
                 print("-------------------------------")

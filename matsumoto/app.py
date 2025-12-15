@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)
 
 # セッション設定
-app.secret_key = "my-super-secret-key-for-akinator"
+app.secret_key = "my-super-secret-key-for-akinator" #
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_USE_SIGNER"] = True
@@ -32,6 +32,9 @@ DATASET = []         # ロード中のデータセット（リスト）
 QM_DICT = {}         # ロード中の質問マップ（辞書）
 ACTIVE_DATASET_ID = None
 
+#----------------------
+# データセットスキャン＆ロード
+#----------------------
 def scan_dataset_files():
     """
     カレントディレクトリと ./datasets フォルダから
@@ -85,6 +88,9 @@ def scan_dataset_files():
 
     return file_infos
 
+# ----------------------
+# データセットロード
+# ----------------------
 def load_dataset_by_id(dataset_id):
     """ 指定IDのデータセットをロードしてグローバル変数にセット """
     global DATASET, QM_DICT, ACTIVE_DATASET_ID
@@ -118,16 +124,25 @@ DEFAULT_DATASET_ID = DATASET_FILES[0]["id"] if DATASET_FILES else None
 # ルーティング
 # =======================
 
-@app.route("/")
+@app.route("/") # フロントエンド配信
+# ----------------------
+# インデックス配信
+# ----------------------
 def serve_index():
     return send_from_directory(".", "index.html")
 
-@app.route("/datasets", methods=["GET"])
+@app.route("/datasets", methods=["GET"]) # データセット一覧取得
+# ----------------------
+# データセット一覧取得
+# ----------------------
 def list_datasets():
     """ フロントエンドへデータセット一覧を返す """
     return jsonify({"datasets": DATASET_FILES})
 
-@app.route("/start", methods=["POST"])
+@app.route("/start", methods=["POST"]) # 新規セッション開始
+# ----------------------
+# セッション開始処理
+# ----------------------
 def start_session():
     """ 新規セッション開始 """
     if not DATASET_FILES:
@@ -147,24 +162,86 @@ def start_session():
     # セッション初期化
     session["candidates"] = DATASET[:]  # 全員候補
     session["asked_keys"] = []          # 質問済みキーリスト
-    session["steps"] = 0
-    session["dataset_id"] = dataset_id
+    session["steps"] = 0                # ステップ数
+    session["dataset_id"] = dataset_id  # 使用データセットID
     session["history_stack"] = []       # Undo用スタック
+    session["user_answers_log"] = {}    # 回答履歴（学習用）
+    session["recovery_count"] = 0       # リカバリー回数
 
     # 最初の質問を取得
-    return jsonify(find_next_action())
+    return jsonify(find_next_action())  # 初回質問を返す
 
-@app.route("/answer", methods=["POST"])
+@app.route("/answer", methods=["POST"]) # ユーザー回答処理
+# ----------------------
+# ユーザー回答処理
+# ----------------------
 def handle_answer():
     data = request.json or {}
-    answer = data.get("answer")       # yes, no, dont_know
+    answer = data.get("answer")       # yes, no, dont_know, reject_candidates
     person_name = data.get("person_name")
     session.setdefault("saved_people", [])
     q_key = data.get("question_key")
+
+    # セッション情報の取得
     candidates = session.get("candidates", [])
     asked_keys = session.get("asked_keys", [])
     steps = session.get("steps", 0)
-    person_name = data.get("person_name")
+    user_answers = session.get("user_answers_log", {}) # 回答履歴
+
+    # リスト全拒否＆リカバリー要求の処理
+    if answer == "reject_candidates":
+        print("[RECOVERY] 候補リストが拒否されました。リカバリーを試みます。")
+        
+        # 1. 現在のリカバリー回数をチェック（無限ループ防止のため最大3回までとか）
+        recovery_count = session.get("recovery_count", 0)
+        
+        if recovery_count >= 3:
+            # 3回やってもダメなら、本当に諦める（降参画面へ）
+            return jsonify({
+                "type": "guess",
+                "name": "該当する人物が見つかりませんでした", # これで降参画面が出る
+                "confidence": 0,
+                "stats": {"candidates_count": 0, "steps": steps}
+            })
+
+        # 2. 全データからニアミス（不一致3つ以内）を探す
+        near_misses = []
+        # YES/NOの形式を inf_learn 用に合わせる ("yes"->"y")
+        formatted_answers = {k: ("y" if v=="yes" else "n") for k, v in user_answers.items()}
+
+        for person in DATASET:
+            # inf_learnの関数で不一致数を計算
+            miss_count = logic.calculate_mismatches(person, formatted_answers)
+            if miss_count <= 3:
+                near_misses.append(person)
+        
+        # 直前に提示していた候補（candidates）は、今回のニアミスリストから除外する
+        rejected_names = {p["name"] for p in candidates}
+        near_misses = [p for p in near_misses if p["name"] not in rejected_names]
+
+        # 3. 結果判定
+        if near_misses:
+            print(f"[RECOVERY] 成功: {len(near_misses)} 名が復活しました。")
+            
+            # セッション更新
+            session["candidates"] = near_misses
+            session["recovery_count"] = recovery_count + 1
+            
+            # 次の質問を探して返す
+            next_action = find_next_action()
+            next_action["recovery_message"] = f"条件を緩和して、{len(near_misses)}名を再候補にしました！\n質問を続けます。"
+            return jsonify(next_action)
+        
+        else:
+            print("[RECOVERY] 失敗: 復活できる候補がいません。")
+            # 復活できなければ降参
+            return jsonify({
+                "type": "guess",
+                "name": "該当する人物が見つかりませんでした",
+                "confidence": 0,
+                "stats": {"candidates_count": 0, "steps": steps}
+            })
+
 
     # 回答履歴を保存する
     if q_key and answer in ("yes", "no"):
@@ -252,7 +329,10 @@ def handle_answer():
 
     return jsonify(find_next_action())
 
-@app.route("/undo", methods=["POST"])
+@app.route("/undo", methods=["POST"]) # ユーザーの「1つ前に戻る」要求
+# ----------------------
+# Undo処理
+# ----------------------
 def undo_last():
     """ 1つ前の状態に戻す """
     stack = session.get("history_stack", [])
@@ -404,7 +484,10 @@ def find_next_action():
         "stats": stats
     }
 
-@app.route("/add_person", methods=["POST"])
+@app.route("/add_person", methods=["POST"]) # 新しい人物を学習させるAPI
+# ----------------------
+# 新規学習処理
+# ----------------------
 def add_new_person():
     """ 新しい人物を学習させるAPI """
     data = request.json or {}
