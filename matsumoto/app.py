@@ -32,6 +32,15 @@ DATASET = []         # ロード中のデータセット（リスト）
 QM_DICT = {}         # ロード中の質問マップ（辞書）
 ACTIVE_DATASET_ID = None
 
+# 互いに矛盾する質問グループの定義
+MUTEX_GROUPS = {
+    "age": ["age_20s", "age_30s", "age_40s", "age_50s"],
+    "born": ["born_1980s", "born_1990s", "born_2000s"],
+    "blood": ["blood_A", "blood_B", "blood_O", "blood_AB"],
+    "gender": ["gender_male", "gender_female"],
+    "region": ["from_tokyo", "from_kansai"] # 固定の出身地質問
+}
+
 #----------------------
 # データセットスキャン＆ロード
 #----------------------
@@ -297,6 +306,37 @@ def handle_answer():
 
     # yes / no による絞り込み
     if answer in ("yes", "no") and q_key:
+
+        # 排他制御ロジック (YESの場合、矛盾する他の質問をスキップ) 
+        if answer == "yes":
+            skipped_count = 0
+            
+            # 1. 定義済みグループの処理 (年代、血液型など)
+            for group_name, keys in MUTEX_GROUPS.items():
+                if q_key in keys:
+                    for other_key in keys:
+                        if other_key != q_key and other_key not in asked_keys:
+                            asked_keys.append(other_key)
+                            skipped_count += 1
+            
+            # 2. 出身地・都道府県の処理 (動的なのでテキスト判定)
+            # 現在の質問文を取得
+            current_q_text = find_text_by_key(q_key)
+            if current_q_text and ("出身" in current_q_text or "在住" in current_q_text):
+                print(f"[LOGIC] 出身地が確定しました({current_q_text})。他の出身地質問をスキップします。")
+                # QM_DICT (全質問リスト) を走査
+                for cat_list in QM_DICT.values():
+                    for q in cat_list:
+                        k = q["key"]
+                        t = q["text"]
+                        # "出身" を含む他の質問をすべて「質問済み」にする
+                        if k != q_key and k not in asked_keys and ("出身" in t or "在住" in t):
+                            asked_keys.append(k)
+                            skipped_count += 1
+            
+            if skipped_count > 0:
+                print(f"[LOGIC] 排他制御により {skipped_count} 個の無駄な質問をスキップしました。")
+
         new_candidates = []
         for person in candidates:
             has_feature = (person.get("features", {}).get(q_key) == 1)
