@@ -408,13 +408,6 @@ def fetch_wikidata_entity(wikibase_id):
                 except Exception: pass # エラー無視
             if occ: result["occupation_qids"] = occ # 職業QID保存
             
-        # P21 (性別)
-        if "P21" in claims:
-            try:
-                v = claims["P21"][0]["mainsnak"]["datavalue"]["value"] # 値取得
-                if isinstance(v, dict) and "id" in v: result["gender_qid"] = v["id"] # 性別QID保存
-            except Exception: pass # エラー無視
-            
         # P569 (birth time)
         if "P569" in claims:
             try:
@@ -680,9 +673,9 @@ def scrape_person_data(name, source_type="auto"):
                 return {"name": name, "error": "ページなし（Wikipediaに存在しません）"}
 
         # --- 4. ページはあるが、中身（Summary）が空の場合 ---
-        if not page.text:  # 全文チェックに変更
-            return {"name": name, "error": "本文が空（詳細情報がありません）"}
-        
+        if not page.summary:
+            return {"name": name, "error": "Summaryが空（詳細情報がありません）"}
+
         # ---------------------------------------------------------
         # ここから下は、データ抽出ロジック（既存コードと同じ）
         # ---------------------------------------------------------
@@ -691,16 +684,14 @@ def scrape_person_data(name, source_type="auto"):
         #    Wikiの正式名(page.title)に合わせるかですが、
         #    呼び出し元で final_name に書き換えられるため、ここは一旦ユーザー入力名で作成します。
         
-        full_text = page.text
-
-        rec = {"name": name, "summary": full_text, "features": None, "wikidata": None, "source": source_type}
+        rec = {"name": name, "summary": page.summary, "features": None, "wikidata": None, "source": source_type}
         
         # 1. キーワードベース（静的）の特徴抽出
-        features = extract_features_from_summary(full_text)
+        features = extract_features_from_summary(page.summary)
 
         # 2. Janome（動的）の特徴抽出
         if JANOME_TOKENIZER:
-            dynamic_features = extract_dynamic_features_from_summary(full_text)
+            dynamic_features = extract_dynamic_features_from_summary(page.summary)
             if dynamic_features:
                 features.update(dynamic_features)
         
@@ -745,11 +736,6 @@ def scrape_person_data(name, source_type="auto"):
             rec["wikidata"] = wd
             
             if wd:
-                # --- 性別 ---
-                g = wd.get("gender_qid")
-                if g == "Q6581097": features["gender"] = "male"
-                elif g == "Q6581072": features["gender"] = "female"
-                
                 # --- 年齢計算 ---
                 birth_time = wd.get("birth_time")
                 current_year = datetime.now().year
@@ -1222,19 +1208,23 @@ def generate_question_map(dataset, selected_categories=None):
         ("alive_text", "現在もご存命ですか？", "common", WEIGHT_URGENT),
 
         # [優先]
-        ("age_50s", "現在、10代ですか？", "common", WEIGHT_HIGH),
+        ("age_10s", "現在、10代ですか？", "common", WEIGHT_HIGH),
         ("age_20s", "現在、20代ですか？", "common", WEIGHT_HIGH), 
         ("age_30s", "現在、30代ですか？", "common", WEIGHT_HIGH),
         ("age_40s", "現在、40代ですか？", "common", WEIGHT_HIGH), 
         ("age_50s", "現在、50代ですか？", "common", WEIGHT_HIGH),
-        ("age_50s", "現在、60代ですか？", "common", WEIGHT_HIGH),
-        ("age_50s", "現在、70代ですか？", "common", WEIGHT_HIGH),
-        ("born_1980s", "1950年代生まれですか？", "common", WEIGHT_HIGH),
-        ("born_1980s", "1960年代生まれですか？", "common", WEIGHT_HIGH),
-        ("born_1980s", "1970年代生まれですか？", "common", WEIGHT_HIGH),
+        ("age_60s", "現在、60代ですか？", "common", WEIGHT_HIGH),
+        ("age_70s", "現在、70代ですか？", "common", WEIGHT_HIGH),
+        ("born_1950s", "1950年代生まれですか？", "common", WEIGHT_HIGH),
+        ("born_1960s", "1960年代生まれですか？", "common", WEIGHT_HIGH),
+        ("born_1970s", "1970年代生まれですか？", "common", WEIGHT_HIGH),
         ("born_1980s", "1980年代生まれですか？", "common", WEIGHT_HIGH), 
         ("born_1990s", "1990年代生まれですか？", "common", WEIGHT_HIGH),
         ("born_2000s", "2000年代生まれですか？", "common", WEIGHT_HIGH),
+        ("blood_A", "血液型はA型ですか？", "feature", WEIGHT_MID),
+        ("blood_B", "血液型はB型ですか？", "feature", WEIGHT_MID),
+        ("blood_O", "血液型はO型ですか？", "feature", WEIGHT_MID),
+        ("blood_AB", "血液型はAB型ですか？", "feature", WEIGHT_MID),
 
         # [普通]
         ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common", WEIGHT_MID),
@@ -1242,10 +1232,6 @@ def generate_question_map(dataset, selected_categories=None):
         ("is_hiragana_only", "名前はひらがなだけですか？", "common", WEIGHT_MID),
         ("from_tokyo", "出身は東京ですか？", "feature", WEIGHT_MID),
         ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature", WEIGHT_MID),
-        ("blood_A", "血液型はA型ですか？", "feature", WEIGHT_MID),
-        ("blood_B", "血液型はB型ですか？", "feature", WEIGHT_MID),
-        ("blood_O", "血液型はO型ですか？", "feature", WEIGHT_MID),
-        ("blood_AB", "血液型はAB型ですか？", "feature", WEIGHT_MID),
         ("not_japanese_only", "日本以外の国籍（ルーツ）を持っていますか？", "feature", WEIGHT_MID),
         ("has_family_info", "家族（親・配偶者・子供）にも有名人がいますか？", "feature", WEIGHT_MID),
         
@@ -1656,10 +1642,9 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
 
     # 相互排他グループ定義
     MUTEX_GROUPS = {
-        "age": {"age_20s", "age_30s", "age_40s", "age_50s"},
-        "born": {"born_1980s", "born_1990s", "born_2000s"},
+        "age": {"age_10s", "age_20s", "age_30s", "age_40s", "age_50s", "age_60s", "age_70s"},
+        "born": {"born_1950s", "born_1960s", "born_1970s", "born_1980s", "born_1990s", "born2000s"},
         "blood": {"blood_A", "blood_B", "blood_O", "blood_AB"},
-        "gender": {"gender_male", "gender_female"},
     }
     KEY_TO_GROUP = {}
     for group_name, keys in MUTEX_GROUPS.items():
