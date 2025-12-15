@@ -5,11 +5,11 @@ from flask import Flask, jsonify, request, session, send_from_directory
 from flask_cors import CORS
 from flask_session import Session
 
-# ---- inf_learnロジックをインポート ----
+# ---- projectロジックをインポート ----
 try:
-    import inf_learn as logic
+    import project as logic
 except ImportError:
-    print("エラー: 'inf_learn.py' が見つかりません。app.py と同じフォルダに置いてください。")
+    print("エラー: 'project.py' が見つかりません。app.py と同じフォルダに置いてください。")
     exit()
 
 app = Flask(__name__)
@@ -102,7 +102,7 @@ def load_dataset_by_id(dataset_id):
     path = info["path"]
     print(f"[LOAD] データセット読み込み中: {path}")
 
-    # inf_learn の load_dataset を使用 (閾値は任意調整。ここでは10)
+    # project の load_dataset を使用 (閾値は任意調整。ここでは10)
     ds = logic.load_dataset(dataset_path=path, min_feature_threshold=10)
     if not ds:
         raise RuntimeError("有効なデータがありません（閾値不足の可能性あり）。")
@@ -167,6 +167,7 @@ def start_session():
     session["history_stack"] = []       # Undo用スタック
     session["user_answers_log"] = {}    # 回答履歴（学習用）
     session["recovery_count"] = 0       # リカバリー回数
+    session["is_recovered"] = False     # 自動リカバリー済みフラグ
 
     # 最初の質問を取得
     return jsonify(find_next_action())  # 初回質問を返す
@@ -206,11 +207,11 @@ def handle_answer():
 
         # 2. 全データからニアミス（不一致3つ以内）を探す
         near_misses = []
-        # YES/NOの形式を inf_learn 用に合わせる ("yes"->"y")
+        # YES/NOの形式をproject用に合わせる ("yes"->"y")
         formatted_answers = {k: ("y" if v=="yes" else "n") for k, v in user_answers.items()}
 
         for person in DATASET:
-            # inf_learnの関数で不一致数を計算
+            # projectの関数で不一致数を計算
             miss_count = logic.calculate_mismatches(person, formatted_answers)
             if miss_count <= 3:
                 near_misses.append(person)
@@ -444,8 +445,36 @@ def find_next_action():
             "stats": stats
         }
 
-    # 2. 候補が0人
+    # 2. 候補が0人 (自動リカバリーロジック)
     if len(candidates) == 0:
+        # すでにリカバリー済みかどうかをチェック
+        is_recovered = session.get("is_recovered", False)
+        # ユーザーの回答履歴
+        user_answers = session.get("user_answers_log", {})
+
+        if not is_recovered and user_answers:
+            print("[RECOVERY] 候補0名のため、条件緩和（リカバリー）を開始します...")
+            
+            near_misses = []
+            formatted_answers = {k: ("y" if v=="yes" else "n") for k, v in user_answers.items()}
+
+            for person in DATASET:
+                # inf_learnの関数を使って不一致数を計算
+                miss_count = logic.calculate_mismatches(person, formatted_answers)
+                if miss_count <= 3:
+                    near_misses.append(person)
+            
+            if near_misses:
+                print(f"[RECOVERY] {len(near_misses)} 名のニアミス候補を発見。復帰させます。")
+                session["candidates"] = near_misses
+                session["is_recovered"] = True
+                
+                # 再帰的に次のアクションを取得
+                next_action = find_next_action()
+                next_action["recovery_message"] = f"候補がいなくなりましたが、条件を緩和して {len(near_misses)}名を再候補にしました！\n質問を続けます。"
+                return next_action
+
+        # リカバリー不能なら諦める
         return {
             "type": "guess",
             "name": "該当する人物が見つかりませんでした",
@@ -517,7 +546,7 @@ def add_new_person():
 
     print(f"[LEARN] 新規学習開始: {name} （ユーザー補正あり）-> {path}")
 
-    # inf_learn.py の機能を使って追加
+    # project.py の機能を使って追加
     try:
         logic.fetch_and_add_new_person_data(name, dataset_path=path, user_feedback=user_answers_log)
 

@@ -573,6 +573,11 @@ function showGiveUpScreen() {
 function render(data) {
     if (!data) return;
 
+    // リカバリー発生時のメッセージ表示
+    if (data.recovery_message) {
+        alert("🔄 " + data.recovery_message);
+    }
+
     // モードを一旦リセット（毎回 false に戻す）
     isCandidatesMode = false;
 
