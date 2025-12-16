@@ -34,7 +34,7 @@ ACTIVE_DATASET_ID = None
 
 # 互いに矛盾する質問グループの定義
 MUTEX_GROUPS = {
-    "age": ["age_10s", "age_20s", "age_30s", "age_40s", "age_50s", "age_60s", "age_70s"],
+    "age": ["age_10s", "age_20s", "age_30s", "age_40s", "age_50s", "age_60s"],
     "born": ["born_1950s", "born_1960s", "born_1970s", "born_1980s", "born_1990s", "born_2000s"],
     "blood": ["blood_A", "blood_B", "blood_O", "blood_AB"],
     "region": ["from_tokyo", "from_kansai"] # 固定の出身地質問

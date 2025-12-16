@@ -707,6 +707,8 @@ def scrape_person_data(name, source_type="auto"):
                 "日本語版ウィキ", "ウィキペディア", "ウィキメディア・コモンズ",
                 "スタブ", "項目", "一覧", "一覧記事", "記事一覧", "ポータル",
                 "参考文献", "脚注", "注釈", "引用", "プロジェクト", "編集"
+                "Reflist", "Columns-list", "参照方法", "Webarchive", 
+                "ISBN", "識別子", "画像の提供", "書きかけ", "検証"
             }
             
             for cat_title in page_categories.keys():
@@ -1196,11 +1198,11 @@ def generate_question_map(dataset, selected_categories=None):
     added_keys = set() # 追加済み特徴キーセット
 
     # --- 重みの定義 ---
-    WEIGHT_URGENT = 1000 # 最優先（生存確認）
-    WEIGHT_HIGH   = 100  # 年齢、職業、活動分野
-    WEIGHT_MID    = 10   # 普通の特徴
-    WEIGHT_LOW    = 3    # あまり重要でない特徴
-    WEIGHT_MIN    = 1    # 最低限
+    WEIGHT_URGENT = 6.0   # 最優先（生存確認）
+    WEIGHT_HIGH   = 3.0   # 決定的な属性（職業、年代、ジャンル）
+    WEIGHT_MID    = 1.5   # 絞り込みに有効な属性（出身、グループ、事務所）
+    WEIGHT_LOW    = 1.1   # トリビア的属性（賞、学歴、血液型）
+    WEIGHT_MIN    = 1.0   # その他（動的生成された細かい名詞など）
 
     # --- 1. 共通質問 (Wikidata由来 + 日付 + 名前) ---
     common_questions_def = [
@@ -1208,23 +1210,21 @@ def generate_question_map(dataset, selected_categories=None):
         ("alive_text", "現在もご存命ですか？", "common", WEIGHT_URGENT),
 
         # [優先]
+        # 年代
         ("age_10s", "現在、10代ですか？", "common", WEIGHT_HIGH),
         ("age_20s", "現在、20代ですか？", "common", WEIGHT_HIGH), 
         ("age_30s", "現在、30代ですか？", "common", WEIGHT_HIGH),
         ("age_40s", "現在、40代ですか？", "common", WEIGHT_HIGH), 
         ("age_50s", "現在、50代ですか？", "common", WEIGHT_HIGH),
-        ("age_60s", "現在、60代ですか？", "common", WEIGHT_HIGH),
-        ("age_70s", "現在、70代ですか？", "common", WEIGHT_HIGH),
+        ("age_60s", "現在、60代以上ですか？", "common", WEIGHT_HIGH),
+
+        #生まれ年代
         ("born_1950s", "1950年代生まれですか？", "common", WEIGHT_HIGH),
         ("born_1960s", "1960年代生まれですか？", "common", WEIGHT_HIGH),
         ("born_1970s", "1970年代生まれですか？", "common", WEIGHT_HIGH),
         ("born_1980s", "1980年代生まれですか？", "common", WEIGHT_HIGH), 
         ("born_1990s", "1990年代生まれですか？", "common", WEIGHT_HIGH),
-        ("born_2000s", "2000年代生まれですか？", "common", WEIGHT_HIGH),
-        ("blood_A", "血液型はA型ですか？", "feature", WEIGHT_MID),
-        ("blood_B", "血液型はB型ですか？", "feature", WEIGHT_MID),
-        ("blood_O", "血液型はO型ですか？", "feature", WEIGHT_MID),
-        ("blood_AB", "血液型はAB型ですか？", "feature", WEIGHT_MID),
+        ("born_2000s", "2000年代以降の生まれですか？", "common", WEIGHT_HIGH),
 
         # [普通]
         ("died_20c", "20世紀（1900年代）に亡くなりましたか？", "common", WEIGHT_MID),
@@ -1234,14 +1234,6 @@ def generate_question_map(dataset, selected_categories=None):
         ("from_kansai", "出身は関西（大阪・京都・兵庫）ですか？", "feature", WEIGHT_MID),
         ("not_japanese_only", "日本以外の国籍（ルーツ）を持っていますか？", "feature", WEIGHT_MID),
         ("has_family_info", "家族（親・配偶者・子供）にも有名人がいますか？", "feature", WEIGHT_MID),
-        
-        # [低め]
-        ("grad_todai", "東京大学を卒業していますか？", "feature", WEIGHT_LOW),
-        ("grad_waseda", "早稲田大学を卒業していますか？", "feature", WEIGHT_LOW),
-        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature", WEIGHT_LOW),
-        ("award_shiju", "紫綬褒章を受章していますか？", "feature", WEIGHT_LOW),
-        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
-        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
         ("is_group_member", "グループやユニットの一員として活動していますか（いましたか）？", "activity", WEIGHT_MID),
         ("office_yoshimoto", "吉本興業に所属していますか？", "feature", WEIGHT_MID),
         ("office_johnnys", "SMILE-UP.（旧ジャニーズ）やSTARTOに関連するアイドルですか？", "feature", WEIGHT_MID),
@@ -1254,6 +1246,18 @@ def generate_question_map(dataset, selected_categories=None):
         ("office_shiki", "劇団四季に関連していますか？", "feature", WEIGHT_MID),
         ("office_takarazuka", "宝塚歌劇団に関連していますか？", "feature", WEIGHT_MID),
         ("office_akb", "AKB48グループや坂道シリーズに関連していますか？", "feature", WEIGHT_MID),
+        
+        # [低め]      
+        ("blood_A", "血液型はA型ですか？", "feature", WEIGHT_LOW),
+        ("blood_B", "血液型はB型ですか？", "feature", WEIGHT_LOW),
+        ("blood_O", "血液型はO型ですか？", "feature", WEIGHT_LOW),
+        ("blood_AB", "血液型はAB型ですか？", "feature", WEIGHT_LOW),
+        ("grad_todai", "東京大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_waseda", "早稲田大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("grad_keio", "慶應義塾大学を卒業していますか？", "feature", WEIGHT_LOW),
+        ("award_shiju", "紫綬褒章を受章していますか？", "feature", WEIGHT_LOW),
+        ("award_academy_jp", "日本アカデミー賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
+        ("award_blue_ribbon", "ブルーリボン賞を受賞したことがありますか？", "feature", WEIGHT_LOW),
     ]
 
     # 共通質問を追加
@@ -1273,11 +1277,11 @@ def generate_question_map(dataset, selected_categories=None):
     # --- 2. FEATURE_KEYWORDS に基づく質問 (Summary由来) ---
     feature_questions_def = {
         "comedian": ("お笑い芸人ですか？", "occupation", WEIGHT_HIGH),
-        "seiyuu": ("声優として活動していますか？", "occupation", WEIGHT_HIGH),
+        "seiyuu": ("声優としても活動していますか？", "occupation", WEIGHT_HIGH),
         "athlete": ("スポーツ選手ですか？", "occupation", WEIGHT_HIGH),
-        "model": ("モデルとして活動していますか？", "occupation", WEIGHT_HIGH),
+        "model": ("モデルとしても活動していますか？", "occupation", WEIGHT_HIGH),
         "idol": ("アイドル活動をしていましたか（していますか）？", "occupation", WEIGHT_HIGH),
-        "youtuber": ("YouTuberとして活動していますか？", "occupation", WEIGHT_HIGH),
+        "youtuber": ("YouTuberとしても活動していますか？", "occupation", WEIGHT_HIGH),
         "director": ("監督（映画やアニメなど）ですか？", "occupation", WEIGHT_HIGH),
         "taiga": ("大河ドラマに出演しましたか？", "activity", WEIGHT_MID),
         "tokusatsu": ("特撮作品（仮面ライダーなど）に出演しましたか？", "activity", WEIGHT_MID),
@@ -1289,7 +1293,7 @@ def generate_question_map(dataset, selected_categories=None):
         "hollywood": ("海外（ハリウッド等）の作品に出演していますか？", "activity", WEIGHT_MID),
         "nhk": ("NHK（朝ドラなど）に出演したことがありますか？", "activity", WEIGHT_MID),
         "award": ("（演技賞や作品賞など）を受賞したことがありますか？", "feature", WEIGHT_MID),
-        "mc": ("司会者（MC）として有名ですか？", "activity", WEIGHT_MID),
+        "mc": ("司会者（MC）としても有名ですか？", "activity", WEIGHT_MID),
         "radio": ("ラジオ番組を持っていますか（いましたか）？", "activity", WEIGHT_LOW),
         "cm": ("CMに多く出演していますか？", "activity", WEIGHT_LOW),
         "married": ("結婚していることを公表していますか？", "feature", WEIGHT_MID),
@@ -1385,7 +1389,7 @@ def generate_question_map(dataset, selected_categories=None):
                     group = cat_name.replace("所属者", "") # グループ名部分抽出
                     question_text = f"『{group}』に所属していますか（しましたか）？" # 所属質問
                     category_type = "feature" # 特徴カテゴリに変更
-                    weight = WEIGHT_LOW # 重み低
+                    weight = WEIGHT_MID # 重み低
                 elif cat_name.endswith("関連の人物"): # 関連人物カテゴリ
                     topic = cat_name.replace("関連の人物", "") # トピック部分抽出
                     question_text = f"『{topic}』に関連する人物ですか？" # 関連質問
@@ -1397,7 +1401,7 @@ def generate_question_map(dataset, selected_categories=None):
                     weight = WEIGHT_LOW # 重み低
                 else: # その他のカテゴリ
                     question_text = f"「{cat_name}」というカテゴリに分類されますか？"
-                    weight = WEIGHT_LOW # 重み低
+                    weight = WEIGHT_MIN # 重み低
 
             # 名詞 (noun_) の質問生成
             if key.startswith("noun_"): # 名詞質問 
@@ -1433,6 +1437,7 @@ def generate_question_map(dataset, selected_categories=None):
                 else:
                     # デフォルトの名詞質問
                     question_text = f"『{word}』というキーワードに関連しますか？"
+                    weight = WEIGHT_MIN # 重み低
 
             # 別バージョンの名詞 (nounn_) の質問生成
             elif key.startswith("nounn_"):
@@ -1460,7 +1465,7 @@ def generate_question_map(dataset, selected_categories=None):
                 title = key[len("work_"):]
                 question_text = f"『{title}』という作品や番組に出演（または関連）していますか？"
                 category_type = "activity" # 活動に関する質問
-                weight = WEIGHT_LOW
+                weight = WEIGHT_LOW # 重み低
 
             if question_text: # 質問テキストが生成された場合
                 qm[category_type].append({ # カテゴリタイプも反映
@@ -1642,7 +1647,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
 
     # 相互排他グループ定義
     MUTEX_GROUPS = {
-        "age": {"age_10s", "age_20s", "age_30s", "age_40s", "age_50s", "age_60s", "age_70s"},
+        "age": {"age_10s", "age_20s", "age_30s", "age_40s", "age_50s", "age_60s"},
         "born": {"born_1950s", "born_1960s", "born_1970s", "born_1980s", "born_1990s", "born2000s"},
         "blood": {"blood_A", "blood_B", "blood_O", "blood_AB"},
     }
