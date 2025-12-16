@@ -3,207 +3,366 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>著名人検索システム</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<title>著名人検索システム（ローカル実行）</title>
 <style>
-  :root {
-    /* ★ライトテーマ設定★ */
-    --bg-color: #f8fafc;       /* 背景色：ほんのり青みがかった白 */
-    --card-bg: #ffffff;        /* カード色：真っ白 */
-    --text-main: #1e293b;      /* 文字色：濃い紺グレー */
-    --text-sub: #64748b;       /* 補足文字：薄いグレー */
-    --border: #e2e8f0;         /* 枠線：薄いグレー */
-    --shadow: 0 10px 40px rgba(0,0,0,0.08); /* 柔らかい影 */
+  :root { --bg:#0b1020; --fg:#e8ecff; --muted:#9aa3c7; }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(1200px 800px at 50% -200px,#1a2448 0,var(--bg) 55%);
+    color:var(--fg);
   }
-
-  body {
-    margin: 0; font-family: 'Noto Sans JP', sans-serif;
-    background: var(--bg-color);
-    color: var(--text-main);
-    display: flex; justify-content: center; align-items: center; min-height: 100vh;
+  .wrap{max-width:720px;margin:48px auto;padding:0 16px}
+  .card{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.1);
+    backdrop-filter: blur(6px);
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25)
   }
-
-  .card {
-    background: var(--card-bg);
-    padding: 40px; border-radius: 24px;
-    width: 90%; max-width: 600px; text-align: center;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
+  h1{margin:0 0 6px;font-size:28px}
+  .muted{color:var(--muted);font-size:13px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  button{
+    appearance:none;
+    border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08);
+    color:var(--fg);
+    padding:10px 14px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    transition:.15s;
+    white-space:nowrap;
   }
-
-  h1 { 
-    /* タイトルは少しグラデーションを残してアクセントに */
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0 0 10px 0; 
+  button:hover{
+    transform:translateY(-1px);
+    background:rgba(255,255,255,.14)
   }
-
-  header div { color: var(--text-sub); font-weight: bold; }
-
-  .question { 
-    font-size: 1.5rem; font-weight: bold; margin: 30px 0; min-height: 80px; 
-    color: var(--text-main);
+  button:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+    transform:none
   }
-  
-  /* プルダウンのスタイル（白背景用） */
-  select {
-    padding: 12px; font-size: 1rem; border-radius: 10px;
-    background: #f1f5f9; color: var(--text-main); 
-    border: 1px solid #cbd5e1;
-    margin-bottom: 20px; width: 80%; cursor: pointer; outline: none;
+  .choice{
+    flex:1;
+    min-width:120px;
+    font-size:18px
   }
-  option { background: white; color: black; }
-
-  button {
-    border: none; padding: 15px 30px; border-radius: 50px;
-    font-size: 1rem; font-weight: bold; cursor: pointer; margin: 5px;
-    transition: all 0.2s; color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  .score{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    text-align:center;
+    margin-top:12px
   }
-  button:active { transform: scale(0.95); }
-  button:hover { filter: brightness(1.05); transform: translateY(-2px); }
-
-  .btn-yes { background: #10b981; }
-  .btn-no { background: #ef4444; }
-  .btn-unk { background: #64748b; }
-  
-  /* スタートボタン：青系 */
-  .btn-start { background: linear-gradient(135deg, #3b82f6, #6366f1); font-size: 1.5rem; padding: 20px 60px; }
-  
-  /* 戻るボタン：枠線のみ */
-  .btn-undo {
-    background: transparent; border: 1px solid #94a3b8; 
-    color: #64748b; font-size: 0.8rem; box-shadow: none;
+  .score div{
+    padding:10px;
+    border:1px dashed rgba(255,255,255,.2);
+    border-radius:12px
   }
-  .btn-undo:hover { background: #f1f5f9; color: #334155; }
-
-  .hidden { display: none; }
-  
-  img { 
-    max-width: 200px; border-radius: 15px; margin: 20px 0; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
+  .result{
+    font-size:22px;
+    font-weight:700;
+    margin:14px 0;
+    color:#b5d1ff;
+    min-height:2em
+  }
+  .log{
+    max-height:180px;
+    overflow:auto;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;
+    padding:10px;
+    font-family:ui-monospace,monospace;
+    background:rgba(0,0,0,.25)
+  }
+  img.guess{
+    display:block;
+    margin:12px auto;
+    max-width:320px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.15)
+  }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.2);
+    font-size:12px;
+    color:var(--muted);
+    background:rgba(0,0,0,.24);
+  }
+  .ok{
+    border-color:#79ffb2;
+    color:#c2ffd8;
+    background:rgba(0,0,0,.3);
+  }
+  select{
+    background:transparent;
+    border:none;
+    color:inherit;
+    font:inherit;
+    padding:2px 0;
+    outline:none;
+  }
+  select option{
+    color:#000;
   }
 </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h1>著名人検索システム（ローカル実行）</h1>
+      <div class="muted">YES / UNKNOWN / NO で回答。Pythonサーバーと通信します。</div>
 
-<div class="card">
-  <header>
-    <h1>著名人検索システム</h1>
-    <div>Turn <span id="step">0</span></div>
-  </header>
-
-  <div id="game-area">
-    <div id="start-screen">
-      <p style="color:#64748b">データセットを選択してください</p>
-      
-      <select id="dataset-select">
-        <option>読み込み中...</option>
-      </select>
-      <br>
-
-      <button onclick="startGame()" class="btn-start">GAME START</button>
-    </div>
-
-    <div id="play-screen" class="hidden">
-      <div class="question" id="q-text">質問読み込み中...</div>
-      <div>
-        <button class="btn-yes" onclick="answer('yes')">YES</button>
-        <button class="btn-unk" onclick="answer('dont_know')">???</button>
-        <button class="btn-no" onclick="answer('no')">NO</button>
+      <!-- データセット選択 -->
+      <div class="row" style="margin-top:12px">
+        <span class="pill">
+          データセット:
+          <select id="dataset"></select>
+        </span>
       </div>
-      <div style="margin-top:20px">
-        <button onclick="undo()" class="btn-undo">1つ戻る</button>
-      </div>
-    </div>
 
-    <div id="result-screen" class="hidden">
-      <div id="result-content"></div>
-      <button onclick="location.reload()" class="btn-start" style="font-size:1rem; margin-top:20px">もう一度遊ぶ</button>
+      <!-- セッション情報 & 操作 -->
+      <div class="row" style="margin-top:12px">
+        <span class="pill">セッション: <span id="sid">-</span></span>
+        <span style="flex:1"></span>
+        <button id="undo">1つ戻る</button>
+        <button id="reset" class="ok">新規開始</button>
+      </div>
+
+      <div class="score">
+        <div>YES<br><b id="ps">0</b></div>
+        <div>ステップ<br><b id="rd">0</b></div>
+        <div>NO<br><b id="cs">0</b></div>
+      </div>
+
+      <div class="result" id="result">「新規開始」を押して質問を取得します。</div>
+      <img id="image_place" class="guess" src="" alt="" style="display:none">
+
+      <div class="row">
+        <button class="choice" data-a="yes">YES</button>
+        <button class="choice" data-a="dont_know">UNKNOWN</button>
+        <button class="choice" data-a="no">NO</button>
+      </div>
+
+      <div style="margin-top:12px" class="log" id="log" aria-live="polite"></div>
     </div>
   </div>
-</div>
 
 <script>
-const API_BASE = "http://127.0.0.1:5001";
-let currentKey = null;
+(() => {
+  // ========= APIエンドポイント =========
+  const API_BASE   = "http://127.0.0.1:5000";
+  const API_START  = `${API_BASE}/start`;
+  const API_ANSWER = `${API_BASE}/answer`;
+  const API_UNDO   = `${API_BASE}/undo`;
+  const API_DATASETS = `${API_BASE}/datasets`;
 
-// 起動時にデータセット一覧を取得
-window.onload = async function() {
-  const data = await api('/datasets', {}, 'GET');
-  if (data && data.datasets) {
-    const select = document.getElementById('dataset-select');
-    select.innerHTML = ''; // クリア
-    
+  // ========= 状態 =========
+  let currentQuestionKey = null;
+  let gameActive = false;
+
+  // ========= 要素 =========
+  const el = {
+    dataset: document.querySelector("#dataset"),
+    sid:     document.querySelector("#sid"),
+    yes:     document.querySelector("#ps"),
+    no:      document.querySelector("#cs"),
+    step:    document.querySelector("#rd"),
+    res:     document.querySelector("#result"),
+    img:     document.querySelector("#image_place"),
+    log:     document.querySelector("#log"),
+    reset:   document.querySelector("#reset"),
+    undo:    document.querySelector("#undo"),
+    choices: Array.from(document.querySelectorAll(".choice")),
+  };
+
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function logLine(t){
+    const time = new Date().toLocaleTimeString();
+    el.log.innerHTML = `<div>[${time}] ${esc(t)}</div>` + el.log.innerHTML;
+  }
+
+  function setLoading(loading) {
+    el.reset.disabled = loading;
+    el.undo.disabled  = loading || !gameActive;
+    el.choices.forEach(b => b.disabled = loading || !gameActive);
+    el.dataset.disabled = loading || gameActive; // ゲーム中はデータセット固定
+  }
+
+  // ========= API通信ラッパ =========
+  async function apiRequest(url, payload, method = "POST") {
+    setLoading(true);
+    try {
+      const options = {
+        method,
+        credentials: "include",
+        headers: {}
+      };
+      if (method !== "GET") {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(payload || {});
+      }
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`APIエラー: ${response.status} ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (err) {
+      console.error("通信エラー:", err);
+      el.res.innerHTML =
+        `エラー: サーバー(${API_BASE})に接続できません。<br>` +
+        `Flaskサーバー(app.py)が起動しているか確認してください。`;
+      gameActive = false;
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ========= データセット一覧取得 =========
+  async function loadDatasets() {
+    const data = await apiRequest(API_DATASETS, null, "GET");
+    if (!data || !data.datasets) {
+      el.dataset.innerHTML = `<option value="">(データセットなし)</option>`;
+      el.dataset.disabled = true;
+      logLine("データセット候補が見つかりません。");
+      return;
+    }
     if (data.datasets.length === 0) {
-       select.innerHTML = '<option>データファイルがありません</option>';
-       return;
+      el.dataset.innerHTML = `<option value="">(データセットなし)</option>`;
+      el.dataset.disabled = true;
+      logLine("データセット候補が見つかりません。");
+      return;
     }
 
-    data.datasets.forEach(ds => {
-      const option = document.createElement('option');
-      option.value = ds.id;
-      option.textContent = ds.label;
-      select.appendChild(option);
-    });
+    el.dataset.innerHTML = "";
+    let defaultId = null;
+    for (const d of data.datasets) {
+      const opt = document.createElement("option");
+      opt.value = d.id;
+      opt.textContent = d.label + (d.is_default ? "（最新）" : "");
+      el.dataset.appendChild(opt);
+      if (d.is_default) defaultId = d.id;
+    }
+    if (defaultId) el.dataset.value = defaultId;
+    logLine(`データセット候補を読み込みました (${data.datasets.length}件)。`);
   }
-};
 
-async function api(path, body={}, method='POST') {
-  try {
-    const options = {
-      method: method,
-      headers: {'Content-Type': 'application/json'}
+  // ========= セッション開始 =========
+  async function startSession() {
+    if (!el.dataset.value) {
+      logLine("データセットが選択されていません。");
+      return;
+    }
+    el.log.innerHTML = "";
+    logLine(`新規セッション開始（dataset=${el.dataset.value}）...`);
+    gameActive = true;
+    currentQuestionKey = null;
+    el.img.style.display = "none";
+
+    const payload = { dataset_id: el.dataset.value };
+    const data = await apiRequest(API_START, payload);
+    if (data) {
+      updateUI(data);
+    }
+  }
+
+  // ========= 回答適用 =========
+  async function applyAnswer(answer) {
+    if (!gameActive) return;
+
+    if (!currentQuestionKey && answer !== "dont_know") {
+      logLine("ゲームが終了しています。「新規開始」を押してください。");
+      return;
+    }
+
+    logLine(`回答 (${answer}) → ${el.res.textContent.substring(0, 20)}...`);
+
+    const payload = {
+      answer: answer,
+      question_key: currentQuestionKey,
     };
-    if (method !== 'GET') {
-      options.body = JSON.stringify(body);
+
+    const data = await apiRequest(API_ANSWER, payload);
+    if (data) {
+      updateUI(data);
     }
-    
-    const res = await fetch(API_BASE + path, options);
-    if(!res.ok) throw new Error(await res.text());
-    return await res.json();
-  } catch(e) {
-    alert("エラー: " + e.message);
   }
-}
 
-async function startGame() {
-  const select = document.getElementById('dataset-select');
-  const selectedId = select.value;
-  const data = await api('/start', { dataset_id: selectedId });
-  if(data) updateUI(data);
-}
-
-async function answer(ans) {
-  const data = await api('/answer', { answer: ans, question_key: currentKey });
-  if(data) updateUI(data);
-}
-
-async function undo() {
-  const data = await api('/undo');
-  if(data && data.undo) updateUI(data);
-}
-
-function updateUI(data) {
-  document.getElementById('start-screen').classList.add('hidden');
-  
-  if (data.type === 'question') {
-    document.getElementById('play-screen').classList.remove('hidden');
-    document.getElementById('q-text').textContent = data.question_text;
-    document.getElementById('step').textContent = data.session_data.steps;
-    currentKey = data.question_key;
-    
-  } else if (data.type === 'guess') {
-    document.getElementById('play-screen').classList.add('hidden');
-    document.getElementById('result-screen').classList.remove('hidden');
-    
-    let html = `<h2 style="color:#1e293b; font-size:1.8rem;">推測: ${data.name}</h2>`;
-    if(data.image) html += `<img src="${data.image}">`;
-    html += `<p style="color:#64748b;">確信度: ${data.confidence}%</p>`;
-    document.getElementById('result-content').innerHTML = html;
+  // ========= 1つ戻る =========
+  async function undoLast() {
+    if (!gameActive) return;
+    logLine("1つ前の状態に戻ります...");
+    const data = await apiRequest(API_UNDO, {});
+    if (data) {
+      if (data.undo) {
+        logLine("直前の回答を取り消しました。");
+      } else {
+        logLine("戻れる履歴がありません。");
+      }
+      updateUI(data);
+    }
   }
-}
+
+  // ========= 描画更新 =========
+  function updateUI(data) {
+    if (!data) return;
+
+    // 統計
+    if (data.session_data) {
+      el.sid.textContent  = data.session_data.sid;
+      el.yes.textContent  = data.session_data.yes;
+      el.no.textContent   = data.session_data.no;
+      el.step.textContent = data.session_data.steps;
+    }
+
+    // データセットIDが返ってきていたらセレクトを同期（他タブ対策）
+    if (data.dataset_id && el.dataset.value !== data.dataset_id) {
+      el.dataset.value = data.dataset_id;
+    }
+
+    if (data.type === "question") {
+      el.res.innerHTML = `Q${(data.session_data.steps || 0) + 1}: ${esc(data.question_text)}`;
+      currentQuestionKey = data.question_key;
+      gameActive = true;
+      logLine(`質問 → ${data.question_text}`);
+    } else if (data.type === "guess") {
+      const conf = parseFloat(data.confidence || 0).toFixed(0);
+      el.res.innerHTML =
+        `推測：<b>${esc(data.name)}</b><br>` +
+        `（候補 ${data.candidates_count}人, 確信度 ${conf}%）`;
+      currentQuestionKey = null;
+      // 推測後でも「1つ戻る」でやり直せるように一旦 true のままにする
+      gameActive = true;
+      logLine(`推測 → ${data.name} (確信度 ${conf}%)`);
+    }
+
+    setLoading(false);
+  }
+
+  // ========= イベント =========
+  el.reset.addEventListener("click", startSession);
+  el.undo.addEventListener("click", undoLast);
+  el.choices.forEach(b => b.addEventListener("click", () => applyAnswer(b.dataset.a)));
+
+  // 初期状態
+  gameActive = false;
+  setLoading(false);
+  loadDatasets(); // 起動時にデータセット候補を取得
+})();
 </script>
 </body>
 </html>
+
+
