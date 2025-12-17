@@ -127,7 +127,7 @@ overflow-y: auto;
   .title{font-size:1.15rem;font-weight:700}
   .meta{font-size:0.85rem;color:var(--muted)}
 
-  .question-area{display:flex;gap:18px;align-items:center}
+  .question-area{display:flex;gap:18px;align-items:center;flex:1;width:100%;justify-content:center;}
   .question-box{flex:1;padding:18px;border-radius:10px;background:rgba(255,255,255,0.02);min-height:160px;display:flex;align-items:center}
   .question-text{font-size:1.25rem;line-height:1.45;color:#eaf6ef}
 
@@ -283,11 +283,6 @@ overflow-y: auto;
       <button class="btn-large btn-yes" id="btn-yes">YES</button>
       <button class="btn-large btn-dk" id="btn-dk">???</button>
       <button class="btn-large btn-no" id="btn-no">NO</button>
-    </div>
-
-    <div class="footer-stats" id="footer-stats">
-      <div id="stat-candidates">候補: -</div>
-      <div id="stat-steps">Step: 0</div>
     </div>
 
   </main>
@@ -629,10 +624,6 @@ function render(data) {
     if (data.stats) {
         document.getElementById('stat-text').innerText =
             `候補: ${data.stats.candidates_count}人 · Step: ${data.stats.steps}`;
-        document.getElementById('stat-candidates').innerText =
-            `候補: ${data.stats.candidates_count}`;
-        document.getElementById('stat-steps').innerText =
-            `Step: ${data.stats.steps}`;
     }
 
     const qBox = document.getElementById('question-box');
