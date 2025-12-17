@@ -354,7 +354,7 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
         all_people.update(filtered) # セットに追加
         time.sleep(sleep) # セットに追加、API負荷軽減
     
-        all_people.update(people); time.sleep(sleep) # セットに追加、API負荷軽減
+        all_people.update(filtered); time.sleep(sleep) # セットに追加、API負荷軽減
 
     people_list = sorted(list(all_people)) # リスト化・ソート
 
@@ -396,7 +396,7 @@ def fetch_wikidata_entity(wikibase_id):
         data = res.json() # JSON解析
         entity = data.get("entities", {}).get(wikibase_id, {}) # エンティティ取得
         claims = entity.get("claims", {}) # クレーム取得
-        result = {} # 抽出結果
+        result = {"claims": claims} # 抽出結果
         
         # P106 (職業)
         if "P106" in claims:
@@ -455,7 +455,7 @@ def fetch_wikidata_entity(wikibase_id):
         return None
 
 # Janomeトークナイザーインスタンス
-tokenizer = Tokenizer()
+tokenizer = Tokenizer() if JANOME_TOKENIZER else None
 
 # -----------------------
 # テキストクリーンアップ
@@ -1648,7 +1648,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     # 相互排他グループ定義
     MUTEX_GROUPS = {
         "age": {"age_10s", "age_20s", "age_30s", "age_40s", "age_50s", "age_60s"},
-        "born": {"born_1950s", "born_1960s", "born_1970s", "born_1980s", "born_1990s", "born2000s"},
+        "born": {"born_1950s", "born_1960s", "born_1970s", "born_1980s", "born_1990s", "born_2000s"},
         "blood": {"blood_A", "blood_B", "blood_O", "blood_AB"},
     }
     KEY_TO_GROUP = {}

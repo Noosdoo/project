@@ -376,7 +376,7 @@ overflow-y: auto;
 
     guessCard.style.display = 'none';
     qBox.style.display = 'flex';
-    document.getElementById('question-text').innerText = `${lastGuessData.name} を記憶の中に格納しました。`;
+    document.getElementById('question-text').innerText = `${name} を記憶の中に格納しました。`;
   }
 
   function addSavedPerson(name) {
@@ -446,6 +446,8 @@ overflow-y: auto;
         }
         return; // ここで終了
     }
+    
+    let lastGuessData = null;
     
     // 2. 【記憶】推測画面（一人）で「YES」が押された場合（正解！）
     if (isGuessing && ans === 'yes') {
