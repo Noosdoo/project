@@ -1648,7 +1648,7 @@ def akinator_play(dataset, selected_categories=None, max_questions=1000, analysi
     # 相互排他グループ定義
     MUTEX_GROUPS = {
         "age": {"age_10s", "age_20s", "age_30s", "age_40s", "age_50s", "age_60s"},
-        "born": {"born_1950s", "born_1960s", "born_1970s", "born_1980s", "born_1990s", "born2000s"},
+        "born": {"born_1950s", "born_1960s", "born_1970s", "born_1980s", "born_1990s", "born_2000s"},
         "blood": {"blood_A", "blood_B", "blood_O", "blood_AB"},
     }
     KEY_TO_GROUP = {}
