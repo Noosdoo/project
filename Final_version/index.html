@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>著名人検索システム — Sidebar App</title>
+<style>
+  :root{
+    --bg: #0f1724;       /* 深めの夜色 */
+    --panel: #0b1220;    /* サイド/パネル */
+    --card: #0f1724;
+    --muted: #9aa4b2;
+    --accent: #12b981;   /* 緑で差別化 */
+    --danger: #ff5c5c;
+    --glass: rgba(255,255,255,0.03);
+    --radius: 10px;
+    --gap: 14px;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;color:#e6eef3}
+
+  /* Layout */
+  .app {
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    gap:20px;
+    padding:20px;
+    max-width:1200px;
+    margin:24px auto;
+    align-items:start;
+  }
+  
+  /* Sidebar */
+  .sidebar{
+    background:var(--panel);
+    border-radius:12px;
+    padding:16px;
+    height: calc(100vh - 64px);
+    overflow:auto;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+
+  /* スライドパネル共通 */
+.slide-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100%;
+  background: var(--panel);
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+/* 表示状態 */
+.slide-panel.open {
+  transform: translateX(0);
+}
+
+/* ヘッダー */
+.slide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* タイトル */
+#slide-title {
+  white-space: nowrap;
+}
+
+/* 閉じるボタン */
+#memory-close {
+background: transparent;
+border: none;
+color: var(--muted);
+font-size: 0.9rem;
+cursor: pointer;
+}
+
+/* ホバー効果 */
+#memory-close:hover {
+color: var(--accent);
+}
+
+
+/* 中身 */
+.memory-screen-list {
+padding: 16px 20px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+overflow-y: auto;
+}
+  /* Sidebar elements */
+  .brand{font-weight:700;font-size:1.05rem;margin-bottom:12px;color:var(--accent)}
+  .section{margin-bottom:18px}
+  label{display:block;font-size:0.8rem;color:var(--muted);margin-bottom:8px}
+  select,input{width:100%;padding:10px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit}
+  select option {
+  color: black;
+  background: white;
+  }
+  button.primary{width:100%;padding:10px;border-radius:8px;border:none;background:var(--accent);color:#02211a;font-weight:700;cursor:pointer}
+  .small-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
+  .small2-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--accent);color:#02211a;font-weight:700;cursor:pointer}
+  .blue-btn{background: #007bff;}
+
+  /* history list */
+  .history-list{display:flex;flex-direction:column;gap:8px}
+  .history-item{padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);font-size:0.9rem;color:var(--muted);display:flex;align-items:center;}
+  .history-item .tag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:0.75rem;margin-right:8px;white-space:nowrap;}
+  .tag-yes{background:rgba(18,185,129,0.12);color:var(--accent)}
+  .tag-no{background:rgba(255,92,92,0.08);color:var(--danger)}
+  .tag-dk{background:rgba(255,255,255,0.02);color:var(--muted)}
+
+  /* Main */
+  .main{
+    padding:22px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);min-height:70vh;border:1px solid rgba(255,255,255,0.03)
+  }
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .title{font-size:1.15rem;font-weight:700}
+  .meta{font-size:0.85rem;color:var(--muted)}
+
+  .question-area{display:flex;gap:18px;align-items:center;flex:1;width:100%;justify-content:center;}
+  .question-box{flex:1;padding:18px;border-radius:10px;background:rgba(255,255,255,0.02);min-height:160px;display:flex;align-items:center}
+  .question-text{font-size:1.25rem;line-height:1.45;color:#eaf6ef}
+
+  .guess-card{width:320px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.01);display:flex;flex-direction:column;align-items:center;gap:10px}
+  .guess-card img{width:100%;height:auto;max-height: 300px;object-fit:contain;border-radius:8px}
+  .guess-name{font-weight:700;color:var(--accent);font-size:1.15rem}
+  .guess-sub{font-size:0.9rem;color:var(--muted)}
+
+  /* Controls */
+  .controls{display:flex;gap:12px;margin-top:18px}
+  .btn-large{flex:1;padding:18px;border-radius:12px;border:none;font-weight:800;font-size:1.05rem;cursor:pointer}
+  .btn-yes{background:var(--accent);color:#052018}
+  .btn-dk{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  .btn-no{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--danger)}
+
+  /* Footer stats */
+  .footer-stats{display:flex;gap:12px;margin-top:18px;font-size:0.9rem;color:var(--muted)}
+
+  /* Loader (subtle) */
+  .loader{height:6px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden}
+  .loader > .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#2dd4bf);transition:width 240ms ease}
+
+  /* Responsive */
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr;padding:12px}
+    .sidebar{height:auto;order:2}
+    .main{order:1}
+    .guess-card{width:100%}
+    .question-area{flex-direction:column}
+    .controls{flex-direction:column}
+  }
+
+  /* Candidates list */
+  #candidates-list {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .candidate-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #2b1b3a;   /* ダークなカードに変更（テーマに合わせる） */
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.12s ease;
+  }
+  .candidate-card:hover{ transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+
+  .candidate-card img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #111;
+  }
+  
+  /* 名前 */
+  .candidate-name {
+    color: #f7f7f9;           
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* セクションボタン */
+  .section-button {
+      all: unset;               
+  display: block;
+  width: 100%;
+  cursor: pointer;
+
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+
+  transition: color 0.15s ease;
+}
+
+/* セクションボタンのホバー効果 */
+.sectio-button:hover {
+  color: var(--accent);
+
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" aria-label="サイドバー">
+    <div class="brand">著名人検索システム</div>
+
+    <div class="section">
+      <label for="dataset">データセット</label>
+      <select id="dataset-select" disabled>
+        <option>読み込み中...</option>
+      </select>
+      <div style="height:10px"></div>
+      <button class="primary" id="start-btn">最初から</button>
+      <div style="height:8px"></div>
+      <button class="small-btn" id="undo-btn">↩ 戻る</button>
+      <button class="small2-btn blue-btn" id="memory-btn">記憶</button>
+    </div> 
+
+    <div id="saved-people-container" style="background:rgba(255,255,255,0.04);padding:12px;margin-top:10px;border-radius:8px;display:none;">
+    <h3 style="margin:0 0 10px 0;font-size:0.95rem;color:#f7f5f5;">記憶に保存した人物</h3>
+    <div id="saved-list"></div>
+</div>
+
+
+    <div class="section">
+      <label>回答ログ</label>
+      <div class="history-list" id="history-list"></div>
+    </div>
+
+    <div style="margin-top:20px;color:var(--muted);font-size:0.8rem">API: <span id="api-host">--</span></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="title">著名人検索システム</div>
+        <div class="meta">探している人物を当てます</div>
+      </div>
+      <div class="meta" id="stat-text">候補: - 人 · Step: 0</div>
+    </div>
+
+    <div class="loader" id="loader" style="display:none"><div class="bar" id="loader-bar"></div></div>
+
+    <div class="question-area">
+      <div class="question-box" id="question-box">
+        <div class="question-text" id="question-text">データセットを選んで「最初から」を押してください。</div>
+      </div>
+
+      <div class="guess-card" id="guess-card" style="display:none">
+        <img id="guess-img" src="" alt="人物画像" />
+        <div class="guess-name" id="guess-name">--</div>
+        <div class="guess-sub" id="guess-sub">この人ですか？</div>
+      </div>
+    </div>
+
+    <div id="candidates-header" style="display:none;font-size:1.2rem;font-weight:700;margin:16px 0;color:#e6eef3">この中に探している人物はいますか？</div>
+    <div id="candidates-list">
+      <div id="candidates-header" style="font-size:1.1rem;font-weight:700;margin-bottom:10px;color:#e6eef3;display:none;">この中に探している人物はいますか？</div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-large btn-yes" id="btn-yes">YES</button>
+      <button class="btn-large btn-dk" id="btn-dk">???</button>
+      <button class="btn-large btn-no" id="btn-no">NO</button>
+    </div>
+
+  </main>
+</div>
+
+<!-- 記憶スライド画面 -->
+<div id="memory-screen" class="slide-panel">
+  <div class="slide-header">
+    <span id="slide-title">思い出した人物</span>
+    <button id="memory-close" class="small2-btn">閉じる</button>
+  </div>
+
+  <div id="memory-screen-list" class="memory-list"></div>
+</div>
+
+
+<script>
+  const API = 'http://127.0.0.1:5000';
+  document.getElementById('api-host').innerText = API;
+
+  let currentQuestionKey = null;
+  let isGuessing = false;
+  let isCandidatesMode = false;
+  let historyLog = [];
+  let lastGuessData = null;
+  const rememberedPeople = [];
+
+  function startLoading(){
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('loader-bar').style.width = '10%';
+    clearInterval(window._loadInt);
+    let p = 10;
+    window._loadInt = setInterval(()=>{ p = Math.min(90, p + Math.random()*6); document.getElementById('loader-bar').style.width = p + '%'; if(p>=90) clearInterval(window._loadInt); }, 160);
+  }
+
+  function stopLoading(){
+    clearInterval(window._loadInt);
+    document.getElementById('loader-bar').style.width = '100%';
+    setTimeout(()=>{ document.getElementById('loader').style.display = 'none'; }, 220);
+  }
+
+  async function loadDatasets(){
+    startLoading();
+    try{
+      const res = await fetch(`${API}/datasets`);
+      const data = await res.json();
+      const sel = document.getElementById('dataset-select');
+      sel.innerHTML='';
+      if(!data || !Array.isArray(data.datasets) || data.datasets.length===0){
+        const opt = document.createElement('option'); opt.text = 'データセットが見つかりません'; sel.add(opt); sel.disabled=true; return;
+      }
+      data.datasets.forEach(d=>{
+        const opt = document.createElement('option'); opt.value=d.id; opt.text = d.label; if(d.is_default) opt.selected=true; sel.add(opt);
+      });
+      sel.disabled=false;
+    }catch(e){ console.error(e); alert('データセットの読み込みに失敗しました'); }
+    finally{ stopLoading(); }
+  }
+
+  function pushHistory(text, ans){
+    historyLog.push({question:text, answer:ans});
+    renderHistory();
+  }
+
+  function renderHistory(){
+    const list = document.getElementById('history-list'); list.innerHTML='';
+    historyLog.slice().reverse().forEach(h=>{
+      const div = document.createElement('div'); div.className='history-item';
+      const tag = document.createElement('span');
+      tag.className = 'tag ' + (h.answer==='yes'? 'tag-yes': h.answer==='no' ? 'tag-no' : 'tag-dk');
+      tag.textContent = h.answer==='yes'? 'YES' : h.answer==='no' ? 'NO' : '???';
+      div.appendChild(tag);
+      const t = document.createElement('span'); t.textContent = ' ' + h.question; div.appendChild(t);
+      list.appendChild(div);
+    });
+  }
+
+  async function startGame(){
+    historyLog = []; renderHistory();
+    const dsId = document.getElementById('dataset-select').value;
+    startLoading();
+    try{
+      const res = await fetch(`${API}/start`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({dataset_id: dsId})});
+      const data = await res.json(); render(data);
+    }catch(e){ console.error(e); alert('エラーが発生しました'); }
+    finally{ stopLoading(); }
+  }
+
+  function showSavedMessage(name) {
+    const qBox = document.getElementById('question-box');
+    const guessCard = document.getElementById('guess-card')
+
+    guessCard.style.display = 'none';
+    qBox.style.display = 'flex';
+    document.getElementById('question-text').innerText = `${name} を記憶の中に格納しました。`;
+  }
+
+  function addSavedPerson(name) {
+    const area = document.getElementById('saved-list');
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerText = name;
+    area.appendChild(div);
+}
+
+  function renderMemoryScreen() {
+  const area = document.getElementById('memory-screen-list');
+  area.innerHTML = '';
+
+  rememberedPeople.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'candidate-card'; // 既存デザイン流用
+
+     //クリックで参照元へ
+    card.addEventListener('click', () => {
+        console.log('clicked:', p);
+      if (p.source_url) {
+        window.open(p.source_url, '_blank');
+      }
+    });
+
+    if (p.image_url) {
+      const img = document.createElement('img');
+      img.src = p.image_url;
+      card.appendChild(img);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'candidate-name';
+    name.innerText = p.name;
+
+    card.appendChild(name);
+    area.appendChild(card);
+  });
+}
+
+
+  async function sendAnswer(ans){
+    console.log("sendAnswer", ans, "isGuessing:", isGuessing, "isCandidatesMode:", isCandidatesMode);
+
+    // 1. 【リカバリー】候補リスト画面で「NO」が押された場合
+    if (ans === 'no' && isCandidatesMode) {
+        // ローディング表示
+        startLoading();
+        
+        // サーバーへ特殊な回答 "reject_candidates" を送信
+        try {
+            const res = await fetch(`${API}/answer`, {
+                method: 'POST', 
+                headers: {'Content-Type':'application/json'}, 
+                body: JSON.stringify({
+                    answer: "reject_candidates", // 「リストにはいないからリカバリー頼む」という合図
+                    question_key: null 
+                })
+            });
+            const data = await res.json();
+            stopLoading();
+            render(data);
+        } catch(e) {
+            console.error(e);
+            stopLoading();
+        }
+        return; // ここで終了
+    }
+    
+    // 2. 【記憶】推測画面（一人）で「YES」が押された場合（正解！）
+    if (isGuessing && ans === 'yes') {
+        if (lastGuessData) {
+            // 記憶配列に追加
+            rememberedPeople.push({
+                name: lastGuessData.name,
+                image_url: lastGuessData.image_url,
+                source_url: lastGuessData.source_url
+            });
+            
+            // 画面右のスライドメニューなどを更新
+            renderMemoryScreen();
+
+            // 左サイドバーのリストにも追加して表示
+            document.getElementById('saved-people-container').style.display = 'block';
+            addSavedPerson(lastGuessData.name);
+
+            // メイン画面を「格納しました」メッセージに切り替え
+            showSavedMessage(lastGuessData.name);
+        }
+        
+        // ボタン操作を無効化して、サーバー通信せずに終了
+        toggleControls(false);
+        return; 
+    }
+
+    // 3. 通常の質問回答処理
+    if(!isGuessing && currentQuestionKey){
+      const qText = document.getElementById('question-text').innerText;
+      pushHistory(qText, ans);
+    }
+    
+    try{
+      startLoading();
+      const res = await fetch(`${API}/answer`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        answer:ans, 
+        question_key: currentQuestionKey
+        })
+      });
+      const data = await res.json();
+      stopLoading();
+      render(data);
+    }catch(e){
+      console.error(e);
+      stopLoading();
+    }
+  }
+
+  async function undo(){
+    try{
+      const res = await fetch(`${API}/undo`, {method:'POST'});
+      const data = await res.json();
+      if(historyLog.length) historyLog.pop(); renderHistory();
+      render(data);
+    }catch(e){ console.error(e); }
+  }
+
+  // 候補一覧を描画する関数
+// 候補一覧を描画する関数
+function renderCandidatesList(list) {
+    const area = document.getElementById("candidates-list");
+    const header = document.getElementById("candidates-header");
+
+    // 初期化
+    area.innerHTML = "";
+    area.style.display = "flex";
+
+    // ヘッダー表示
+    header.style.display = "block";
+    header.innerText = `この中に探している人物はいますか？（${list.length}名）`;
+
+    // リスト画面でNOボタンを押せるようにする
+    toggleControls(false); // 一旦全無効
+    const btnNo = document.getElementById('btn-no');
+    btnNo.disabled = false;
+    btnNo.style.opacity = '1';
+    btnNo.style.cursor = 'pointer';
+
+    // 推測カードと質問を隠す
+    document.getElementById('guess-card').style.display = 'none';
+    document.getElementById('question-box').style.display = 'none';
+
+    // 候補カード生成
+    list.forEach(c => {
+        const card = document.createElement("div");
+        card.className = "candidate-card";
+
+        // クリックしたら候補選択
+        card.addEventListener("click", () => {
+            chooseCandidate(c.name);
+        });
+
+        // 名前
+        const name = document.createElement("div");
+        name.className = "candidate-name";
+        name.innerText = c.name;
+
+        card.appendChild(name);
+        area.appendChild(card);
+    });
+}
+
+function chooseCandidate(name) {
+  // 候補一覧を閉じる
+  document.getElementById("candidates-list").style.display = "none";
+
+  // ローディング開始
+  startLoading();
+
+  fetch(API + "/answer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answer: "force_choose", person_name: name })
+  })
+  .then(res => res.json())
+  .then(data => {
+    stopLoading();
+    // ensure guess card is visible via render
+    render(data);
+  })
+  .catch(err => {
+    stopLoading();
+    console.error(err);
+  });
+}
+
+// 降参画面を表示する関数
+function showGiveUpScreen() {
+    const qBox = document.getElementById('question-box');
+    const guessCard = document.getElementById('guess-card');
+    const qText = document.getElementById('question-text');
+
+    // 候補リストや推測カードを隠して、質問ボックスを表示
+    document.getElementById("candidates-list").style.display = "none";
+    document.getElementById("candidates-header").style.display = "none";
+    qBox.style.display = "flex";
+    guessCard.style.display = "none";
+
+    // 降参画面のHTMLをセット
+    qText.innerHTML = `
+        <div style="font-size:3rem; margin-bottom:10px;">🙇</div>
+        <div style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">降参です...</div>
+        <div style="font-size:0.95rem; color:#94a3b8; margin-bottom:20px;">
+            正解の人物名を教えていただければ、<br>今すぐ学習して次から当てられるようにします。
+        </div>
+        
+        <div style="display:flex; gap:10px; max-width:400px; margin:0 auto;">
+            <input type="text" id="learn-name" placeholder="人物名を入力" 
+                   style="padding:12px; border-radius:8px; border:1px solid #334155; background:#0f1724; color:white; flex:1;">
+            <button onclick="learnPerson()" style="padding:12px 20px; border-radius:8px; border:none; background:#10b981; color:#022c22; font-weight:bold; cursor:pointer;">
+                学習させる
+            </button>
+        </div>
+        <div id="learn-msg" style="margin-top:15px; font-size:0.9rem; min-height:1.2em;"></div>
+    `;
+
+    toggleControls(false); // ボタンを押せないようにする
+}
+
+function render(data) {
+    if (!data) return;
+
+    // リカバリー発生時のメッセージ表示
+    if (data.recovery_message) {
+        alert("🔄 " + data.recovery_message);
+    }
+
+    // モードを一旦リセット（毎回 false に戻す）
+    isCandidatesMode = false;
+
+    // === Stats 更新 ===
+    if (data.stats) {
+        document.getElementById('stat-text').innerText =
+            `候補: ${data.stats.candidates_count}人 · Step: ${data.stats.steps}`;
+    }
+
+    const qBox = document.getElementById('question-box');
+    const qText = document.getElementById('question-text');
+    const guessCard = document.getElementById('guess-card');
+
+    // 候補リスト系は一旦隠す
+    document.getElementById("candidates-list").style.display = "none";
+    document.getElementById("candidates-header").style.display = "none";
+
+    // ゲームオーバー（降参）画面の表示ロジック
+    // confidenceが0なら諦めたとみなす
+    if (data.type === "guess" && data.confidence === 0) {
+        showGiveUpScreen();
+        return;
+    }
+
+    // === 通常の質問 ===
+    if (data.type === "question") {
+        isGuessing = false;
+        currentQuestionKey = data.key;
+
+        // 候補リストとヘッダーを閉じる
+        document.getElementById("candidates-list").style.display = "none";
+        document.getElementById("candidates-header").style.display = "none";
+
+        qBox.style.display = "flex";
+        guessCard.style.display = "none";
+
+        qText.innerText = data.text;
+
+        toggleControls(true);
+        return;
+    }
+
+    // === 推測（1人の時） ===
+    if (data.type === "guess") {
+        isGuessing = true;
+        currentQuestionKey = null;
+
+        lastGuessData = {
+          name: data.name,
+          image_url: data.image_url,
+          source_url: data.source_url
+        };
+
+        // 候補リストを非表示
+        document.getElementById("candidates-list").style.display = "none";
+        document.getElementById("candidates-header").style.display = "none";
+
+        qBox.style.display = "none";
+        guessCard.style.display = "flex";
+
+        document.getElementById('guess-name').innerText = data.name || "—";
+
+        const img = document.getElementById("guess-img");
+        if (data.image_url) {
+            img.src = data.image_url;
+            img.style.display = "block";
+        } else {
+            img.style.display = "none";
+        }
+
+        toggleControls(true);
+        return;
+    }
+
+    // === 候補一覧 ===
+    if (data.type === "candidates_list") {
+        currentQuestionKey = data.key; // 必要に応じてセット
+        isCandidatesMode = true; // 候補一覧モードに切り替え
+        renderCandidatesList(data.candidates);
+        return;
+    }
+}
+
+function toggleControls(enabled){
+    document.getElementById('btn-yes').disabled = !enabled;
+    document.getElementById('btn-dk').disabled = !enabled;
+    document.getElementById('btn-no').disabled = !enabled;
+    const c = enabled? '1':'0.5';
+    document.querySelectorAll('.btn-large').forEach(b=> b.style.opacity = c);
+  }
+
+  // Bind UI
+  document.getElementById('start-btn').addEventListener('click', startGame);
+  document.getElementById('undo-btn').addEventListener('click', undo);
+  document.getElementById('btn-yes').addEventListener('click', ()=> sendAnswer('yes'));
+  document.getElementById('btn-no').addEventListener('click', ()=> sendAnswer('no'));
+  document.getElementById('btn-dk').addEventListener('click', ()=> sendAnswer('dont_know'));
+
+  // init
+  window.addEventListener('load', ()=>{ loadDatasets(); toggleControls(false); });
+
+  const memoryBtn = document.getElementById('memory-btn');
+  const memoryScreen = document.getElementById('memory-screen');
+  const memoryClose = document.getElementById('memory-close');
+
+  // 人物を追加学習させる関数
+  async function learnPerson() {
+    const nameInput = document.getElementById('learn-name');
+    const msgBox = document.getElementById('learn-msg');
+    const name = nameInput.value.trim();
+
+    if (!name) {
+        alert("名前を入力してください");
+        return;
+    }
+
+    msgBox.style.color = "#94a3b8";
+    msgBox.innerText = "学習中...（Wikipediaを検索しています）";
+    nameInput.disabled = true;
+
+    try {
+        const res = await fetch(`${API}/add_person`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: name})
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            msgBox.style.color = "#10b981";
+            msgBox.innerText = "✅ " + data.message;
+            setTimeout(() => { alert("学習完了！最初の画面に戻ります。"); location.reload(); }, 2000);
+        } else {
+            msgBox.style.color = "#ef4444";
+            msgBox.innerText = "エラー: " + (data.error || "失敗しました");
+            nameInput.disabled = false;
+        }
+    } catch (e) {
+        msgBox.style.color = "#ef4444";
+        msgBox.innerText = "通信エラーが発生しました";
+        nameInput.disabled = false;
+    }
+  }
+
+if (memoryBtn && memoryScreen && memoryClose) {
+  memoryBtn.addEventListener('click', () => {
+    renderMemoryScreen();
+    memoryScreen.classList.add('open');
+  });
+
+  memoryClose.addEventListener('click', () => {
+    memoryScreen.classList.remove('open');
+  });
+}
+
+</script>
+
+</body>
+</html>
