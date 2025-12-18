@@ -479,7 +479,7 @@ def find_next_action():
             "type": "guess",
             "name": name,
             "image_url": image_url,
-            "source_url": f"https://ja.wikipedia.org/wiki/{top_person['name']}",
+            "source_url": f"https://ja.wikipedia.org/wiki/{name}",
             "confidence": 100,
             "stats": stats
         }
