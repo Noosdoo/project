@@ -354,7 +354,7 @@ def collect_people(categories=CATEGORIES, cmlimit=50, depth=0, sleep=1.5, save_p
         all_people.update(filtered) # セットに追加
         time.sleep(sleep) # セットに追加、API負荷軽減
     
-        all_people.update(people); time.sleep(sleep) # セットに追加、API負荷軽減
+        all_people.update(filtered); time.sleep(sleep) # セットに追加、API負荷軽減
 
     people_list = sorted(list(all_people)) # リスト化・ソート
 
@@ -396,7 +396,7 @@ def fetch_wikidata_entity(wikibase_id):
         data = res.json() # JSON解析
         entity = data.get("entities", {}).get(wikibase_id, {}) # エンティティ取得
         claims = entity.get("claims", {}) # クレーム取得
-        result = {"claims": claims}
+        result = {"claims": claims} # 抽出結果
         
         # P106 (職業)
         if "P106" in claims:

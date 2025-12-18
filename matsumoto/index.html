@@ -307,6 +307,7 @@ overflow-y: auto;
   let isGuessing = false;
   let isCandidatesMode = false;
   let historyLog = [];
+  let lastGuessData = null;
   const rememberedPeople = [];
 
   function startLoading(){
@@ -376,8 +377,7 @@ overflow-y: auto;
 
     guessCard.style.display = 'none';
     qBox.style.display = 'flex';
-    document.getElementById('question-text').innerText = `${lastGuessData.name} を記憶の中に格納しました。`;
-
+    document.getElementById('question-text').innerText = `${name} を記憶の中に格納しました。`;
   }
 
   function addSavedPerson(name) {
