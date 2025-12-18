@@ -264,22 +264,22 @@ def handle_answer():
         for p in candidates:
             if p["name"] == person_name:
             # 画像取得
-                image_url = None
-            try:
-                image_url = logic.get_wikipedia_main_image(person_name)
-            except: pass
+               image_url = None
+               try:
+                  image_url = logic.get_wikipedia_main_image(person_name)
+               except: pass
 
-            return jsonify({
-                "type": "guess",
-                "name": person_name,
-                "image_url": image_url,
-                "confidence": 100,
-                "stats": {
-                    "candidates_count": 1,
-                    "steps": session.get("steps"),
-                    "dataset_id": session.get("dataset_id")
-                }
-            })
+               return jsonify({
+                   "type": "guess",
+                   "name": person_name,
+                   "image_url": image_url,
+                   "confidence": 100,
+                   "stats": {
+                       "candidates_count": 1,
+                       "steps": session.get("steps"),
+                       "dataset_id": session.get("dataset_id")
+                    }
+               })
         
     """ 回答を受け取り、候補を絞り込む（NO で候補一覧に戻る仕様込み） """
     # --- 1) すでに候補1人で、NOが押された場合 ---
