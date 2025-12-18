@@ -538,9 +538,13 @@ function renderCandidatesList(list) {
         const card = document.createElement("div");
         card.className = "candidate-card";
 
+        card.dataset.name = c.name;
+
         // クリックしたら候補選択
-        card.addEventListener("click", () => {
-            chooseCandidate(c.name);
+        card.addEventListener("click", (e) => {
+            const selectedName = e.currentTarget.dataset.name;
+            console.log("選択された人物:", selectedName); // デバッグ用ログ
+            chooseCandidate(selectedName);
         });
 
         // 名前
