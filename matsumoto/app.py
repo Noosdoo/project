@@ -286,6 +286,7 @@ def handle_answer():
     if answer == "no" and len(candidates) == 1:
         prev_list = session.get("prev_candidates_before_guess")
         if prev_list:
+            session["candidates"] = prev_list
             return jsonify({
                 "type": "candidates_list",
                 "candidates": prev_list,
