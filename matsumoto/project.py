@@ -455,7 +455,7 @@ def fetch_wikidata_entity(wikibase_id):
         return None
 
 # Janomeトークナイザーインスタンス
-tokenizer = Tokenizer() if JANOME_TOKENIZER else None
+tokenizer = Tokenizer()
 
 # -----------------------
 # テキストクリーンアップ
